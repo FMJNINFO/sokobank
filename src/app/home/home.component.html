@@ -1,98 +1,22 @@
 {{title}}<br/>
 
-<sudoku></sudoku>
-
-<table class="fullbox">
-    <tr>
-        <td class="boxentry">
-            <table class="box">
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="1"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="2"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="3"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="7"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="9"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="8"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="4"></td>
-                </tr>
-            </table>            
-        </td>
-        <td class="boxentry">
-            <table class="box">
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="1"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="2"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="3"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="7"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="9"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="8"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="4"></td>
-                </tr>
-            </table>            
-        </td>
-    </tr>
-    <tr>
-        <td class="boxentry">
-            <table class="box">
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="1"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="2"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="3"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="7"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="9"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="8"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="4"></td>
-                </tr>
-            </table>            
-        </td>
-        <td class="boxentry">
-            <table class="box">
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="1"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="2"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="3"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value=""></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="7"></td>
-                </tr>
-                <tr>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="9"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="8"></td>
-                    <td class="entry"><input class="cipher" type="text" [maxLength]="1" value="4"></td>
-                </tr>
-            </table>            
-        </td>
-    </tr>
-</table>
-
-<br/>
-<br/>
-<br/>
+<sudoku [board]="board"></sudoku>
 
 <input type="text" #input [value]="title" (keyup)="updateTitle(input.value)">
 <br/>
+
+<button type="button" (click)="doFindLonelyCipher($event)" clickable>Find Lonely Cipher</button>
+<br/>
+<button type="button" (click)="doFindClosedGroup($event)" clickable>Find Closed Group</button>
+<br/>
+<button type="button" (click)="doFindUniqueCiphers($event)" clickable>Find Unique Cipher</button>
+<br/>
+<button type="button" (click)="doFillAutomatic($event)" clickable>Fill Automatic</button>
+
+<!--
 <button type="button" (click)="clickTest1($event)" clickable>Test1</button>
 <br/>
 <button type="button" (click)="clickTest5($event)" clickable>Test5</button>
 <br/>
 <button type="button" (click)="clickTest6($event)" clickable>Test6</button>
+-->

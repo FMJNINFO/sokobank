@@ -7,12 +7,16 @@ import { HomeComponent } from './home/home.component';
 import { SudokuComponent } from './sudoku/sudoku.component';
 import { CipherComponent } from './sudoku/cipher.component';
 import { FormsModule } from '@angular/forms';
+import { FieldComponent } from './sudoku/field.component';
+import { BoxComponent } from './sudoku/box.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     SudokuComponent,
+    FieldComponent,
+    BoxComponent,
     CipherComponent
   ],
   imports: [

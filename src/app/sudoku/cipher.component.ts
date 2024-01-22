@@ -8,6 +8,7 @@ export @Component({
 
 })
 class CipherComponent {
-    @Input('ngModel') content = new FieldContent(10, 5);
-    digit = 2;
+    @Input('ngModel') content = FieldContent.NoFieldContent;
+    _digit = 2;
 }
+

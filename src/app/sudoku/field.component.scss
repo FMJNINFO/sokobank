@@ -1,0 +1,59 @@
+.cipher {
+    font-size: 32px;
+    text-align: center;
+    padding: 2px;
+    width: 37px;
+    // background-color: lightblue;
+    border-width: 0px;
+}
+.errorCipher {
+    font-size: 32px;
+    text-align: center;
+    padding: 2px;
+    width: 37px;
+    // background-color: red;
+    border-width: 0px;
+}
+.errorField {
+    background-color: red;
+}
+.normalField {
+    background-color: lightblue;
+}
+.emptyField {
+    width: 37px;
+    height: 37px;
+    background-color: lightblue;
+    border-width: 0px;
+    padding: 2px;
+    align-items: start;
+}
+.entry {
+    border-style: solid;
+    border-color:green;
+    padding: 0;
+}
+.allowedCipher {
+    margin-top: 0px;
+    font-size: 10px;
+    background-color: lightpink;
+    border-width: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+.emptyCipher {
+    margin-top: 0px;
+    font-size: 10px;
+    // background-color: lightblue;
+    border-width: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    padding-left: 5.5px;
+    padding-right: 3px;
+}
+.emptyFieldTable {
+    border-color: black;
+    border-spacing: 1px;
+}

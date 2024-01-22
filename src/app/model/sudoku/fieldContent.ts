@@ -1,79 +1,104 @@
 import { CipherSet } from "./cipherset";
-import { Evaluator } from "./evaluator";
-
+import { Board } from "./board";
+import { Position } from "./position";
 
 export class FieldContent {
-    _pos: number;
-    _value: number | CipherSet;
+    static NoFieldContent = new FieldContent(Position.NoPosition, undefined, CipherSet.initCipherSet());
 
-    constructor(pos: number, value: number | CipherSet) {
+    _pos: Position;
+    _digit: number;
+    _allowed: CipherSet;
+
+    constructor(pos: Position, value: number | undefined, allowed: CipherSet = new CipherSet(...Board.AllAllowed)) {
         this._pos = pos;
         if (value == undefined) {
-            this._value = new CipherSet();
+            this._digit = 0;
+            this._allowed = allowed;
         } else {
-            this._value = value
+            this._digit = value;
+            this._allowed = new CipherSet(value)
         }
     }
 
-    get pos(): number {
+    isUndefined(): boolean {
+        return this === FieldContent.NoFieldContent;
+    }
+
+    get pos(): Position {
         return this._pos;
     }
 
     hasDigit(): boolean {
-        return typeof this._value === "number";
+        return this._digit > 0;
+    }
+
+    isEmpty(): boolean {
+        return this._digit === 0
     }
 
     get digit(): number {
-        if (typeof this._value === "number") {
-            return this._value;
+        if (this._digit > 0) {
+            return this._digit;
         }
         throw new TypeError("This field contains no digit");
     }
 
     set digit(digit: number) {
-        this._value = digit;
+        let newAllowed = CipherSet.BaseValue.get(digit);
+        this._digit = digit;
+        if (newAllowed != undefined) {
+            this._allowed.setDigit(newAllowed);
+        }
     }
 
-    hasAllowSet(): boolean {
-        return typeof this._value === "object";
+    get value(): string {
+        if (this.hasDigit()) {
+            return "" + this.digit;
+        }
+        return "empty";
+    }
+
+    set value(newValue: string) {
+        this._digit = Number.parseInt(newValue);        
+    }
+
+    getDigitString(): string {
+        if (this.hasDigit()) {
+            return this._digit.toString();
+        }
+        return "";
     }
 
     get allowSet(): CipherSet {
-        if (typeof this._value === "object") {
-            return this._value;
-        }
-        throw new TypeError("This field contains no cipherset");
+        return this._allowed;
     }
 
     setAllowSet(cs: CipherSet) {
-        this._value = cs;
+        this._allowed = cs;
     }
 
     allows(digit: number): boolean {
-        if (typeof this._value !== "object") {
-            throw new TypeError("This field already has a digit");
-        }
-        return this._value.contains(digit);        
+        // logAllowOccurrenceContent(this._pos, this._allowed);
+        return this._allowed.contains(digit);        
     }
 
     get allowSetLength(): number {
-        if (typeof this._value !== "object") {
-            throw new TypeError("This field already has a digit");
+        if (this.hasDigit()) {
+            return 0;
         }
-        return this._value.length;        
+        return this._allowed.length;        
     }
 
     copy(): FieldContent {
-        return new FieldContent(this.pos, this._value);
+        return new FieldContent(this.pos, this._digit);
     }
 
     toString(): string {
-        var coord = Evaluator.coord(this._pos);
-        var s = "["+coord.row+","+coord.col+"]";
-        if (this.hasDigit()) {
-            s += " = " + this.digit;
-        } else {
+        var s = this._pos.toString();
+        if (this.isEmpty()) {
             s += ": " + this.allowSet.toListString();
+        } else {
+            s += " = " + this.digit;
         }
         return s;
     }

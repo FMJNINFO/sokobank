@@ -1,7 +1,8 @@
 import { Board } from "./board";
 import { CipherSet } from "./cipherset";
-import { Coord, CoordValue, Evaluator } from "./evaluator";
 import { FieldContent } from "./fieldContent";
+import { Move } from "./move";
+import { Position } from "./position";
 
 var doLogBoard = true;
 var doLogOccurrences = true;
@@ -18,29 +19,16 @@ function println(s: string="") {
     console.log(s);
 }
 
-export function coordAsString(coord: Coord, short: boolean=false): string {
-    if (short) {
-        return "{" + coord.row + ", " + coord.col + "}";
-    } else {
-        return "{ row: " + coord.row + ", col: " + coord.col + ", box: " + coord.box + " }";
-    }
-}
-
-export function posAsString(pos: number, short: boolean=false): string {
-    return coordAsString(Evaluator.coord(pos), short);
-}
-
-
 export function logAllowOccurrenceHeader(groupName: string, iGrp: number) {
     if (!doLogOccurrences) return;
 
     println(groupName + " " + iGrp);
 }
 
-export function logAllowOccurrenceContent(iPos: number, allowSet: CipherSet) {
+export function logAllowOccurrenceContent(pos: Position, allowSet: CipherSet) {
     if (!doLogOccurrences) return;
 
-    println(posAsString(iPos) + " allows " + allowSet.toListString())
+    println(pos.toString() + " allows " + allowSet.toListString())
 }
 
 export function logOccurrenceCount(occCount: Map<number, number|undefined>) {
@@ -61,36 +49,36 @@ export function logBoardEvaluationHeader() {
     println("=== Board Evaluation ===");
 }
 
-export function logBoardEvaluationContent(field: FieldContent) {
+export function logBoardEvaluationContent(fieldContent: FieldContent) {
     if (!doLogBoardEvaluation)  return;
 
-    if (field.hasDigit()) {
-        println("   "+posAsString(field.pos)+" contains "+field.digit);
+    if (fieldContent.isEmpty()) {
+        println("   "+fieldContent.pos.toString()+" allows "+fieldContent.allowSet.toListString());
     } else {
-        println("   "+posAsString(field.pos)+" allows "+field.allowSet.toListString());
+        println("   "+fieldContent.pos.toString()+" contains "+fieldContent.digit);
     }
 }
 
-function allowSetAsString(field: FieldContent, short: boolean=false): string {
-    var line = posAsString(field.pos, short);
-    if (field.allowSet == undefined) {
+function allowSetAsString(fieldContent: FieldContent): string {
+    var line = fieldContent.pos.toString();
+    if (fieldContent.allowSet == undefined) {
         line = line + " already set."
     } else {        
-        line = line + " := " + field.allowSet.toListString();
+        line = line + " := " + fieldContent.allowSet.toListString();
     }
     return line;
 }
 
-export function logFieldAllowSet(context: string, field: FieldContent, short: boolean=false) {
+export function logFieldAllowSet(context: string, fieldContent: FieldContent) {
     if (!doLogAllowSet)     return;
 
-    println(context + " " +allowSetAsString(field, short));
+    println(context + " " +allowSetAsString(fieldContent));
 }
 
-export function logCoordValue(context: string, coordValue: CoordValue, short: boolean=false) {
+export function logCoordValue(context: string, move: Move) {
     if (!doLogAllowSet)     return;
 
-    var line = coordAsString(coordValue.coord, short) + " := " + coordValue.value;
+    var line = move.pos.toString() + " := " + move.value;
     println(context + " " + line);
 }
 
@@ -98,37 +86,38 @@ export function logAllowSets(board: Board): void {
     if (!doLogAllowSets)     return;
 
     var line: string;
-    var field: FieldContent;
+    var fieldContent: FieldContent;
+    var pos: Position;
 
     for (var iPos=0; iPos<81; iPos++) {
-        field = board.field(iPos);
-        line = posAsString(field.pos, true) + ": ";
-        if (field.hasAllowSet()) {
-            line = line + field.allowSet.toListString(); 
+        pos = Position.of(iPos);
+        fieldContent = board.fieldContent(pos);
+        line = fieldContent.pos.toString() + ": ";
+        if (fieldContent.isEmpty()) {
+            line = line + fieldContent.allowSet.toListString(); 
             println(line);
         }
     }
     println();
 }
 
-export function logBoard(board: Board, marked: Coord | undefined=undefined): void {
+export function logBoard(board: Board, marked: Position | undefined=undefined): void {
     if (!doLogBoard)    return;
 
-    var content: number | undefined;
     var line: string;
-    var iPos: number;
+    var pos: Position;
     var ch = " ";
 
     if (board.isFull()) {
         println("Board is completely filled.");
     } else {
-        println("Board is NOT completely filled (" + board.unfilledFieldCount() + " unfilled).");
+        println("Board is NOT completely filled (" + board.emptyFields() + " unfilled).");
     }
     println(" ");
 
-    for (let iRow of Evaluator.range) {
+    for (let iRow=0; iRow<9; iRow++) {
         line = ""
-        for (let iCol of Evaluator.range) {
+        for (let iCol=0; iCol<9; iCol++) {
             line = line + ch
             if (iCol % 3 == 0) {
                 line = line + "  ";
@@ -139,8 +128,8 @@ export function logBoard(board: Board, marked: Coord | undefined=undefined): voi
                 }
             }
             line = line + ch
-            iPos = Evaluator.rowColAsPos(iRow, iCol);
-            line = line + (board.field(iPos).hasDigit() ? board.field(iPos).digit : "_");
+            pos = Position.of(iRow * 9 + iCol);
+            line = line + (board.fieldContent(pos).hasDigit() ? board.fieldContent(pos).digit : "_");
             line = line + ch
             if (ch == "|") {
                 ch = " ";
@@ -157,31 +146,31 @@ export function logBoard(board: Board, marked: Coord | undefined=undefined): voi
 export function logEvaluationAreas(): void {
     if (!doLogEvaluationAreas)  return;
 
-    logEvaluationArea("Row", "Rows", Evaluator.EvaluationAreas.row);
-    logEvaluationArea("Col", "Columns", Evaluator.EvaluationAreas.col);
-    logEvaluationArea("Box", "Boxes", Evaluator.EvaluationAreas.box);
+    // logEvaluationArea("Row", "Rows", Evaluator.EvaluationAreas.row);
+    // logEvaluationArea("Col", "Columns", Evaluator.EvaluationAreas.col);
+    // logEvaluationArea("Box", "Boxes", Evaluator.EvaluationAreas.box);
 }
 
-function logEvaluationArea(singleName: string, multiName: string, areas: Array<Array<number>>): void {
-    println("-- " + multiName + " --");
-    var iArea: number;
-    var iEntry: number;
-    var line: string;
+// function logEvaluationArea(singleName: string, multiName: string, areas: Array<Array<number>>): void {
+//     println("-- " + multiName + " --");
+//     var iArea: number;
+//     var iEntry: number;
+//     var line: string;
 
-    for (iArea of Evaluator.range) {
-        line = singleName + " " + iArea + ":";
-        for (iEntry of Evaluator.range) {
-            line = line + " " + areas[iArea][iEntry]
-        }
-        println(line);
-    }
-    println();
-}
+//     for (iArea of Evaluator.range) {
+//         line = singleName + " " + iArea + ":";
+//         for (iEntry of Evaluator.range) {
+//             line = line + " " + areas[iArea][iEntry]
+//         }
+//         println(line);
+//     }
+//     println();
+// }
 
-export function logSingleOccurrence(coordValue: CoordValue) {
+export function logSingleOccurrence(move: Move) {
     if (!doLogSingleOccurrence) return;
 
-    println("Occurrence once: " + coordAsString(coordValue.coord) + "  := " + coordValue.value);
+    println("Occurrence once: " + move.pos.toString() + "  := " + move.value);
     println();
 }
 
@@ -199,9 +188,9 @@ export function logGroupFields(groupName: string, iGrp: number, groupField: Arra
         return;
     }
     println(groupName + " " + iGrp);
-    for (var field of groupField) {
-        if (field.allowSet != undefined) {
-            println("   " + posAsString(field.pos) + " = " + field.allowSet.toListString() )
+    for (var fieldContent of groupField) {
+        if (fieldContent.allowSet != undefined) {
+            println("   " + fieldContent.pos.toString() + " = " + fieldContent.allowSet.toListString() )
         }
     }
     println();
@@ -214,20 +203,20 @@ export function logGroup(groupName: string, groupFields: Array<FieldContent>) {
         return;
     }
     println(groupName);
-    for (var field of groupFields) {
-        if (field.allowSet != undefined) {
-            println("   " + posAsString(field.pos) + " = " + field.allowSet.toListString() )
+    for (var fieldContent of groupFields) {
+        if (fieldContent.allowSet != undefined) {
+            println("   " + fieldContent.pos.toString() + " = " + fieldContent.allowSet.toListString() )
         }
     }
     println();
 }
 
-export function logImpossibleField(field: FieldContent) {
-    println("Field " + posAsString(field.pos) + " has now allowed digits.");
+export function logImpossibleField(fieldContent: FieldContent) {
+    println("Field " + fieldContent.pos.toString() + " has now allowed digits.");
 }
 
-export function logTrialField(field: FieldContent, digit: number) {
-    println("Try " + posAsString(field.pos) + " = " + digit);
+export function logTrialField(fieldContent: FieldContent, digit: number) {
+    println("Try " + fieldContent.pos.toString() + " = " + digit);
 }
 
 export function logBoardDifference(header: string, preBoard: Board, postBoard: Board) {
@@ -239,22 +228,24 @@ export function logBoardDifference(header: string, preBoard: Board, postBoard: B
     var s: string;
     var contentChanged: boolean;
     var allowSetChanged: boolean;
+    var pos: Position;
 
     for (let iPos=0; iPos<81; iPos++) {
-        preField = preBoard.field(iPos);
-        postField = postBoard.field(iPos);
+        pos = Position.of(iPos);
+        preField = preBoard.fieldContent(pos);
+        postField = postBoard.fieldContent(pos);
 
         contentChanged = !(preField.hasDigit() && postField.hasDigit() && (preField.digit == postField.digit)
-                        || (!preField.hasDigit() && !postField.hasDigit()));
-        allowSetChanged = !(preField.hasAllowSet() && postField.hasAllowSet() && (preField.allowSet.value == postField.allowSet.value)
-                        || (!preField.hasAllowSet() && !postField.hasAllowSet()));
+                        || (preField.isEmpty() && postField.isEmpty()));
+        allowSetChanged = !(preField.isEmpty() && postField.isEmpty() && (preField.allowSet.value == postField.allowSet.value)
+                        || (preField.hasDigit() && postField.hasDigit()));
 
         if (contentChanged || allowSetChanged) {
             if (! headerPrinted) {
                 println(header);
                 headerPrinted = true;
             }
-            s = "   " + posAsString(iPos, true);
+            s = "   " + pos.toString();
             s += " {"
             if (contentChanged) {
                 s += " contains "+preField.digit;
@@ -281,8 +272,8 @@ export function logCleaning(cleanedSubset: Array<FieldContent>, cleanedBy: Ciphe
     if (!doLogCleaning) return;
 
     var s = "   Clean {";
-    for (let field of cleanedSubset) {
-        s += " " + posAsString(field.pos, true) + " ";
+    for (let fieldContent of cleanedSubset) {
+        s += " " + fieldContent.pos.toString() + " ";
     }
     s += "} by ";
     s += cleanedBy.toListString();
