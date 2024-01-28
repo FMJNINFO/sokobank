@@ -17,13 +17,13 @@ export class Board {
         let pos: Position;
         for (let iPos = 0; iPos < 81; iPos++) {
             pos = Position.of(iPos);
-            this._fields.set(pos, new FieldContent(pos, undefined, new CipherSet(...Board.AllAllowed)));
+            this._fields.set(pos, new FieldContent(new Move(pos, Move.SRC_PRESET), new CipherSet(...Board.AllAllowed)));
         }
     }
 
     stopInitialize(): void {
         this.initializing = false;
-        this.evaluateAll();
+        this._evaluateAll();
     }
 
     fieldContent(pos: Position): FieldContent {
@@ -36,40 +36,22 @@ export class Board {
 
     add(move: Move) {
         let fieldContent = this.fieldContent(move.pos);
-        if (!fieldContent.hasDigit() || fieldContent.digit != move.digit) {
-            this.fieldContent(move.pos).digit = move.digit;
+        if (!fieldContent.hasDigit() || fieldContent.digit() != move.digit) {
+            this.fieldContent(move.pos).setDigit(move.digit, move.source);
             for (let group of move.pos.groups) {
-                this.evaluateGroup(group);
+                this._evaluateGroup(group);
             }
-            this.evaluateAt(move.pos);
+            this._evaluateAt(move.pos);
+            this._errors = this.searchErrors();
         }
-    }
-
-    set(pos: Position, content: number) {
-        let fieldContent = this.fieldContent(pos);
-        if (!fieldContent.hasDigit() || fieldContent.digit != content) {
-            this.fieldContent(pos).digit = content;
-            for (let group of pos.groups) {
-                this.evaluateGroup(group);
-            }
-            this.evaluateAt(pos);
-            this.lookForErrors();
-        }
-    }
-
-    fields(): Position[] {
-        return Array.from(this._fields.keys());
-    }
-
-    hasErrors(): boolean {
-        return this._errors.size > 0;
     }
 
     hasError(pos: Position): boolean {
         return this._errors.has(pos);
     }
 
-    lookForErrors() {
+    searchErrors(): Set<Position> {
+        var errors: Set<Position> = new Set();
         var digits: number[];
         var unique: Set<number>;
         var fieldContents: FieldContent[];
@@ -79,32 +61,31 @@ export class Board {
         this.fieldContents(Position.pool())
             .filter((fc) => !fc.hasDigit())
             .filter((fc) => fc.allowSet.isEmpty())
-            .forEach((fc) => this._errors.add(fc.pos));
+            .forEach((fc) => errors.add(fc.pos));
 
         for (let grp of Position.allGrps()) {
             fieldContents = this.fieldContents(grp).filter((fc) => fc.hasDigit());
-            digits = fieldContents.map((fc) => fc.digit);
+            digits = fieldContents.map((fc) => fc.digit());
             unique = new Set(digits);
             if (digits.length != unique.size) {
                 for (let digit of digits) {
                     if (digits.indexOf(digit) != digits.lastIndexOf(digit)) {
                         fieldContents
-                            .filter((fc) => fc.digit == digit)
-                            .forEach((fc) => this._errors.add(fc.pos));
+                            .filter((fc) => fc.digit() == digit)
+                            .forEach((fc) => errors.add(fc.pos));
                     }
                 }
             }            
         }
-        if (this._errors.size > 0) {
-            let s = ""
-            for (let pos of this._errors) {
-                let fc = this.fieldContent(pos);
-                if (s.length > 0)
-                    s += ", "
-                s += fc.toString();
-                console.log("Errors in " + s);
-            }
-        }        
+        return errors;
+    }
+
+    hasErrors(): boolean {
+        return this._errors.size > 0;
+    }
+
+    get errors(): Set<Position> {
+        return this._errors;
     }
 
     allFieldContents(): FieldContent[] {
@@ -117,47 +98,47 @@ export class Board {
         return emptyFcs;
     }
 
-    allowedInGroup(group: Position[]): CipherSet {
+    _allowedInGroup(group: Position[]): CipherSet {
         var used = [];
 
         used= this.fieldContents(group)
         .filter((fc) => fc.hasDigit())
-        .map((fc) => fc.digit);
+        .map((fc) => fc.digit());
 
         var cs = new CipherSet(...used);
         var ret = cs.not(); 
         return ret;
     }
 
-    allowedInField(pos: Position): CipherSet {
+    _allowedInField(pos: Position): CipherSet {
         var allowed = CipherSet.ofAll();
         for (let grp of pos.groups) {
-            allowed = allowed.and(this.allowedInGroup(grp));
+            allowed = allowed.and(this._allowedInGroup(grp));
         }
 
         return allowed;
     }
 
-    evaluateAt(pos: Position): void {
+    _evaluateAt(pos: Position): void {
         var fieldContent = this.fieldContent(pos);
         if (fieldContent.isEmpty()) {
-            fieldContent.setAllowSet(this.allowedInField(pos));
+            fieldContent.setAllowSet(this._allowedInField(pos));
         }
         logBoardEvaluationContent(fieldContent);
     }
 
-    evaluateGroup(group: Position[]) {
+    _evaluateGroup(group: Position[]) {
         if (!this.initializing) {
             logBoardEvaluationHeader();
 
             for (var pos of group) {
-                this.evaluateAt(pos);
+                this._evaluateAt(pos);
             }
         }
     }
 
-    evaluateAll() {
-        this.evaluateGroup(Position.pool())
+    _evaluateAll() {
+        this._evaluateGroup(Position.pool())
     }
 
     emptyFields(): number {

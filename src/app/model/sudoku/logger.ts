@@ -15,6 +15,10 @@ var doLogJoinedOccurrence = true;
 var doLogBoardDifference = true;
 var doLogCleaning = true;
 
+export function message(s: string) {
+    alert(s);
+}
+
 function println(s: string="") {
     console.log(s);
 }
@@ -55,7 +59,7 @@ export function logBoardEvaluationContent(fieldContent: FieldContent) {
     if (fieldContent.isEmpty()) {
         println("   "+fieldContent.pos.toString()+" allows "+fieldContent.allowSet.toListString());
     } else {
-        println("   "+fieldContent.pos.toString()+" contains "+fieldContent.digit);
+        println("   "+fieldContent.pos.toString()+" contains "+fieldContent.digit());
     }
 }
 
@@ -107,6 +111,8 @@ export function logBoard(board: Board, marked: Position | undefined=undefined): 
     var line: string;
     var pos: Position;
     var ch = " ";
+    var digitChar: string;
+    var fc: FieldContent;
 
     if (board.isFull()) {
         println("Board is completely filled.");
@@ -129,7 +135,17 @@ export function logBoard(board: Board, marked: Position | undefined=undefined): 
             }
             line = line + ch
             pos = Position.of(iRow * 9 + iCol);
-            line = line + (board.fieldContent(pos).hasDigit() ? board.fieldContent(pos).digit : "_");
+            fc = board.fieldContent(pos);
+            if (fc.hasDigit()) {
+                digitChar = fc.digit().toString();
+            } else {
+                if (fc.allowSet.isEmpty()) {
+                    digitChar = "*"
+                } else {
+                    digitChar = "_";
+                }
+            }
+            line = line + digitChar;
             line = line + ch
             if (ch == "|") {
                 ch = " ";
@@ -235,7 +251,7 @@ export function logBoardDifference(header: string, preBoard: Board, postBoard: B
         preField = preBoard.fieldContent(pos);
         postField = postBoard.fieldContent(pos);
 
-        contentChanged = !(preField.hasDigit() && postField.hasDigit() && (preField.digit == postField.digit)
+        contentChanged = !(preField.hasDigit() && postField.hasDigit() && (preField.digit() == postField.digit())
                         || (preField.isEmpty() && postField.isEmpty()));
         allowSetChanged = !(preField.isEmpty() && postField.isEmpty() && (preField.allowSet.value == postField.allowSet.value)
                         || (preField.hasDigit() && postField.hasDigit()));
@@ -248,7 +264,7 @@ export function logBoardDifference(header: string, preBoard: Board, postBoard: B
             s = "   " + pos.toString();
             s += " {"
             if (contentChanged) {
-                s += " contains "+preField.digit;
+                s += " contains "+preField.digit();
             }
             if (allowSetChanged) {
                 s += " allows "+preField.allowSet.toListString();
@@ -256,7 +272,7 @@ export function logBoardDifference(header: string, preBoard: Board, postBoard: B
 
             s += " } => {"
             if (contentChanged) {
-                s += " contains "+postField.digit;
+                s += " contains "+postField.digit();
             }
             if (allowSetChanged) {
                 s += " allows "+postField.allowSet.toListString();

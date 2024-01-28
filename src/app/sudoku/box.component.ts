@@ -45,13 +45,13 @@ class BoxComponent {
     value(idInBox: number): string {
         const field = this.boxField(idInBox);
         if (field.hasDigit()) {
-            return "" + field.digit;
+            return "" + field.digit();
         }
         return "";
     }
 
     digitChanged(move: Move) {
         console.log("Field " + move.toString());
-        this.board.set(move.pos, move.digit);
+        this.board.add(move);
     }
 }

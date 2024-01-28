@@ -1,9 +1,11 @@
 import { Board } from "./board";
+import { Move } from "./move";
 import { Position } from "./position";
 
 function setByRowCol(board: Board, row: number, col: number, digit: number): void {
     var pos = Position.of(row*9 + col);
-    board.set(pos, digit);
+    var move = new Move(pos, Move.SRC_PRESET, digit);
+    board.add(move);
 }
 
 export function testBoardMaster0(): Board {

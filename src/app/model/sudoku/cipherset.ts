@@ -11,7 +11,7 @@ export class CipherSet {
     _digit = 0;
     _length = 0;
 
-    static initCipherSet(): CipherSet {
+    static fullCipherSet(): CipherSet {
         return new CipherSet(1,2,3,4,5,6,7,8,9);
     }
 
@@ -137,12 +137,6 @@ export class CipherSet {
 
     get value(): string {
         return CipherSet.chars[this._digit];
-    }
-
-    static
-    deepCopy(cipherSet: CipherSet): CipherSet {
-        var copy = new CipherSet(...cipherSet.entries);
-        return copy;
     }
 
     static ofAll(): CipherSet {

@@ -21,7 +21,7 @@ class FieldComponent {
 
     constructor() { 
         if (this.board.fieldContent(this.pos).hasDigit()) {
-            console.log(this.board.fieldContent(this.pos).digit);
+            console.log(this.board.fieldContent(this.pos).digit());
         }
     }
     
@@ -55,13 +55,13 @@ class FieldComponent {
         return true;
     }
 
-    get content(): string {
-        return this.field.getDigitString();
-    }
+    // get content(): string {
+    //     return this.field.getDigitString();
+    // }
 
-    set content(digit: any) {
-        this.field.digit = digit;
-    }
+    // set content(digit: any) {
+    //     this.field.digit = digit;
+    // }
 
     allows(digit: number): boolean {
         return this.field.allows(digit);
@@ -75,27 +75,27 @@ class FieldComponent {
     }
 
     get contentDigit(): string {
-        return this.content;
+        return this.field.getDigitString();
     }
 
     set contentDigit(digit: any) {
-        this.content = digit;
+        this.field.setDigit(digit, Move.SRC_INPUT);
     }
 
     onKey(digitString: string) {
-        var oldContent = this.contentDigit;
-        var digit = Number.parseInt(digitString);
+        var oldMove = this.field.getMove();
         if (digitString.length==0) {
             console.log("empty");
             this.contentDigit = digitString;            
-            this.digitUpdated.emit(new Move(this.pos, digit));
+            this.digitUpdated.emit(new Move(this.pos, Move.SRC_INPUT));
         } else {
+            var digit = Number.parseInt(digitString);
             if (CipherSet.chars.includes(digitString)) {
                 console.log(digitString);
-                this.digitUpdated.emit(new Move(this.pos, digit));
+                this.digitUpdated.emit(new Move(this.pos, Move.SRC_INPUT, digit));
             } else {
                 console.log("Not allowed: '"+digitString+"'");
-                this.contentDigit = oldContent;
+                this.field.setMove(oldMove);
             }
         }
         console.log("Content " + (this.contentDigit.length==0 ? 'removed' : this.contentDigit));

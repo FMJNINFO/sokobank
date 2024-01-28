@@ -28,15 +28,14 @@ export class GroupCleaner {
         for (let grp of Position.allGrps()) {
             fieldContents = this.board.fieldContents(grp)
             .filter((fc) => fc.isEmpty() );
-            console.log("FieldContents: " + fieldContents.length);
             for (let depth=2; depth < fieldContents.length; depth++) {
-                this.findSizedSubsets(fieldContents, depth);
+                this._findSizedSubsets(fieldContents, depth);
             }
         }
         return this.checks;
     }
 
-    findSizedSubsets(fieldContents: FieldContent[], depth: number) {
+    _findSizedSubsets(fieldContents: FieldContent[], depth: number) {
         if (fieldContents.length < depth+1) {
             return;
         }
@@ -44,10 +43,10 @@ export class GroupCleaner {
         for (let fc of fieldContents) {
             workFieldContents.push(fc);
         }
-        this.findSubset(workFieldContents, depth)
+        this._findSubset(workFieldContents, depth)
     }
 
-    findSubset(fieldContents: FieldContent[], depth: number) {
+    _findSubset(fieldContents: FieldContent[], depth: number) {
         let subarrayIter = new SubArray(fieldContents.length, depth);
         var idxSubset: number[] | undefined;
         var subset: FieldContent[] = [];
