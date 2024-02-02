@@ -4,7 +4,7 @@ import { Position } from "./position";
 
 function setByRowCol(board: Board, row: number, col: number, digit: number): void {
     var pos = Position.of(row*9 + col);
-    var move = new Move(pos, Move.SRC_PRESET, digit);
+    var move = new Move(pos, digit);
     board.add(move);
 }
 

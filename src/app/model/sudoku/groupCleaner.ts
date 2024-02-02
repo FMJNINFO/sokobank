@@ -1,71 +1,59 @@
 import { Board } from "./board";
-import { CipherSet } from "./cipherset";
+import { ClosedGroups } from "./closedGroups";
 import { FieldContent } from "./fieldContent";
 import { Position } from "./position";
 import { SubArray } from "./subarray";
 
 export class GroupCleaner {
-    private board: Board;
-    private checks: number;
-    private _groups: Position[][] = []
-    private _joinedAllows: CipherSet[] = []
+    private _closedGroups: ClosedGroups;
 
-    constructor(board: Board) {
-        this.board = board;
-        this.checks = 0;
+    constructor() {
+        this._closedGroups = new ClosedGroups();
     }
 
-    get groups(): Position[][] {
-        return this._groups;
-    }
-
-    get joinedAllows(): CipherSet[] {
-        return this._joinedAllows;
-    }
-
-    countSubsets(): number {
+    findClosedGroups(board: Board, findAll: boolean=true): ClosedGroups {
         var fieldContents: FieldContent[] = [];
-        for (let grp of Position.allGrps()) {
-            fieldContents = this.board.fieldContents(grp)
+        this._closedGroups = new ClosedGroups();
+
+        for (let [sGrp, grp] of Position.namedGrps()) {
+            fieldContents = board.fieldContents(grp)
             .filter((fc) => fc.isEmpty() );
             for (let depth=2; depth < fieldContents.length; depth++) {
-                this._findSizedSubsets(fieldContents, depth);
-            }
-        }
-        return this.checks;
-    }
-
-    _findSizedSubsets(fieldContents: FieldContent[], depth: number) {
-        if (fieldContents.length < depth+1) {
-            return;
-        }
-        let workFieldContents: FieldContent[] = []
-        for (let fc of fieldContents) {
-            workFieldContents.push(fc);
-        }
-        this._findSubset(workFieldContents, depth)
-    }
-
-    _findSubset(fieldContents: FieldContent[], depth: number) {
-        let subarrayIter = new SubArray(fieldContents.length, depth);
-        var idxSubset: number[] | undefined;
-        var subset: FieldContent[] = [];
-        let joinedAllowSet: CipherSet = new CipherSet()
-
-        while ((idxSubset = subarrayIter.next()) != undefined) {
-            for (let iIdx=0; iIdx<depth; iIdx++) {
-                subset.push(fieldContents[idxSubset[iIdx]]);
-            }
-
-            this.checks += 1;
-            for (let fc of subset) {
-                joinedAllowSet = joinedAllowSet.or(fc.allowSet);
-                if (joinedAllowSet.length > depth) {
-                    return;
+                this._findSubset(sGrp, fieldContents, depth, findAll);
+                if (findAll) {
+                    continue;
+                }
+                if (!findAll && this._closedGroups.length > 0) {
+                    break;
                 }
             }
-            this._groups.push(subset.map((fc) => fc.pos))
-            this._joinedAllows.push(joinedAllowSet);
+        }
+        return this._closedGroups;
+    }
+
+    _findSizedSubsets(sGrp: string, fieldContents: FieldContent[], depth: number, findAll: boolean) {
+        if (depth >= fieldContents.length) {
+            return;
+        }
+        this._findSubset(sGrp, fieldContents, depth, findAll)
+    }
+
+
+    _findSubset(sGrp: string, fieldContents: FieldContent[], depth: number, findAll: boolean) {
+        let subsetIter = new SubArray(fieldContents.length, depth);
+        var subset: number[] | undefined;
+
+        while ((subset = subsetIter.next()) != undefined) {
+            if (subset == undefined) {
+                return;
+            }
+            this._closedGroups.checkAndAdd( sGrp, subset.map((inx) => fieldContents[inx]) );
+            if (findAll) {
+                continue;
+            }
+            if (this._closedGroups.length > 0) {
+                return;
+            }
         }
         return;
     }

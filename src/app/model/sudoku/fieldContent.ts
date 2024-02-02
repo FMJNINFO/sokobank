@@ -4,7 +4,7 @@ import { Position } from "./position";
 import { Move } from "./move";
 
 export class FieldContent {
-    static NoFieldContent = new FieldContent(new Move(Position.NoPosition, Move.SRC_PRESET), CipherSet.fullCipherSet());
+    static NoFieldContent = new FieldContent(new Move(Position.NoPosition), CipherSet.fullCipherSet());
 
     _move: Move;
     _allowed: CipherSet;
@@ -37,12 +37,8 @@ export class FieldContent {
         throw new TypeError("This field contains no digit");
     }
 
-    setDigit(digit: number, source: number) {
-        this._move.setDigit(digit, source);
-    }
-
-    getDigitSource(): number {
-        return this._move.source;
+    setDigit(digit: number) {
+        this._move.setDigit(digit);
     }
 
     getMove(): Move {

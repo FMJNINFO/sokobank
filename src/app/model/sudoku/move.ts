@@ -1,22 +1,13 @@
 import { Position } from "./position";
 
 export class Move {
-    static SRC_PRESET = 0
-    static SRC_INPUT  = 1
-    static SRC_UNIQUE_CIPHER = 2
-    static SRC_LONELY_CIPHER = 3
-    static SRC_TRIAL = 5;
-
-    static SOURCE_TEXT = ['Preset', 'Input', '(Auto) Unique Cipher', '(Auto) Lonely Cipher', '', '(Auto) Trial' ]
 
     _pos: Position = Position.NoPosition;
     _digit: number = -1;
-    _source: number;
 
-    constructor(pos: Position, source: number, digit: number=0) {
+    constructor(pos: Position, digit: number=0) {
         this._pos = pos;
         this._digit = digit;
-        this._source = source;
     }
 
     get value(): string {
@@ -35,9 +26,8 @@ export class Move {
         return this._digit;
     }
 
-    setDigit(digit: number, source: number) {
+    setDigit(digit: number) {
         this._digit = digit;
-        this._source = source;
     }
 
     hasDigit(): boolean {
@@ -45,15 +35,7 @@ export class Move {
     }
 
     copy(): Move {
-        return new Move(this._pos, this._source, this.digit);
-    }
-
-    get source(): number {
-        return this._source;
-    }
-
-    getSourceText(): string {
-        return Move.SOURCE_TEXT[this.source];
+        return new Move(this._pos, this.digit);
     }
 
     toString(): string {

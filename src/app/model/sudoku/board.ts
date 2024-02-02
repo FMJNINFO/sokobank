@@ -17,7 +17,7 @@ export class Board {
         let pos: Position;
         for (let iPos = 0; iPos < 81; iPos++) {
             pos = Position.of(iPos);
-            this._fields.set(pos, new FieldContent(new Move(pos, Move.SRC_PRESET), new CipherSet(...Board.AllAllowed)));
+            this._fields.set(pos, new FieldContent(new Move(pos), new CipherSet(...Board.AllAllowed)));
         }
     }
 
@@ -37,7 +37,7 @@ export class Board {
     add(move: Move) {
         let fieldContent = this.fieldContent(move.pos);
         if (!fieldContent.hasDigit() || fieldContent.digit() != move.digit) {
-            this.fieldContent(move.pos).setDigit(move.digit, move.source);
+            this.fieldContent(move.pos).setDigit(move.digit);
             for (let group of move.pos.groups) {
                 this._evaluateGroup(group);
             }

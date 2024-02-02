@@ -203,6 +203,14 @@ export class Position {
         return Position._namedGroups;
     }
 
+    static namedGroup(sGrp: string): Position[] {
+        var poss = Position._namedGroups.get(sGrp);
+        if (poss == undefined) {
+            return [];
+        }
+        return poss;
+    }
+
     static allGrps() : Position[][] {
         return Array.from(Position._namedGroups.values());
     }

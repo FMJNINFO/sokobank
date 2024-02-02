@@ -79,7 +79,7 @@ class FieldComponent {
     }
 
     set contentDigit(digit: any) {
-        this.field.setDigit(digit, Move.SRC_INPUT);
+        this.field.setDigit(digit);
     }
 
     onKey(digitString: string) {
@@ -87,12 +87,12 @@ class FieldComponent {
         if (digitString.length==0) {
             console.log("empty");
             this.contentDigit = digitString;            
-            this.digitUpdated.emit(new Move(this.pos, Move.SRC_INPUT));
+            this.digitUpdated.emit(new Move(this.pos));
         } else {
             var digit = Number.parseInt(digitString);
             if (CipherSet.chars.includes(digitString)) {
                 console.log(digitString);
-                this.digitUpdated.emit(new Move(this.pos, Move.SRC_INPUT, digit));
+                this.digitUpdated.emit(new Move(this.pos, digit));
             } else {
                 console.log("Not allowed: '"+digitString+"'");
                 this.field.setMove(oldMove);
