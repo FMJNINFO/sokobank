@@ -1,3 +1,4 @@
+import { ColdObservable } from "rxjs/internal/testing/ColdObservable";
 import { Board } from "./board";
 import { CipherSet } from "./cipherset";
 import { FieldContent } from "./fieldContent";
@@ -62,6 +63,31 @@ export class ClosedGroup {
             fcToClean.setAllowSet(fcToClean.allowSet.and(cleanAllow))
         }
     }
+
+    equals(other: any): boolean {
+        if (other instanceof ClosedGroup) {
+            let otherGroup: ClosedGroup = other;
+            if (otherGroup._poss.length == this._poss.length) {
+                // OK, because same order by construction
+                for (let i=0; i<this._poss.length; i++) {                        
+                    if (!otherGroup._poss[i].equals(this._poss[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    in(butSet: Set<ClosedGroup>): boolean {
+        for (let butGroup of butSet) {
+            if (butGroup.equals(this)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
 export class ClosedGroups {
@@ -71,9 +97,9 @@ export class ClosedGroups {
         this._groups = [];
     }
 
-    firstGroup(): ClosedGroup {
-        if (this._groups.length > 0) {
-            return this._groups[0];
+    group(ofs: number=0): ClosedGroup {
+        if (this._groups.length > ofs) {
+            return this._groups[ofs];
         }
         return new ClosedGroup("dummy");
     }

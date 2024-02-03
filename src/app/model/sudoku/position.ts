@@ -76,6 +76,16 @@ export class Position {
         return s;
     }
 
+    equals(other: any): boolean {
+        if (other instanceof Position) {
+            let otherPos: Position = other;
+            if (otherPos._pos == this._pos) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static of(pos: number): Position {
         return Position._pool[pos];
     }

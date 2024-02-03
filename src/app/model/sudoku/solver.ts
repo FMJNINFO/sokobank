@@ -1,5 +1,5 @@
 import { Board } from "./board";
-import { ClosedGroups } from "./closedGroups";
+import { ClosedGroup, ClosedGroups } from "./closedGroups";
 import { FieldContent } from "./fieldContent";
 import { GroupCleaner } from "./groupCleaner";
 import { logBoard } from "./logger";
@@ -47,10 +47,16 @@ export class Solver {
         return this.groupCleaner.findClosedGroups(board, true)
     }
 
-    findOneClosedGroup(board: Board) {
-        var closedGroups = this.groupCleaner.findClosedGroups(board, true);
+    findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
+        var closedGroups = this.groupCleaner.findClosedGroups(board, true);        
 
-        return closedGroups.firstGroup();
+        for (let i=0; i<closedGroups.length; i++) {
+            let closedGroup = closedGroups.group(i);
+            if (!closedGroup.in(but)) {
+                return closedGroup;
+            }
+        }
+        return closedGroups.group(closedGroups.length); // dummy
     }
 
     findOneSolvingMoveByTrial(board: Board, fc: FieldContent): Move {
@@ -121,6 +127,7 @@ export class Solver {
 
         var retry: boolean;
         var move: Move;
+        var knownGroups = new Set<ClosedGroup>();
 
         do {
             retry = false;
@@ -128,18 +135,21 @@ export class Solver {
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move);
+                knownGroups.clear();
                 continue;
             }
             move = this.findOneUniqueCipher(board);
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move);
+                knownGroups.clear();
                 continue;
             }
 
-            let closedGroup = this.findOneClosedGroup(board)
+            let closedGroup = this.findOneClosedGroup(board, knownGroups);
             if (closedGroup.isValid) {
                 closedGroup.clean(board);
+                knownGroups.add(closedGroup);
                 retry = true
             }
         } while (retry);

@@ -52,16 +52,8 @@ class FieldComponent {
     }
 
     get showAllowance(): boolean {
-        return true;
+        return false;
     }
-
-    // get content(): string {
-    //     return this.field.getDigitString();
-    // }
-
-    // set content(digit: any) {
-    //     this.field.digit = digit;
-    // }
 
     allows(digit: number): boolean {
         return this.field.allows(digit);
