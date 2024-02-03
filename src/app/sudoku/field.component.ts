@@ -52,7 +52,7 @@ class FieldComponent {
     }
 
     get showAllowance(): boolean {
-        return false;
+        return true;
     }
 
     allows(digit: number): boolean {

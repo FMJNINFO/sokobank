@@ -7,29 +7,20 @@
     <div *ngIf="!hasDigit && !showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="onEdit()">&nbsp;</div>
     <div *ngIf="!hasDigit && showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="onEdit()">
         <table class="emptyFieldTable">
-            <tr>
-                <td *ngIf="!allows(1)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(1)" class="allowedCipher">{{allowanceDigit(1)}}</td>
-                <td *ngIf="!allows(2)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(2)" class="allowedCipher">{{allowanceDigit(2)}}</td>
-                <td *ngIf="!allows(3)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(3)" class="allowedCipher">{{allowanceDigit(3)}}</td>
+            <tr class="emptyFieldRow">
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="2"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="3"/>                
             </tr>
-            <tr>
-                <td *ngIf="!allows(4)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(4)" class="allowedCipher">{{allowanceDigit(4)}}</td>
-                <td *ngIf="!allows(5)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(5)" class="allowedCipher">{{allowanceDigit(5)}}</td>
-                <td *ngIf="!allows(6)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(6)" class="allowedCipher">{{allowanceDigit(6)}}</td>
+            <tr class="emptyFieldRow">
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="4"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="5"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="6"/>                
             </tr>
-            <tr>
-                <td *ngIf="!allows(7)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(7)" class="allowedCipher">{{allowanceDigit(7)}}</td>
-                <td *ngIf="!allows(8)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(8)" class="allowedCipher">{{allowanceDigit(8)}}</td>
-                <td *ngIf="!allows(9)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
-                <td *ngIf="allows(9)" class="allowedCipher">{{allowanceDigit(9)}}</td>
+            <tr class="emptyFieldRow">
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="7"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="8"/>                
+                <allowed class="allowed" [board]="board" [field]="this.field" [digit]="9"/>                
             </tr>
         </table>
     </div>

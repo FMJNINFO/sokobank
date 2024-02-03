@@ -1,0 +1,2 @@
+<td *ngIf="!allows(digit)" class="emptyCipher" [ngClass]="fieldColor">&nbsp;</td>
+<td *ngIf="allows(digit)" class="allowedCipher">{{allowanceDigit(digit)}}</td>

@@ -9,6 +9,7 @@ import { CipherComponent } from './sudoku/cipher.component';
 import { FormsModule } from '@angular/forms';
 import { FieldComponent } from './sudoku/field.component';
 import { BoxComponent } from './sudoku/box.component';
+import { AllowedComponent } from './sudoku/allowed.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { BoxComponent } from './sudoku/box.component';
     SudokuComponent,
     FieldComponent,
     BoxComponent,
-    CipherComponent
+    CipherComponent,
+    AllowedComponent
   ],
   imports: [
     BrowserModule,
