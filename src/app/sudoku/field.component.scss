@@ -1,50 +1,28 @@
-.test {
-    background-color: lightgreen;
+.field {
     font-size: 32px;
     text-align: center;
     padding: 2px;
     width: 37px;
+    height: 37px;
     border-width: 0px;
+    align-items: start;
 }
-
 .entry {
     border-style: solid;
     border-color:green;
     padding: 0;
     vertical-align: top;
 }
-.cipher {
-    font-size: 32px;
-    text-align: center;
-    padding: 2px;
-    width: 37px;
-    border-width: 0px;
+.allowed {
+    display: contents;
 }
-.emptyField {
-    width: 37px;
-    height: 37px;
-    background-color: lightblue;
-    border-width: 0px;
-    padding: 2px;
-    align-items: start;
-}
+
 .emptyFieldTable {
     border-spacing: 1px;
 }
 .emptyFieldRow {
     display: table-row;
     vertical-align: top;
-}
-.allowed {
-    // height: 10px;
-    display: contents;
-}
-.errorCipher {
-    font-size: 32px;
-    text-align: center;
-    padding: 2px;
-    width: 37px;
-    border-width: 0px;
 }
 
 //  returned by fieldColor

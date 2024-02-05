@@ -1,10 +1,10 @@
 <td class="entry">
     <div *ngIf="isEditing">
-        <div class="cipher" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
+        <div class="added field" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
     </div>
-    <div *ngIf="!isEditing && hasDigit" class="cipher" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
-    <div *ngIf="!isEditing && !hasDigit && !showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="switchEdit()">&nbsp;</div>
-    <div *ngIf="!isEditing && !hasDigit && showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="switchEdit()">
+    <div *ngIf="!isEditing && hasDigit" class="field" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
+    <div *ngIf="!isEditing && !hasDigit && !showAllowance" class="field" [ngClass]="fieldColor" (click)="switchEdit()">&nbsp;</div>
+    <div *ngIf="!isEditing && !hasDigit && showAllowance" class="field" [ngClass]="fieldColor" (click)="switchEdit()">
         <table class="emptyFieldTable">
             <tr class="emptyFieldRow">
                 <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
