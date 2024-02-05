@@ -61,7 +61,7 @@ class FieldComponent {
 
     get displayDigit(): string {
         if (this.contentDigit.length==0) {
-            return "&nbsp;";
+            return " ";
         }
         return this.contentDigit;
     }

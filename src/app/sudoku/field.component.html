@@ -1,14 +1,15 @@
-<td class="entry">
+<td class="entry" (click)="switchEdit()">
+    <div class="field" [ngClass]="fieldColor">
     <div *ngIf="isEditing">
-        <div class="field" [ngClass]="fieldColor" (click)="switchEdit()">{{displayDigit}}</div>
+        <div>{{displayDigit}}</div>
     </div>
     <div *ngIf="!isEditing">
         <div *ngIf="hasDigit">
-            <div class="field" [ngClass]="fieldColor" (click)="switchEdit()">{{displayDigit}}</div>        
+            <div>{{displayDigit}}</div>        
         </div>
         <div *ngIf="!hasDigit">
             <div *ngIf="showAllowance">
-                <div class="field" [ngClass]="fieldColor" (click)="switchEdit()">
+                <div>
                     <table class="emptyFieldTable">
                         <tr class="emptyFieldRow">
                             <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
@@ -29,8 +30,9 @@
                 </div>            
             </div>
             <div *ngIf="!showAllowance">
-                <div class="field" [ngClass]="fieldColor" (click)="switchEdit()">{{displayDigit}}</div>                
+                <div>{{displayDigit}}</div>                
             </div>
         </div>
+    </div>
     </div>
 </td>
