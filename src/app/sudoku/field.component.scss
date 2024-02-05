@@ -1,3 +1,12 @@
+.test {
+    background-color: lightgreen;
+    font-size: 32px;
+    text-align: center;
+    padding: 2px;
+    width: 37px;
+    border-width: 0px;
+}
+
 .entry {
     border-style: solid;
     border-color:green;
@@ -27,7 +36,7 @@
     vertical-align: top;
 }
 .allowed {
-    height: 10px;
+    // height: 10px;
     display: contents;
 }
 .errorCipher {
@@ -40,8 +49,20 @@
 
 //  returned by fieldColor
 .errorField {
+    color: black;
     background-color: red;
 }
 .normalField {
+    color: black;
     background-color: lightblue;
+}
+.editingField {
+    color: black;
+    background-color: lightgreen;
+    height: 37px;
+}
+.editingErrorField {
+    color: red;
+    background-color: lightgreen;
+    height: 37px;
 }

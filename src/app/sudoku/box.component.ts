@@ -54,4 +54,8 @@ class BoxComponent {
         console.log("Field " + move.toString());
         this.board.add(move);
     }
+
+    changeEdit(pos: Position) {
+        console.log("Edit changes to " + pos);
+    }
 }

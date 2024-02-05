@@ -1,11 +1,10 @@
-<td *ngIf="isEditing" class="entry">
-    <input #digitValue class="cipher" [ngClass]="fieldColor" type="text" [maxLength]="1" pattern="[1-9]"
-        [(value)]="contentDigit" (keyup)="onKey(digitValue.value)" (blur)="onEdited()"/>
-</td>
-<td *ngIf="!isEditing" class="entry">
-    <div *ngIf="hasDigit" class="cipher" [ngClass]="fieldColor" (click)="onEdit()">{{contentDigit}}</div>
-    <div *ngIf="!hasDigit && !showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="onEdit()">&nbsp;</div>
-    <div *ngIf="!hasDigit && showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="onEdit()">
+<td class="entry">
+    <div *ngIf="isEditing">
+        <div class="cipher" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
+    </div>
+    <div *ngIf="!isEditing && hasDigit" class="cipher" [ngClass]="fieldColor" (click)="switchEdit()">{{contentDigit}}</div>
+    <div *ngIf="!isEditing && !hasDigit && !showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="switchEdit()">&nbsp;</div>
+    <div *ngIf="!isEditing && !hasDigit && showAllowance" class="emptyField" [ngClass]="fieldColor" (click)="switchEdit()">
         <table class="emptyFieldTable">
             <tr class="emptyFieldRow">
                 <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                

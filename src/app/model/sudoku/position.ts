@@ -86,6 +86,46 @@ export class Position {
         return false;
     }
 
+    right(): Position {
+        if (this.isUndefined()) {
+            return this;
+        }
+        if (this.col === 8) {
+            return Position.of(9*this.row);
+        }
+        return Position.of(this.pos+1);        
+    }
+
+    left(): Position {
+        if (this.isUndefined()) {
+            return this;
+        }
+        if (this.col === 0) {
+            return Position.of(9*this.row+8);
+        }
+        return Position.of(this.pos-1);        
+    }
+
+    up(): Position {
+        if (this.isUndefined()) {
+            return this;
+        }
+        if (this.row === 0) {
+            return Position.of(8*9+this.col);
+        }
+        return Position.of(this.pos-9);        
+    }
+
+    down(): Position {
+        if (this.isUndefined()) {
+            return this;
+        }
+        if (this.row === 8) {
+            return Position.of(this.col);
+        }
+        return Position.of(this.pos+9);        
+    }
+
     static of(pos: number): Position {
         return Position._pool[pos];
     }

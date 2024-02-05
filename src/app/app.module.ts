@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { FieldComponent } from './sudoku/field.component';
 import { BoxComponent } from './sudoku/box.component';
 import { AllowedComponent } from './sudoku/allowed.component';
+import { EditingService } from './services/editing.service';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,9 @@ import { AllowedComponent } from './sudoku/allowed.component';
     FormsModule,
     AppRoutingModule
   ],
-  providers: [],
+  providers: [
+    EditingService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
