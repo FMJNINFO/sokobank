@@ -1,38 +1,28 @@
 <td class="entry" (click)="switchEdit()">
     <div class="field" [ngClass]="fieldColor">
-    <div *ngIf="isEditing">
-        <div>{{displayDigit}}</div>
-    </div>
-    <div *ngIf="!isEditing">
-        <div *ngIf="hasDigit">
-            <div>{{displayDigit}}</div>        
+        <div *ngIf="isEditing || hasDigit || !showAllowance">
+            <div>{{displayDigit}}</div>
         </div>
-        <div *ngIf="!hasDigit">
-            <div *ngIf="showAllowance">
-                <div>
-                    <table class="emptyFieldTable">
-                        <tr class="emptyFieldRow">
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="2"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="3"/>                
-                        </tr>
-                        <tr class="emptyFieldRow">
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="4"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="5"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="6"/>                
-                        </tr>
-                        <tr class="emptyFieldRow">
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="7"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="8"/>                
-                            <allowed class="allowed" [board]="board" [field]="this.field" [digit]="9"/>                
-                        </tr>
-                    </table>
-                </div>            
-            </div>
-            <div *ngIf="!showAllowance">
-                <div>{{displayDigit}}</div>                
-            </div>
+        <div *ngIf="!isEditing && !hasDigit && showAllowance">
+            <div>
+                <table class="emptyFieldTable">
+                    <tr class="emptyFieldRow">
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="2"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="3"/>                
+                    </tr>
+                    <tr class="emptyFieldRow">
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="4"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="5"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="6"/>                
+                    </tr>
+                    <tr class="emptyFieldRow">
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="7"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="8"/>                
+                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="9"/>                
+                    </tr>
+                </table>
+            </div>            
         </div>
-    </div>
     </div>
 </td>
