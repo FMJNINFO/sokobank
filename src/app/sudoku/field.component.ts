@@ -6,7 +6,7 @@ import { FieldContent } from "../model/sudoku/fieldContent";
 import { CipherSet } from "../model/sudoku/cipherset";
 import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
-import { EditingService } from "../services/editing.service";
+import { StatusService } from "../services/status.service";
 
 export @Component({
     selector: 'field',
@@ -24,11 +24,11 @@ class FieldComponent {
     @Output() editChange = new EventEmitter<Position>();
     _isEditing = false;
 
-    constructor(private editingService: EditingService) { 
+    constructor(private service: StatusService) { 
         if (this.board.fieldContent(this.pos).hasDigit()) {
             console.log(this.board.fieldContent(this.pos).digit());
         }
-        editingService.shouldEdit$.subscribe(pos => this.onEditorChanged(pos));        
+        service.shouldEdit$.subscribe(pos => this.onEditorChanged(pos));        
     }
     
     get isEditing(): boolean {
@@ -50,7 +50,11 @@ class FieldComponent {
             if (this.isEditing) {
                 return "editingField";
             } else {
-                return "normalField";
+                if (this.isMarked) {
+                    return "markedField";
+                } else {
+                    return "normalField";
+                }
             }
         }
     }
@@ -76,6 +80,10 @@ class FieldComponent {
 
     get showAllowance(): boolean {
         return true;
+    }
+
+    get isMarked(): boolean {
+        return this.board.isMarked(this.pos);
     }
 
     allows(digit: number): boolean {
@@ -125,16 +133,16 @@ class FieldComponent {
             if (digit != 0) {
                 this.setDigit(digit);
                 // this.editingService.shouldEdit$.emit(Position.NoPosition);
-                this.editingService.shouldEdit$.emit(this.field.pos.right());
+                this.service.shouldEdit$.emit(this.field.pos.right());
             }
             event.stopImmediatePropagation();
             switch(event.key) {
-                case "ArrowRight":  this.editingService.shouldEdit$.emit(this.field.pos.right()); break;
-                case "ArrowLeft":   this.editingService.shouldEdit$.emit(this.field.pos.left()); break;
-                case "ArrowUp":     this.editingService.shouldEdit$.emit(this.field.pos.up()); break;
-                case "ArrowDown":   this.editingService.shouldEdit$.emit(this.field.pos.down()); break;
-                case "Escape":      this.editingService.shouldEdit$.emit(Position.NoPosition); break;
-                case " ":           this.editingService.shouldEdit$.emit(this.field.pos.right()); break;
+                case "ArrowRight":  this.service.shouldEdit$.emit(this.field.pos.right()); break;
+                case "ArrowLeft":   this.service.shouldEdit$.emit(this.field.pos.left()); break;
+                case "ArrowUp":     this.service.shouldEdit$.emit(this.field.pos.up()); break;
+                case "ArrowDown":   this.service.shouldEdit$.emit(this.field.pos.down()); break;
+                case "Escape":      this.service.shouldEdit$.emit(Position.NoPosition); break;
+                case " ":           this.service.shouldEdit$.emit(this.field.pos.right()); break;
                 case "Delete":      this.setDigit(0); break;
             }
         }
@@ -143,9 +151,9 @@ class FieldComponent {
     switchEdit() {
         this.isEditing = !this.isEditing;
         if (this.isEditing) {
-            this.editingService.shouldEdit$.emit(this.pos);
+            this.service.shouldEdit$.emit(this.pos);
         } else {
-            this.editingService.shouldEdit$.emit(Position.NoPosition);
+            this.service.shouldEdit$.emit(Position.NoPosition);
         }
     }
 

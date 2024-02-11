@@ -4,13 +4,13 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
+import { ControlComponent } from './sudoku/control.component';
 import { SudokuComponent } from './sudoku/sudoku.component';
-import { CipherComponent } from './sudoku/cipher.component';
 import { FormsModule } from '@angular/forms';
 import { FieldComponent } from './sudoku/field.component';
 import { BoxComponent } from './sudoku/box.component';
 import { AllowedComponent } from './sudoku/allowed.component';
-import { EditingService } from './services/editing.service';
+import { StatusService } from './services/status.service';
 
 @NgModule({
   declarations: [
@@ -19,8 +19,8 @@ import { EditingService } from './services/editing.service';
     SudokuComponent,
     FieldComponent,
     BoxComponent,
-    CipherComponent,
-    AllowedComponent
+    AllowedComponent,
+    ControlComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +28,7 @@ import { EditingService } from './services/editing.service';
     AppRoutingModule
   ],
   providers: [
-    EditingService
+    StatusService
   ],
   bootstrap: [AppComponent]
 })

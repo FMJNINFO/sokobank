@@ -63,6 +63,7 @@ export class HomeComponent implements OnInit {
             }
             console.log("-- Find Lonely Cipher done.")
         }
+        this.board.mark(new Set(moves.map((m) => m.pos)));
     }
 
     doFindUniqueCiphers($event: Event) {
@@ -75,10 +76,15 @@ export class HomeComponent implements OnInit {
             }
             console.log("-- Find Unique Cipher done.")
         }
+        this.board.mark(new Set(moves.map((m) => m.pos)));
     }
 
     doFindClosedGroup($event: Event) {
         var closedGroups = this.solver.findAllClosedGroups(this.board);
+        if (closedGroups.length > 0) {
+            let smallestGroup = closedGroups.sortedBySize()[0];
+            this.board.mark(smallestGroup.asSet())
+        }
         for (let cg of closedGroups.sortedByName()) {
             console.log(cg.toString())
         }
@@ -102,6 +108,7 @@ export class HomeComponent implements OnInit {
         } else {
             console.log("Found no solution")
         }
-    }
+        this.board.mark(new Set(moves.map((m) => m.pos)));
+    }    
 }
 

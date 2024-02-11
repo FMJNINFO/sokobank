@@ -64,6 +64,14 @@ export class ClosedGroup {
         }
     }
 
+    asSet(): Set<Position> {
+        let groupSet = new Set<Position>();
+        for (let pos of this._poss) {
+            groupSet.add(pos);
+        }
+        return groupSet;
+    }
+
     equals(other: any): boolean {
         if (other instanceof ClosedGroup) {
             let otherGroup: ClosedGroup = other;

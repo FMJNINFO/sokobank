@@ -11,6 +11,7 @@ export class Board {
     static AllFieldIndices = [...Array(81).keys()];
     _fields: Map<Position, FieldContent> = new Map();
     _errors: Set<Position> = new Set();
+    _marked: Set<Position> = new Set();
     initializing = true;
 
     constructor() {
@@ -44,10 +45,23 @@ export class Board {
             this._evaluateAt(move.pos);
             this._errors = this.searchErrors();
         }
+        this.unmark();
+    }
+
+    mark(marks: Set<Position>): void {
+        this._marked = marks;
+    }
+
+    unmark(): void {
+        this._marked.clear();
     }
 
     hasError(pos: Position): boolean {
         return this._errors.has(pos);
+    }
+
+    isMarked(pos: Position): boolean {
+        return this._marked.has(pos);
     }
 
     searchErrors(): Set<Position> {

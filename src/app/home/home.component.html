@@ -1,6 +1,9 @@
 {{title}}<br/>
 
-<sudoku [board]="board"></sudoku>
+<div style="display:flex">
+    <sudoku [board]="board"></sudoku>
+    <control class="controldiv"></control>
+</div>
 
 <input type="text" #input [value]="title" (keyup)="updateTitle(input.value)">
 <br/>
