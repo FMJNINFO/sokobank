@@ -2,42 +2,41 @@
 
 export class CipherSet {
     static zeroes = "000000000";
-    static ones = "111111111";
     static allOnes = 511;
     static chars = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
-    static numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     static BaseValue = new Map<number, number>(
         [[1, 1], [2, 2], [3, 4], [4, 8], [5, 16], [6, 32], [7,64], [8, 128], [9, 256]]);
-    _digit = 0;
+
+    _bitset = 0;
     _length = 0;
 
     static fullCipherSet(): CipherSet {
         return new CipherSet(1,2,3,4,5,6,7,8,9);
     }
 
-    constructor(...ciphers: number[]) {
-        var cipher: number;
+    constructor(...digits: number[]) {
+        var digit: number;
         var value: number | undefined;
         var joinedValue = 0;
-        for (cipher of ciphers) {
-            if (CipherSet.BaseValue.has(cipher)) {
-                value = CipherSet.BaseValue.get(cipher);
+        for (digit of digits) {
+            if (CipherSet.BaseValue.has(digit)) {
+                value = CipherSet.BaseValue.get(digit);
                 if (value != undefined) {
                     joinedValue |= value;
                 }
             }
         }
-        this.setDigit(joinedValue);
+        this._setBitset(joinedValue);
     }
 
     toString(): string {
-        var s = CipherSet.zeroes + this._digit.toString(2);
+        var s = CipherSet.zeroes + this._bitset.toString(2);
         return s.substring(s.length-9);
     }
 
     toListString(): string {
         var s = "";
-        var cs = this._digit;
+        var cs = this._bitset;
         var val = 1;
         while (cs > 0) {
             if ((cs & 1) > 0) {
@@ -50,38 +49,33 @@ export class CipherSet {
     }
 
     isEmpty(): boolean {
-        return this._digit === 0;
+        return this._bitset === 0;
     }
 
     or(cs: CipherSet): CipherSet {
         var ret = new CipherSet();
-        ret.setDigit(this._digit | cs.digit);
+        ret._setBitset(this._bitset | cs._bitset);
         return ret;
     }
 
     and(cs: CipherSet): CipherSet {
         var ret = new CipherSet();
-        ret.setDigit(this._digit & cs.digit);
+        ret._setBitset(this._bitset & cs._bitset);
         return ret;
     }
 
     not(): CipherSet {
         var ret = new CipherSet();
-        ret.setDigit(~this.digit & CipherSet.allOnes);
+        ret._setBitset(~this._bitset & CipherSet.allOnes);
         return ret;
     }
 
     contains(digit: number): boolean {
         var digitBits = CipherSet.BaseValue.get(digit);
         if (digitBits != undefined) {
-            return (this._digit & digitBits) != 0;
+            return (this._bitset & digitBits) != 0;
         }
         return false;
-    }
-
-    subset(cs: CipherSet): boolean {
-        var intersection = this.and(cs);
-        return this.length == intersection.length;
     }
 
     get length(): number {
@@ -90,7 +84,7 @@ export class CipherSet {
 
     get entries(): number[] {
         var entries = [];
-        var cs = this._digit;
+        var cs = this._bitset;
         var val = 1;
         while (cs > 0) {
             if ((cs & 1) > 0) {
@@ -108,7 +102,7 @@ export class CipherSet {
     }
 
     addFrequency(frequency: number[] = CipherSet.emptyFrequency()): number[] {
-        var cs = this._digit;
+        var cs = this._bitset;
         var val = 0;
         while (cs > 0) {
             if ((cs & 1) > 0) {
@@ -120,12 +114,8 @@ export class CipherSet {
         return frequency;
     }
 
-    get digit(): number {
-        return this._digit;
-    }
-
-    setDigit(digit: number) {
-        this._digit = digit;
+    _setBitset(digit: number) {
+        this._bitset = digit;
         this._length = 0;
         while (digit > 0) {
             if ((digit & 1) > 0) {
@@ -136,12 +126,12 @@ export class CipherSet {
     }
 
     get value(): string {
-        return CipherSet.chars[this._digit];
+        return CipherSet.chars[this._bitset];
     }
 
     static ofAll(): CipherSet {
         var ret = new CipherSet();
-        ret.setDigit(CipherSet.allOnes);
+        ret._setBitset(CipherSet.allOnes);
         return ret;
     }
 }

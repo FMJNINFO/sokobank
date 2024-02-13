@@ -31,14 +31,6 @@ export class GroupCleaner {
         return this._closedGroups;
     }
 
-    _findSizedSubsets(sGrp: string, fieldContents: FieldContent[], depth: number, findAll: boolean) {
-        if (depth >= fieldContents.length) {
-            return;
-        }
-        this._findSubset(sGrp, fieldContents, depth, findAll)
-    }
-
-
     _findSubset(sGrp: string, fieldContents: FieldContent[], depth: number, findAll: boolean) {
         let subsetIter = new SubArray(fieldContents.length, depth);
         var subset: number[] | undefined;

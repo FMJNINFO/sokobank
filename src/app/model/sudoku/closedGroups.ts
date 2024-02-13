@@ -1,4 +1,3 @@
-import { ColdObservable } from "rxjs/internal/testing/ColdObservable";
 import { Board } from "./board";
 import { CipherSet } from "./cipherset";
 import { FieldContent } from "./fieldContent";
@@ -10,12 +9,6 @@ export class ClosedGroup {
     _allows: CipherSet;
 
     constructor(groupName: string) {
-        this._grpName = groupName;
-        this._poss = [];
-        this._allows = new CipherSet();
-    }
-
-    reset(groupName: string) {
         this._grpName = groupName;
         this._poss = [];
         this._allows = new CipherSet();
@@ -126,16 +119,6 @@ export class ClosedGroups {
             }
             return g1.length - g2.length;
         })
-    }
-
-    isValid(closedGroup: ClosedGroup, fieldContents: FieldContent[]): ClosedGroup {
-        for (let fc of fieldContents) {
-            closedGroup.add(fc)
-            if (!closedGroup.isValid) {
-                break;
-            }
-        }
-        return closedGroup;
     }
 
     _add(closedGroup: ClosedGroup) {

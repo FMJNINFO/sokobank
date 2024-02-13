@@ -20,7 +20,7 @@ export class StatusService {
         this.boardChanged$ = new EventEmitter();
 
         this._editor = Position.NoPosition;
-        this._isHintVisible = true;
+        this._isHintVisible = false;
         this._board = new Board();
     }
 
@@ -40,9 +40,14 @@ export class StatusService {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
     }
+
     public onHintVisibilityChanged(isHintVisible: boolean): void {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
+    }
+
+    public isHintVisible(): boolean {
+        return this._isHintVisible;
     }
 
     public getBoard(): Board {
@@ -146,7 +151,10 @@ export class StatusService {
     }
 
     public isMarked(pos: Position): boolean {
-        return this._board.isMarked(pos);
+        if (this._isHintVisible) {
+            return this._board.isMarked(pos);
+        }
+        return false;
     }
 
     public isAllowed(pos: Position, digit: number): boolean {

@@ -28,7 +28,7 @@ class FieldComponent {
         return this._isEditing;
     }
 
-    set isEditing(value: boolean) {
+    setEditing(value: boolean) {
         this._isEditing = value;
     }
 
@@ -122,7 +122,7 @@ class FieldComponent {
     }
 
     switchEdit() {
-        this.isEditing = !this.isEditing;
+        this.setEditing(!this.isEditing);
         if (this.isEditing) {
             this.service.shouldEdit$.emit(this.pos);
         } else {
@@ -131,7 +131,7 @@ class FieldComponent {
     }
 
     private onEditorChanged(pos: Position) {
-        this.isEditing = (pos.equals(this.pos));
+        this.setEditing(pos.equals(this.pos));
         if (this.isEditing) {
             console.log("Current editor is " + this.pos);
         }

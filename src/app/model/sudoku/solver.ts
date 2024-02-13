@@ -21,7 +21,7 @@ export class Solver {
         return this.moveFinder.findLonelyCiphers(board, true);
     }
 
-    findOneLonelyCipher(board: Board): Move {
+    _findOneLonelyCipher(board: Board): Move {
         var moves = this.moveFinder.findLonelyCiphers(board, false);
 
         if (moves.length < 1) {
@@ -34,7 +34,7 @@ export class Solver {
         return this.moveFinder.findUniqueCiphers(board, true);
     }
 
-    findOneUniqueCipher(board: Board): Move {
+    _findOneUniqueCipher(board: Board): Move {
         var moves = this.moveFinder.findUniqueCiphers(board, false);
 
         if (moves.length < 1) {
@@ -47,7 +47,7 @@ export class Solver {
         return this.groupCleaner.findClosedGroups(board, true)
     }
 
-    findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
+    _findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
         var closedGroups = this.groupCleaner.findClosedGroups(board, true);        
 
         for (let i=0; i<closedGroups.length; i++) {
@@ -59,7 +59,7 @@ export class Solver {
         return closedGroups.group(closedGroups.length); // dummy
     }
 
-    findOneSolvingMoveByTrial(board: Board, fc: FieldContent): Move {
+    _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): Move {
         var resolutionMove = new Move(fc.pos);    // dummy
         var emptyFieldCount: number;
         var testBoard: Board;
@@ -108,7 +108,7 @@ export class Solver {
         }
         if (count == 2) {
             for (let fc of fcCandidates) {
-                resolutionMove = this.findOneSolvingMoveByTrial(board, fc);
+                resolutionMove = this._findOneSolvingMoveByTrial(board, fc);
                 if (resolutionMove.hasDigit()) {
                     console.log("Found resolving move at " + resolutionMove.toString())
                     solutionMoves.push(resolutionMove)
@@ -131,14 +131,14 @@ export class Solver {
 
         do {
             retry = false;
-            move = this.findOneLonelyCipher(board);
+            move = this._findOneLonelyCipher(board);
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move);
                 knownGroups.clear();
                 continue;
             }
-            move = this.findOneUniqueCipher(board);
+            move = this._findOneUniqueCipher(board);
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move);
@@ -146,7 +146,7 @@ export class Solver {
                 continue;
             }
 
-            let closedGroup = this.findOneClosedGroup(board, knownGroups);
+            let closedGroup = this._findOneClosedGroup(board, knownGroups);
             if (closedGroup.isValid) {
                 closedGroup.clean(board);
                 knownGroups.add(closedGroup);

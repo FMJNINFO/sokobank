@@ -12,7 +12,7 @@ export class Board {
     _fields: Map<Position, FieldContent> = new Map();
     _errors: Set<Position> = new Set();
     _marked: Set<Position> = new Set();
-    initializing = true;
+    _initializing = true;
 
     constructor() {
         let pos: Position;
@@ -23,7 +23,7 @@ export class Board {
     }
 
     stopInitialize(): void {
-        this.initializing = false;
+        this._initializing = false;
         this._evaluateAll();
     }
 
@@ -43,7 +43,7 @@ export class Board {
                 this._evaluateGroup(group);
             }
             this._evaluateAt(move.pos);
-            this._errors = this.searchErrors();
+            this._errors = this._searchErrors();
         }
         this.unmark();
     }
@@ -56,15 +56,11 @@ export class Board {
         this._marked.clear();
     }
 
-    hasError(pos: Position): boolean {
-        return this._errors.has(pos);
-    }
-
     isMarked(pos: Position): boolean {
         return this._marked.has(pos);
     }
 
-    searchErrors(): Set<Position> {
+    _searchErrors(): Set<Position> {
         var errors: Set<Position> = new Set();
         var digits: number[];
         var unique: Set<number>;
@@ -94,12 +90,12 @@ export class Board {
         return errors;
     }
 
-    hasErrors(): boolean {
-        return this._errors.size > 0;
+    hasError(pos: Position): boolean {
+        return this._errors.has(pos);
     }
 
-    get errors(): Set<Position> {
-        return this._errors;
+    hasErrors(): boolean {
+        return this._errors.size > 0;
     }
 
     allFieldContents(): FieldContent[] {
@@ -146,7 +142,7 @@ export class Board {
     }
 
     _evaluateGroup(group: Position[]) {
-        if (!this.initializing) {
+        if (!this._initializing) {
             logBoardEvaluationHeader();
 
             for (var pos of group) {

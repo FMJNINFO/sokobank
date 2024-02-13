@@ -22,45 +22,33 @@ export class Position {
     // R8    72  73  74   75  76  77   78  79  80
     //
 
-    private _pos: number;    //  0 .. 80
-    private _row: number;
-    private _col: number;
-    private _box: number;
+    private _posId: number;    //  0 .. 80
+    private _rowId: number;
+    private _colId: number;
+    private _boxId: number;
 
     private constructor(pos: number) {
-        this._pos = pos;
-        this._row = Math.floor(pos/9);
-        this._col = pos % 9;
-        this._box = (3 * Math.floor(pos/27)) + Math.floor((pos % 9)/3);
+        this._posId = pos;
+        this._rowId = Math.floor(pos/9);
+        this._colId = pos % 9;
+        this._boxId = (3 * Math.floor(pos/27)) + Math.floor((pos % 9)/3);
     }
 
     isUndefined(): boolean {
-        return this._pos === -1;
+        return this._posId === -1;
     }
 
     get pos(): number {
-        return this._pos;
+        return this._posId;
     }
     get row(): number {
-        return this._row;
+        return this._rowId;
     }
     get col(): number {
-        return this._col;
+        return this._colId;
     }
     get box(): number {
-        return this._box;
-    }
-
-    get rowGroup(): Position[] {
-        return Position.row(this.row);
-    }
-
-    get colGroup(): Position[] {
-        return Position.col(this.col);
-    }
-
-    get boxGroup(): Position[] {
-        return Position.box(this.box);
+        return this._boxId;
     }
 
     get groups(): Position[][] {
@@ -79,7 +67,7 @@ export class Position {
     equals(other: any): boolean {
         if (other instanceof Position) {
             let otherPos: Position = other;
-            if (otherPos._pos == this._pos) {
+            if (otherPos._posId == this._posId) {
                 return true;
             }
         }
@@ -235,18 +223,6 @@ export class Position {
             i += 1;
         }
         return grps;
-    }
-
-    static allBoxs() : Position[][] {
-        return Position._boxs;
-    }
-
-    static allRows() : Position[][] {
-        return Position._rows;
-    }
-
-    static allCols() : Position[][] {
-        return Position._cols;
     }
 
     static namedGrps() : Map<string, Position[]> {

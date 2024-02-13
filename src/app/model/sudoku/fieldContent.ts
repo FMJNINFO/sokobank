@@ -42,33 +42,6 @@ export class FieldContent {
         return this._move.copy();
     }
 
-    setMove(move: Move) {
-        if (move.pos === this._move.pos) {
-            this._move = move;
-        } else {
-            throw new TypeError("The move does not belong to thisfield.");
-        }
-    }
-
-    get inputValue(): string {
-        if (this.hasDigit()) {
-            return "" + this.digit().toString();
-        }
-        return "empty";
-    }
-
-    set inputValue(newValue: string) {
-        var newMove = new Move(this.pos, Number.parseInt(newValue));
-        this._move = newMove;
-    }
-
-    getDigitString(): string {
-        if (this.hasDigit()) {
-            return this.digit().toString();
-        }
-        return "";
-    }
-
     get allowSet(): CipherSet {
         return this._allowed;
     }

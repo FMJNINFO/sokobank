@@ -10,14 +10,6 @@ export class Move {
         this._digit = digit;
     }
 
-    get value(): string {
-        if (this.hasDigit()) {
-            return "" + this._digit;
-        } else {
-            return " empty";
-        }
-    }
-
     get pos(): Position {
         return this._pos;
     }

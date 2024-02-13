@@ -1,12 +1,10 @@
-{{title}}<br/>
+Sudoku<br/>
 
 <div style="display:flex">
-    <!-- <sudoku [board]="board"></sudoku> -->
     <sudoku></sudoku>
     <control class="controldiv"></control>
 </div>
 
-<input type="text" #input [value]="title" (keyup)="updateTitle(input.value)">
 <br/>
 
 <button type="button" (click)="doFindLonelyCipher($event)" clickable>Find Lonely Cipher</button>

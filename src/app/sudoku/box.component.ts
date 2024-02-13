@@ -32,14 +32,6 @@ class BoxComponent {
         return Position.box(this.boxId)[idInBox];
     }
 
-    value(idInBox: number): string {
-        let digit = this.service.getBoxDigit(this.boxId, idInBox);
-        if (digit > 0) {
-            return "" + digit;
-        }
-        return "";
-    }
-
     digitChanged(move: Move) {
         this.service.setDigit(move.pos, move.digit);
     }
