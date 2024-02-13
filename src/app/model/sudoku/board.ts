@@ -133,6 +133,10 @@ export class Board {
         return allowed;
     }
 
+    public getDigit(pos: Position): number {
+        return this.fieldContent(pos).digit();
+    }
+
     _evaluateAt(pos: Position): void {
         var fieldContent = this.fieldContent(pos);
         if (fieldContent.isEmpty()) {

@@ -31,10 +31,7 @@ export class FieldContent {
     }
 
     digit(): number {
-        if (this._move.hasDigit()) {
-            return this._move.digit;
-        }
-        throw new TypeError("This field contains no digit");
+        return this._move.digit;
     }
 
     setDigit(digit: number) {

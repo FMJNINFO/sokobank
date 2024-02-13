@@ -1,10 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
-import { Board } from "../model/sudoku/board";
 import { Store, select } from "@ngrx/store";
-import { FieldContent } from "../model/sudoku/fieldContent";
 import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
+import { StatusService } from '../services/status.service';
 
 export @Component({
     selector: 'box',
@@ -24,18 +23,9 @@ class BoxComponent {
     //     [ 57, 58, 59, 66, 67, 68, 75, 76, 77 ],
     //     [ 60, 61, 62, 69, 70, 71, 78, 79, 80 ]
     // ];
-    @Input() board: Board = new Board;
     @Input() boxId: number = -1;
 
-    constructor() { 
-        
-    }
-
-    boxField(idInBox: number): FieldContent {
-        if ((idInBox<0) || (idInBox>=9)) {
-            throw new ReferenceError("Box has 9 entries, so index "+idInBox+" doesn't exist.");
-        }
-        return this.board.fieldContent(Position.box(this.boxId)[idInBox]);
+    constructor(private service: StatusService) {         
     }
 
     calcPos(idInBox: number): Position {
@@ -43,16 +33,15 @@ class BoxComponent {
     }
 
     value(idInBox: number): string {
-        const field = this.boxField(idInBox);
-        if (field.hasDigit()) {
-            return "" + field.digit();
+        let digit = this.service.getBoxDigit(this.boxId, idInBox);
+        if (digit > 0) {
+            return "" + digit;
         }
         return "";
     }
 
     digitChanged(move: Move) {
-        console.log("Field " + move.toString());
-        this.board.add(move);
+        this.service.setDigit(move.pos, move.digit);
     }
 
     changeEdit(pos: Position) {

@@ -1,25 +1,25 @@
 <td class="entry" (click)="switchEdit()">
     <div class="field" [ngClass]="fieldColor">
         <div *ngIf="isEditing || hasDigit || !showAllowance">
-            <div>{{displayDigit}}</div>
+            <div>{{value}}</div>
         </div>
         <div *ngIf="!isEditing && !hasDigit && showAllowance">
             <div>
                 <table class="emptyFieldTable">
                     <tr class="emptyFieldRow">
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="1"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="2"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="3"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="1"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="2"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="3"/>                
                     </tr>
                     <tr class="emptyFieldRow">
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="4"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="5"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="6"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="4"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="5"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="6"/>                
                     </tr>
                     <tr class="emptyFieldRow">
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="7"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="8"/>                
-                        <allowed class="allowed" [board]="board" [field]="this.field" [digit]="9"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="7"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="8"/>                
+                        <allowed class="allowed" [pos]="pos" [digit]="9"/>                
                     </tr>
                 </table>
             </div>            

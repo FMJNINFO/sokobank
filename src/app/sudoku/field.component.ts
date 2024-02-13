@@ -1,9 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Observable } from "rxjs";
-import { Board } from "../model/sudoku/board";
 import { Store, select } from "@ngrx/store";
-import { FieldContent } from "../model/sudoku/fieldContent";
-import { CipherSet } from "../model/sudoku/cipherset";
 import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from "../services/status.service";
@@ -17,7 +14,6 @@ export @Component({
       }    
 })
 class FieldComponent {
-    @Input()  board = new Board();
     @Input()  xcontent: string = "";
     @Input()  pos: Position = Position.NoPosition;
     @Output() digitUpdated = new EventEmitter<Move>();
@@ -25,9 +21,6 @@ class FieldComponent {
     _isEditing = false;
 
     constructor(private service: StatusService) { 
-        if (this.board.fieldContent(this.pos).hasDigit()) {
-            console.log(this.board.fieldContent(this.pos).digit());
-        }
         service.shouldEdit$.subscribe(pos => this.onEditorChanged(pos));        
     }
     
@@ -59,23 +52,25 @@ class FieldComponent {
         }
     }
 
-    get field(): FieldContent {
-        return this.board.fieldContent(this.pos);
+    get value(): string {
+        let digit = this.service.getDigit(this.pos);
+        if (digit > 0) {
+            return "" + digit;
+        }
+        return "";
     }
 
-    get displayDigit(): string {
-        if (this.contentDigit.length==0) {
-            return " ";
-        }
-        return this.contentDigit;
+    set value(value: string) {
+        let digit = this.toDigit(value);
+        this.service.setDigit(this.pos, digit);
     }
 
     get hasDigit(): boolean {
-        return this.contentDigit.length!=0;
+        return this.service.getDigit(this.pos) != 0;
     }
 
     get hasError(): boolean {
-        return this.board.hasError(this.pos);
+        return this.service.hasError(this.pos);
     }
 
     get showAllowance(): boolean {
@@ -83,26 +78,7 @@ class FieldComponent {
     }
 
     get isMarked(): boolean {
-        return this.board.isMarked(this.pos);
-    }
-
-    allows(digit: number): boolean {
-        return this.field.allows(digit);
-    }
-
-    allowanceDigit(digit: number): string {
-        if (this.field.allows(digit)) {
-            return digit.toString();
-        }
-        return '_';
-    }
-
-    get contentDigit(): string {
-        return this.field.getDigitString();
-    }
-
-    set contentDigit(digit: any) {
-        this.field.setDigit(digit);
+        return this.service.isMarked(this.pos);
     }
 
     private toDigit(sDigit: string): number {
@@ -121,9 +97,7 @@ class FieldComponent {
     }
 
     setDigit(digit: number) {
-        let move = this.field.getMove()
-        move.setDigit(digit)
-        this.board.add(move)
+        this.service.setDigit(this.pos, digit);
     }
 
     handleKeyboardEvent(event: KeyboardEvent) {
@@ -132,17 +106,16 @@ class FieldComponent {
             let digit = this.toDigit(event.key);
             if (digit != 0) {
                 this.setDigit(digit);
-                // this.editingService.shouldEdit$.emit(Position.NoPosition);
-                this.service.shouldEdit$.emit(this.field.pos.right());
+                this.service.shouldEdit$.emit(this.pos.right());
             }
             event.stopImmediatePropagation();
             switch(event.key) {
-                case "ArrowRight":  this.service.shouldEdit$.emit(this.field.pos.right()); break;
-                case "ArrowLeft":   this.service.shouldEdit$.emit(this.field.pos.left()); break;
-                case "ArrowUp":     this.service.shouldEdit$.emit(this.field.pos.up()); break;
-                case "ArrowDown":   this.service.shouldEdit$.emit(this.field.pos.down()); break;
+                case "ArrowRight":  this.service.shouldEdit$.emit(this.pos.right()); break;
+                case "ArrowLeft":   this.service.shouldEdit$.emit(this.pos.left()); break;
+                case "ArrowUp":     this.service.shouldEdit$.emit(this.pos.up()); break;
+                case "ArrowDown":   this.service.shouldEdit$.emit(this.pos.down()); break;
                 case "Escape":      this.service.shouldEdit$.emit(Position.NoPosition); break;
-                case " ":           this.service.shouldEdit$.emit(this.field.pos.right()); break;
+                case " ":           this.service.shouldEdit$.emit(this.pos.right()); break;
                 case "Delete":      this.setDigit(0); break;
             }
         }
@@ -158,7 +131,7 @@ class FieldComponent {
     }
 
     private onEditorChanged(pos: Position) {
-        this.isEditing = (pos.equals(this.field.pos));
+        this.isEditing = (pos.equals(this.pos));
         if (this.isEditing) {
             console.log("Current editor is " + this.pos);
         }
