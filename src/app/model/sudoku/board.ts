@@ -9,6 +9,9 @@ export class Board {
     static AllAllowed = [1, 2, 3, 4, 5, 6, 7, 8, 9];
     static EmptyAllowedSet = new Set<number>([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     static AllFieldIndices = [...Array(81).keys()];
+    static AllowedChars = "123456789";
+    static SpaceChar = ".";
+
     _fields: Map<Position, FieldContent> = new Map();
     _errors: Set<Position> = new Set();
     _marked: Set<Position> = new Set();
@@ -20,6 +23,10 @@ export class Board {
             pos = Position.of(iPos);
             this._fields.set(pos, new FieldContent(new Move(pos), new CipherSet(...Board.AllAllowed)));
         }
+    }
+
+    startInitialize(): void {
+        this._initializing = true;
     }
 
     stopInitialize(): void {
@@ -129,7 +136,10 @@ export class Board {
         return allowed;
     }
 
-    public getDigit(pos: Position): number {
+    public getDigit(pos: Position | number): number {
+        if (typeof pos == 'number') {
+            pos = Position.of(pos);
+        }
         return this.fieldContent(pos).digit();
     }
 
@@ -172,7 +182,7 @@ export class Board {
         var copy = new Board();
         var fieldContent: FieldContent;
         var pos: Position;
-        for (let iPos = 0; iPos < 81; iPos++) {
+        for (let iPos = 0; iPos < 81; iPos++) {            
             pos = Position.of(iPos)
             fieldContent = this.fieldContent(pos)
             copy._fields.set(pos, fieldContent.copy());
@@ -186,5 +196,19 @@ export class Board {
             fields.push(this.fieldContent(ipos));
         }
         return fields;
-    }    
+    }
+
+    contentToString(): string {
+        let s = "";
+        let digit: number;
+        for (let iPos = 0; iPos < 81; iPos++) {
+            digit = this.getDigit(iPos);
+            if (digit <= 0) {
+                s += Board.SpaceChar;
+            } else {
+                s += digit;
+            }
+        }
+        return s;
+    }
 }

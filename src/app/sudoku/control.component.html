@@ -1,7 +1,18 @@
 <div class="controldiv">
-    INFO<br/>
-    <input type="checkbox" id="displayHint"/>
+    INFO<br/><br/>
 
     <input type="checkbox" (change)="onHintVisibilityChanged($event)"/>
     <span>Hint</span>
+    <br/>
+    <table>
+    <tr>
+        <td>
+            <button type="button" (click)="doCopyFromBoard(boardcopy)" clickable>from board</button><br/>
+            <button type="button" (click)="doCopyToBoard(boardcopy)" clickable>to board</button>
+        </td>
+        <td>
+        <textarea id="boardcopy" #boardcopy class="boardcopy" (input)="onInput($event)"></textarea>
+        </td>
+    </tr>
+    </table>
 </div>    

@@ -64,6 +64,16 @@ export class StatusService {
         return this._board.fieldContent(pos).digit();
     }
 
+    public getBoardContentAsString(): string {
+        return this._board.contentToString();
+    }
+
+    public setBoardByMoves(moves: Move[]) {
+        for (let move of moves) {
+            this._board.add(move);
+        }
+    }
+
     public markAllLonelyCiphers(): void {
         var doLogging = true;
         var solver = new Solver();
@@ -159,5 +169,13 @@ export class StatusService {
 
     public isAllowed(pos: Position, digit: number): boolean {
         return this._board.fieldContent(pos).allows(digit);
+    }
+
+    public allowedChars(): string {
+        return Board.AllowedChars;
+    }
+
+    public spaceCharacter(): string {
+        return Board.SpaceChar;
     }
 }
