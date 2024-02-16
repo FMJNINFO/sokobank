@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { message } from '../model/sudoku/logger';
-import { testBoardMaster0, testBoardMaster1, testBoardMaster2, testBoardMaster3 } from '../model/sudoku/testboards';
+import { TestBoardMoves } from '../model/sudoku/testboardMoves';
 import { StatusService } from '../services/status.service';
 
 @Component({
@@ -9,29 +9,19 @@ import { StatusService } from '../services/status.service';
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
+    testBoardMoves: TestBoardMoves;
 
     constructor(private service: StatusService) {
-        this.service.changeBoard(testBoardMaster3());
+        this.testBoardMoves = new TestBoardMoves();
+        this.setTestBoard("testboard3");
     }
 
     ngOnInit() {}
 
-    setTestBoard0($event: Event) {
-        this.service.changeBoard(testBoardMaster0());
+    setTestBoard(id: string) {
+        this.service.setBoardByMoves(this.testBoardMoves.getMoves(id));
     }
-
-    setTestBoard1($event: Event) {
-        this.service.changeBoard(testBoardMaster1());
-    }
-
-    setTestBoard2($event: Event) {
-        this.service.changeBoard(testBoardMaster2());
-    }
-
-    setTestBoard3($event: Event) {
-        this.service.changeBoard(testBoardMaster3());
-    }
-
+    
     doFindLonelyCipher($event: Event) {
         this.service.markAllLonelyCiphers();
     }

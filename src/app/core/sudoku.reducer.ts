@@ -1,6 +1,5 @@
 import { Action, createReducer, on } from '@ngrx/store';
 import { Board } from "../model/sudoku/board";
-import { testBoardMaster3 } from "../model/sudoku/testboards";
 import * as sudokuActions from './sudoku.actions';
 import { BoardApiActions } from './sudoku.actions';
 

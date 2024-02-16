@@ -78,4 +78,32 @@ export class MoveFinder {
         }
         return moves;
     }
+
+    stringToMoves(s: string, ): Move[] {        
+        const pool = Position.pool();
+        let moves = new Array<Move>();
+        let ch: string | undefined;
+        let digit: number | undefined;
+        let ofs = 0;
+        let iPos = 0;
+
+        while (iPos < 81) {
+            ch = s.at(ofs);
+            ofs += 1;
+            if ((ch === undefined) || (ch === Board.SpaceChar)) {
+                digit = 0;
+            } else {
+                if (Board.AllowedChars.includes(ch)) {
+                    digit = parseInt(ch);
+                } else {
+                    digit = undefined;
+                }
+            }
+            if (digit !== undefined) {
+                moves.push(new Move(pool[iPos], digit))
+                iPos += 1;
+            }
+        }
+        return moves;
+    }
 }

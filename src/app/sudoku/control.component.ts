@@ -2,10 +2,7 @@ import { Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
 import { StatusService } from "../services/status.service";
-import { testBoardMaster0 } from "../model/sudoku/testboards";
-import { Board } from "../model/sudoku/board";
-import { Move } from "../model/sudoku/move";
-import { Position } from "../model/sudoku/position";
+import { MoveFinder } from "../model/sudoku/moveFinder";
 
 export @Component({
     selector: 'control',
@@ -14,6 +11,7 @@ export @Component({
 
 })
 class ControlComponent {
+    moveFinder = new MoveFinder();
 
     constructor(private service: StatusService) {
         // service.showHint$.subscribe(visible => this.onHintVisibilityChanged(visible)); 
@@ -83,37 +81,7 @@ class ControlComponent {
     doCopyToBoard(boardcopy: HTMLTextAreaElement) {
         console.log("To Board");
         let s = boardcopy.value;
-        let moves = this.stringToMoves(s)
+        let moves = this.moveFinder.stringToMoves(s);
         this.service.setBoardByMoves(moves);
     }
-
-    stringToMoves(s: string, ): Move[] {        
-        const pool = Position.pool();
-        let moves = new Array<Move>();
-        let ch: string | undefined;
-        let digit: number | undefined;
-        let ofs = 0;
-        let iPos = 0;
-
-        while (iPos < 81) {
-            ch = s.at(ofs);
-            ofs += 1;
-            if ((ch === undefined) || (ch === Board.SpaceChar)) {
-                digit = 0;
-            } else {
-                if (Board.AllowedChars.includes(ch)) {
-                    digit = parseInt(ch);
-                } else {
-                    digit = undefined;
-                }
-            }
-            if (digit !== undefined) {
-                moves.push(new Move(pool[iPos], digit))
-                iPos += 1;
-            }
-        }
-        return moves;
-    }
-
-
 }

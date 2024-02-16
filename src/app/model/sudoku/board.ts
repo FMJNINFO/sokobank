@@ -18,15 +18,16 @@ export class Board {
     _initializing = true;
 
     constructor() {
+        this.startInitialize()
+    }
+
+    startInitialize(): void {
+        this._initializing = true;
         let pos: Position;
         for (let iPos = 0; iPos < 81; iPos++) {
             pos = Position.of(iPos);
             this._fields.set(pos, new FieldContent(new Move(pos), new CipherSet(...Board.AllAllowed)));
         }
-    }
-
-    startInitialize(): void {
-        this._initializing = true;
     }
 
     stopInitialize(): void {

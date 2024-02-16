@@ -69,9 +69,11 @@ export class StatusService {
     }
 
     public setBoardByMoves(moves: Move[]) {
+        this._board.startInitialize();
         for (let move of moves) {
             this._board.add(move);
         }
+        this._board.stopInitialize();
     }
 
     public markAllLonelyCiphers(): void {
