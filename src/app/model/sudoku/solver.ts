@@ -1,6 +1,6 @@
 import { Board } from "./board";
 import { ClosedGroup, ClosedGroups } from "./closedGroups";
-import { FieldContent } from "./fieldContent";
+import { Cause, FieldContent } from "./fieldContent";
 import { GroupCleaner } from "./groupCleaner";
 import { logBoard } from "./logger";
 import { Move } from "./move";
@@ -47,6 +47,15 @@ export class Solver {
         return this.groupCleaner.findClosedGroups(board, true)
     }
 
+    findBestClosedGroup(board: Board): ClosedGroup | undefined {        
+        var closedGroups = this.findAllClosedGroups(board);
+
+        if (closedGroups.length > 0) {
+            return closedGroups.sortedBySize()[0];
+        }
+        return undefined;
+    }
+
     _findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
         var closedGroups = this.groupCleaner.findClosedGroups(board, true);        
 
@@ -60,6 +69,8 @@ export class Solver {
     }
 
     _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): Move {
+        //  Check how far any allowed cipher of the given FieldContent
+        //  gets to a board solution or if it leads to an error
         var resolutionMove = new Move(fc.pos);    // dummy
         var emptyFieldCount: number;
         var testBoard: Board;
@@ -70,18 +81,22 @@ export class Solver {
             testBoard = board.copy();
             testBoard.stopInitialize();
             testMove = new Move(testPos, digit);
-            testBoard.add(testMove);
+            testBoard.add(testMove, Cause.TRIAL_CIPHER);
             emptyFieldCount = testBoard.emptyFields();
             this.solve(testBoard);
             if (testBoard.isFull()) {
+                //  we found a solution
                 resolutionMove = testMove;
                 console.log("Move " + testMove.toString() + " yields a solution.");
                 break;
             } else {
+                //  we found NO solution ...
                 logBoard(testBoard);
                 if (testBoard.hasErrors()) {
+                    //  ... because the digit yields an error in the end
                     console.log("Move " + testMove.toString() + " yields an ERROR.");
                 } else {
+                    //  ... because the digit just leads further to a solution
                     console.log("Move " + testMove.toString() + " yields " + (emptyFieldCount-testBoard.emptyFields()) + " field contents.")
                 }
             }
@@ -134,14 +149,14 @@ export class Solver {
             move = this._findOneLonelyCipher(board);
             if (move.hasDigit()) {
                 retry = true;
-                board.add(move);
+                board.add(move, Cause.LONELY_CIPHER);
                 knownGroups.clear();
                 continue;
             }
             move = this._findOneUniqueCipher(board);
             if (move.hasDigit()) {
                 retry = true;
-                board.add(move);
+                board.add(move, Cause.UNIQUE_CIPHER);
                 knownGroups.clear();
                 continue;
             }

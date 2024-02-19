@@ -7,11 +7,14 @@ Sudoku<br/>
 
 <br/>
 
-<button type="button" (click)="doFindLonelyCipher($event)" clickable>Find Lonely Cipher</button>
+<button type="button" (click)="doFindLonelyCiphers($event)" clickable>Find Lonely Cipher</button>
+<button type="button" (click)="doFillLonelyCiphers($event)" clickable>Clean</button>
 <br/>
 <button type="button" (click)="doFindClosedGroup($event)" clickable>Find Closed Group</button>
+<button type="button" (click)="doCleanClosedGroup($event)" clickable>Clean</button>
 <br/>
 <button type="button" (click)="doFindUniqueCiphers($event)" clickable>Find Unique Cipher</button>
+<button type="button" (click)="doFillUniqueCiphers($event)" clickable>Clean</button>
 <br/>
 <button type="button" (click)="doFillAutomatic($event)" clickable>Fill Automatic</button>
 <br/>

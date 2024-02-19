@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { message } from '../model/sudoku/logger';
 import { TestBoardMoves } from '../model/sudoku/testboardMoves';
 import { StatusService } from '../services/status.service';
+import { Cause } from '../model/sudoku/fieldContent';
 
 @Component({
     selector: 'app-home',
@@ -19,19 +20,31 @@ export class HomeComponent implements OnInit {
     ngOnInit() {}
 
     setTestBoard(id: string) {
-        this.service.setBoardByMoves(this.testBoardMoves.getMoves(id));
+        this.service.setBoardByMoves(this.testBoardMoves.getMoves(id), Cause.PRESET);
     }
     
-    doFindLonelyCipher($event: Event) {
+    doFindLonelyCiphers($event: Event) {
         this.service.markAllLonelyCiphers();
+    }
+
+    doFillLonelyCiphers($event: Event) {
+        this.service.fillLonelyCiphers();
     }
 
     doFindUniqueCiphers($event: Event) {
         this.service.markUniqueCiphers();
     }
 
+    doFillUniqueCiphers($event: Event) {
+        this.service.fillUniqueCiphers();
+    }
+
     doFindClosedGroup($event: Event) {
         this.service.markClosedGroup();
+    }
+
+    doCleanClosedGroup($event: Event) {
+        this.service.cleanClosedGroup();
     }
 
     doFillAutomatic($event: Event) {

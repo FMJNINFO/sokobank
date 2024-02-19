@@ -1,5 +1,5 @@
 import { CipherSet } from "./cipherset";
-import { FieldContent } from "./fieldContent";
+import { Cause, FieldContent } from "./fieldContent";
 import { logBoardEvaluationContent, logBoardEvaluationHeader } from "./logger";
 import { Move } from "./move";
 import { Position } from "./position";
@@ -43,10 +43,10 @@ export class Board {
         return FieldContent.NoFieldContent;
     }
 
-    add(move: Move) {
+    add(move: Move, cause: Cause) {
         let fieldContent = this.fieldContent(move.pos);
         if (!fieldContent.hasDigit() || fieldContent.digit() != move.digit) {
-            this.fieldContent(move.pos).setDigit(move.digit);
+            this.fieldContent(move.pos).setDigit(move.digit, cause);
             for (let group of move.pos.groups) {
                 this._evaluateGroup(group);
             }

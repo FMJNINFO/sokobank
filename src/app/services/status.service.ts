@@ -4,6 +4,7 @@ import { Board } from "../model/sudoku/board";
 import { logBoard } from "../model/sudoku/logger";
 import { Move } from "../model/sudoku/move";
 import { Solver } from "../model/sudoku/solver";
+import { Cause } from "../model/sudoku/fieldContent";
 
 export class StatusService {
     public shouldEdit$: EventEmitter<Position>;
@@ -68,10 +69,10 @@ export class StatusService {
         return this._board.contentToString();
     }
 
-    public setBoardByMoves(moves: Move[]) {
+    public setBoardByMoves(moves: Move[], cause: Cause) {
         this._board.startInitialize();
         for (let move of moves) {
-            this._board.add(move);
+            this._board.add(move, cause);
         }
         this._board.stopInitialize();
     }
@@ -90,7 +91,18 @@ export class StatusService {
         this._board.mark(new Set(moves.map((m) => m.pos)));
     }
 
-    markUniqueCiphers() {
+    public fillLonelyCiphers(): void {
+        var solver = new Solver();
+
+        var moves = solver.findAllLonelyCiphers(this._board);
+        for (let move of moves) {
+            if (move.hasDigit()) {
+                this._board.add(move, Cause.LONELY_CIPHER);
+            }
+        }
+    }
+
+    public markUniqueCiphers() {
         var doLogging = true;
         var solver = new Solver();
 
@@ -104,20 +116,45 @@ export class StatusService {
         this._board.mark(new Set(moves.map((m) => m.pos)));
     }
 
-    markClosedGroup() {
-        var doLogging = true;
+    public fillUniqueCiphers() {
         var solver = new Solver();
-        var closedGroups = solver.findAllClosedGroups(this._board);
-
-        if (closedGroups.length > 0) {
-            let smallestGroup = closedGroups.sortedBySize()[0];
-            this._board.mark(smallestGroup.asSet())
-        }
-        if (doLogging) {
-            for (let cg of closedGroups.sortedByName()) {
-                console.log(cg.toString())
+        var moves = solver.findAllUniqueCiphers(this._board);
+        for (let move of moves) {
+            if (move.hasDigit()) {
+                this._board.add(move, Cause.UNIQUE_CIPHER);
             }
-            console.log("-- Find Closed Group done.")
+        }
+    }
+
+    markClosedGroup() {
+        // var doLogging = true;
+        var solver = new Solver();
+        var closedGroup = solver.findBestClosedGroup(this._board);
+
+        if (closedGroup !== undefined) {
+            this._board.mark(closedGroup.asSet())
+        }
+
+        // var closedGroups = solver.findAllClosedGroups(this._board);
+
+        // if (closedGroups.length > 0) {
+        //     let smallestGroup = closedGroups.sortedBySize()[0];
+        //     this._board.mark(smallestGroup.asSet())
+        // }
+        // if (doLogging) {
+        //     for (let cg of closedGroups.sortedByName()) {
+        //         console.log(cg.toString())
+        //     }
+        //     console.log("-- Find Closed Group done.")
+        // }
+    }
+
+    cleanClosedGroup() {
+        var solver = new Solver();
+        var closedGroup = solver.findBestClosedGroup(this._board);
+
+        if (closedGroup !== undefined) {
+            closedGroup.clean(this._board);
         }
     }
 
@@ -153,9 +190,9 @@ export class StatusService {
         return this._board.getDigit(Position.box(boxId)[idInBox]);
     }
 
-    public setDigit(pos: Position, digit: number) {
+    public setDigit(pos: Position, digit: number, cause: Cause) {
         let move = new Move(pos, digit);
-        this._board.add(move);
+        this._board.add(move, cause);
     }
 
     public hasError(pos: Position): boolean {

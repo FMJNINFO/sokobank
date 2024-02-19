@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
 import { StatusService } from "../services/status.service";
 import { MoveFinder } from "../model/sudoku/moveFinder";
+import { Cause } from "../model/sudoku/fieldContent";
 
 export @Component({
     selector: 'control',
@@ -82,6 +83,6 @@ class ControlComponent {
         console.log("To Board");
         let s = boardcopy.value;
         let moves = this.moveFinder.stringToMoves(s);
-        this.service.setBoardByMoves(moves);
+        this.service.setBoardByMoves(moves, Cause.PRESET);
     }
 }

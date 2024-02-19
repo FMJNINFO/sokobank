@@ -1,7 +1,6 @@
 import { Position } from "./position";
 
 export class Move {
-
     _pos: Position = Position.NoPosition;
     _digit: number = -1;
 
@@ -27,7 +26,7 @@ export class Move {
     }
 
     copy(): Move {
-        return new Move(this._pos, this.digit);
+        return new Move(this._pos, this._digit);
     }
 
     toString(): string {

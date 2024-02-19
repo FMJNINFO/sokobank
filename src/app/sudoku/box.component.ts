@@ -4,6 +4,7 @@ import { Store, select } from "@ngrx/store";
 import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from '../services/status.service';
+import { Cause } from "../model/sudoku/fieldContent";
 
 export @Component({
     selector: 'box',
@@ -33,7 +34,7 @@ class BoxComponent {
     }
 
     digitChanged(move: Move) {
-        this.service.setDigit(move.pos, move.digit);
+        this.service.setDigit(move.pos, move.digit, Cause.ENTERED);
     }
 
     changeEdit(pos: Position) {

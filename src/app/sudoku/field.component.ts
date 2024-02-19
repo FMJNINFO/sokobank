@@ -4,6 +4,7 @@ import { Store, select } from "@ngrx/store";
 import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from "../services/status.service";
+import { Cause } from "../model/sudoku/fieldContent";
 
 export @Component({
     selector: 'field',
@@ -62,7 +63,7 @@ class FieldComponent {
 
     set value(value: string) {
         let digit = this.toDigit(value);
-        this.service.setDigit(this.pos, digit);
+        this.service.setDigit(this.pos, digit, Cause.ENTERED);
     }
 
     get hasDigit(): boolean {
@@ -97,7 +98,7 @@ class FieldComponent {
     }
 
     setDigit(digit: number) {
-        this.service.setDigit(this.pos, digit);
+        this.service.setDigit(this.pos, digit, Cause.ENTERED);
     }
 
     handleKeyboardEvent(event: KeyboardEvent) {
