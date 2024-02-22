@@ -52,9 +52,21 @@ export class HomeComponent implements OnInit {
     }
 
     doResolveByTrial($event: Event) {
-        if (!this.service.markResolutionByTrial()) {
+        if (this.service.getBoard().emptyFields() > 60) {
             message("Insufficient filled fields (<20) or no resolution found.");
         }
+        this.service.markBestTrialMove();
     }    
+
+    doFillBestTrialMove($event: Event) {
+        if (this.service.getBoard().emptyFields() > 60) {
+            message("Insufficient filled fields (<20) or no resolution found.");
+        }
+        this.service.fillBestTrialMove();
+    }    
+
+    doSolveAutomatic($event: Event) {
+        this.service.solveAutomatic();
+    }
 }
 

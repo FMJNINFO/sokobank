@@ -2,7 +2,6 @@ import { Board } from "./board";
 import { ClosedGroup, ClosedGroups } from "./closedGroups";
 import { Cause, FieldContent } from "./fieldContent";
 import { GroupCleaner } from "./groupCleaner";
-import { logBoard } from "./logger";
 import { Move } from "./move";
 import { MoveFinder } from "./moveFinder";
 import { Position } from "./position";
@@ -47,13 +46,43 @@ export class Solver {
         return this.groupCleaner.findClosedGroups(board, true)
     }
 
-    findBestClosedGroup(board: Board): ClosedGroup | undefined {        
-        var closedGroups = this.findAllClosedGroups(board);
+    findBestClosedGroup(board: Board): ClosedGroup | undefined {
+        var doLogging = false;      
+        var closedGroups = this.findAllClosedGroups(board).sortedBySize();
+        var bestLevel = 0;
+        var bestLength = 9;
+        var bestGroup = undefined;
 
-        if (closedGroups.length > 0) {
-            return closedGroups.sortedBySize()[0];
+        for (let closedGroup of closedGroups) {
+            let level = closedGroup.cleaningLevel(board);
+            if (level > 0) {
+                if (bestGroup === undefined) {
+                    bestLevel = level;
+                    bestGroup = closedGroup;
+                    bestLength = closedGroup.length;                
+                } else {
+                    if (level > bestLevel) {
+                        bestLevel = level;
+                        bestGroup = closedGroup;
+                        bestLength = closedGroup.length;                
+                    } else if (level == bestLevel) {
+                        if (closedGroup.length < bestLength) {
+                            bestLevel = level;
+                            bestGroup = closedGroup;
+                            bestLength = closedGroup.length;                    
+                        }
+                    }
+                }
+            }
         }
-        return undefined;
+        if (doLogging) {
+            if (bestLevel > 0) {
+                console.log("Best Closed Group would clean " + bestLevel + " digits by " + bestLength + " length.");
+            } else {
+                console.log("No usable closed group found.");
+            }
+        }
+        return bestGroup;
     }
 
     _findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
@@ -68,14 +97,16 @@ export class Solver {
         return closedGroups.group(closedGroups.length); // dummy
     }
 
-    _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): Move {
+    _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): [boolean, Move, number] {
         //  Check how far any allowed cipher of the given FieldContent
         //  gets to a board solution or if it leads to an error
+        var doLogging = false;
         var resolutionMove = new Move(fc.pos);    // dummy
         var emptyFieldCount: number;
         var testBoard: Board;
         var testPos = fc.pos;
         var testMove: Move;
+        var bestWin = 0;
 
         for (let digit of fc.allowSet.entries) {
             testBoard = board.copy();
@@ -86,29 +117,43 @@ export class Solver {
             this.solve(testBoard);
             if (testBoard.isFull()) {
                 //  we found a solution
-                resolutionMove = testMove;
-                console.log("Move " + testMove.toString() + " yields a solution.");
-                break;
-            } else {
-                //  we found NO solution ...
-                logBoard(testBoard);
-                if (testBoard.hasErrors()) {
-                    //  ... because the digit yields an error in the end
+                let win = (emptyFieldCount-testBoard.emptyFields());
+                if (doLogging) {
+                    console.log("Move " + testMove.toString() + " would clean " + win + " digits.");
+                    console.log("==> It will yield a solution.");
+                }
+                return [true, testMove, win];
+            }
+            
+            //  we found NO solution ...
+            if (testBoard.hasErrors()) {
+                //  ... because the digit yields an error in the end
+                if (doLogging) {
                     console.log("Move " + testMove.toString() + " yields an ERROR.");
-                } else {
-                    //  ... because the digit just leads further to a solution
-                    console.log("Move " + testMove.toString() + " yields " + (emptyFieldCount-testBoard.emptyFields()) + " field contents.")
+                }
+            } else {
+                //  ... because the digit just leads further to a solution
+                let win = (emptyFieldCount-testBoard.emptyFields());
+                if (win > bestWin) {
+                    bestWin = win;
+                    resolutionMove = testMove;
+                }
+                if (doLogging) {
+                    console.log("Move " + testMove.toString() + " would clean " + win + " digits.");
                 }
             }
         }
-        return resolutionMove;
+        return [false, resolutionMove, bestWin];
     }
 
     findAllResolvingMoves(board: Board): Move[] {
+        var doLogging = false;
         var fcCandidates: FieldContent[] = [];
         var count = 9;
         var resolutionMove: Move;   //dummy
         var solutionMoves: Move[] = []
+        var isSolving: boolean;
+        var digitWin: number;
 
         for (let fc of board.allEmptyFieldContents()) {
             if (fc.allowSet.length < count) {
@@ -122,23 +167,51 @@ export class Solver {
             }
         }
         if (count == 2) {
+            var possibleSolutionMoves: Move[] = [];
             for (let fc of fcCandidates) {
-                resolutionMove = this._findOneSolvingMoveByTrial(board, fc);
-                if (resolutionMove.hasDigit()) {
-                    console.log("Found resolving move at " + resolutionMove.toString())
-                    solutionMoves.push(resolutionMove)
+                [isSolving, resolutionMove, digitWin] = this._findOneSolvingMoveByTrial(board, fc);
+                if (isSolving) {
+                    if (doLogging) {
+                        console.log("Found resolving move at " + resolutionMove.toString())
+                    }
+                    solutionMoves.push(resolutionMove);
                 } else {
-                    console.log("Found no resolving move at " + resolutionMove.pos.toString())
+                    if (resolutionMove.hasDigit()) {
+                        if (doLogging) {
+                            console.log("Found move at " + resolutionMove.toString() + " that cleans " + digitWin + " digits.");
+                        }
+                        possibleSolutionMoves.push(resolutionMove);
+                    } else {
+                        if (doLogging) {
+                            console.log("Found no resolving move at " + resolutionMove.pos.toString());
+                        }
+                    }
+                }
+            }
+            if (solutionMoves.length == 0) {
+                if (doLogging) {
+                    console.log("Found " + possibleSolutionMoves.length + " possible solutions moves.");
+                }
+                for (let checkMove of possibleSolutionMoves) {
+                    let testBoard = board.copy();
+                    testBoard.stopInitialize();
+                    testBoard.add(checkMove, Cause.TRIAL_CIPHER);
+                    this.solve(testBoard);
+                    if (this.findAllResolvingMoves(testBoard).length > 0) {
+                        solutionMoves.push(checkMove);
+                    }
                 }
             }
         } else {
-            console.log("Minimal count of all empty fields is " + count)
+            if (doLogging) {
+                console.log("Minimal count of all empty fields is " + count)
+            }
         }
         return solutionMoves;
     }
 
-    solve(board: Board) {
-        var doLogging = true;
+    solve(board: Board): boolean {
+        var doLogging = false;
 
         var retry: boolean;
         var move: Move;
@@ -170,19 +243,23 @@ export class Solver {
         } while (retry);
 
         if (board.isFull()) {
-            for (let fc of board.allFieldContents()) {
-                console.log(fc.getMove().toString());
-            }
-        } else {
-            let closedGroups = this.findAllClosedGroups(board);
-
             if (doLogging) {
-                if (closedGroups.length == 0) {
-                    console.log("Looking for a closed group, but found none." );
-                } else {
-                    console.log("Looking for a closed group and found one." );
+                for (let fc of board.allFieldContents()) {
+                    console.log(fc.getMove().toString());
                 }
             }
+            return true;
         }
+
+        let closedGroups = this.findAllClosedGroups(board);
+
+        if (doLogging) {
+            if (closedGroups.length == 0) {
+                console.log("Looking for a closed group, but found none." );
+            } else {
+                console.log("Looking for a closed group and found one." );
+            }
+        }
+        return false;
     }
 }

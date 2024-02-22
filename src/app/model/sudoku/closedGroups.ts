@@ -38,11 +38,10 @@ export class ClosedGroup {
         return "Closed group for " + this._grpName + ": " + this._allows.toListString() + " -> " + this._poss;
     }
 
-    clean(board: Board) {
+    cleaningLevel(board: Board) {
+        var doLogging = false;
         var fcGroup = board.fieldContents(this._poss);
         var possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
-
-        console.log("Filter in " + this._grpName + " of the joined group " + this._poss + " is " + this._allows.toListString());
 
         let group = Position.namedGroup(this._grpName);
         let possClean = board.fieldContents(group)
@@ -51,11 +50,47 @@ export class ClosedGroup {
                         .filter((pos) => !possGroupSet.has(pos))
 
         let cleanAllow = this._allows.not()
+        let level = 0;
         for (let pos of possClean) {
             let fcToClean = board.fieldContent(pos);
-            fcToClean.setAllowSet(fcToClean.allowSet.and(cleanAllow))
+            let cleanedAllow = fcToClean.allowSet.and(cleanAllow);
+            level += fcToClean.allowSet.length - cleanedAllow.length;
         }
+        if (doLogging) {
+            console.log("In " + this._grpName + " closed group " + this._poss 
+                + " with " + this._allows.toListString() + " would clean " + level + " digits.");
+        }
+        return level;
     }
+
+    clean(board: Board) {
+        var doLogging = false;
+        var fcGroup = board.fieldContents(this._poss);
+        var possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
+
+        if (doLogging) {
+            console.log("Filter in " + this._grpName + " of the joined group " + this._poss + " is " + this._allows.toListString());
+        }
+
+        let group = Position.namedGroup(this._grpName);
+        let possClean = board.fieldContents(group)
+                        .filter((fc) => fc.isEmpty())
+                        .map((fc) => fc.pos)
+                        .filter((pos) => !possGroupSet.has(pos))
+
+        let cleanAllow = this._allows.not()
+        let level = 0;
+        for (let pos of possClean) {
+            let fcToClean = board.fieldContent(pos);
+            let cleanedAllow = fcToClean.allowSet.and(cleanAllow);
+            level += fcToClean.allowSet.length - cleanedAllow.length;
+            fcToClean.setAllowSet(cleanedAllow);
+        }
+        if (doLogging) {
+            console.log("In " + this._grpName + " closed group " + this._poss 
+                + " with " + this._allows.toListString() + " cleaned " + level + " digits.");
+        }
+    }    
 
     asSet(): Set<Position> {
         let groupSet = new Set<Position>();

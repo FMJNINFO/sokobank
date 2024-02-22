@@ -127,26 +127,14 @@ export class StatusService {
     }
 
     markClosedGroup() {
-        // var doLogging = true;
         var solver = new Solver();
         var closedGroup = solver.findBestClosedGroup(this._board);
 
-        if (closedGroup !== undefined) {
+        if (closedGroup === undefined) {
+            this._board.unmark()
+        } else {
             this._board.mark(closedGroup.asSet())
         }
-
-        // var closedGroups = solver.findAllClosedGroups(this._board);
-
-        // if (closedGroups.length > 0) {
-        //     let smallestGroup = closedGroups.sortedBySize()[0];
-        //     this._board.mark(smallestGroup.asSet())
-        // }
-        // if (doLogging) {
-        //     for (let cg of closedGroups.sortedByName()) {
-        //         console.log(cg.toString())
-        //     }
-        //     console.log("-- Find Closed Group done.")
-        // }
     }
 
     cleanClosedGroup() {
@@ -155,6 +143,8 @@ export class StatusService {
 
         if (closedGroup !== undefined) {
             closedGroup.clean(this._board);
+            this._board.unmark();
+            this.markClosedGroup();
         }
     }
 
@@ -163,7 +153,28 @@ export class StatusService {
         solver.solve(this._board);
     }
 
-    markResolutionByTrial(): boolean {
+    solveAutomatic(): boolean {
+        var solver = new Solver();
+        var moves: Move[];
+        var freeCount = this._board.emptyFields();
+        var prevFreeCount = freeCount + 1;
+
+        while (freeCount < prevFreeCount) {
+            if (freeCount === 0) {
+                return true;
+            }
+            prevFreeCount = freeCount;
+            solver.solve(this._board);
+            var moves = solver.findAllResolvingMoves(this._board);
+            if (moves.length > 0) {
+                this._board.add(moves[0], Cause.TRIAL_CIPHER);
+            }
+            freeCount = this._board.emptyFields();
+        }
+        return false;
+    }
+
+    markBestTrialMove(): boolean {
         if (this._board.emptyFields() > 60) {
             return false;
         }
@@ -183,6 +194,20 @@ export class StatusService {
             }
         }
         this._board.mark(new Set(moves.map((m) => m.pos)));
+        return true;
+    }    
+
+    fillBestTrialMove(): boolean {
+        var doLogging = true;
+        var solver = new Solver();
+        var moves = solver.findAllResolvingMoves(this._board);
+        if (moves.length == 0) {
+            if (doLogging) {
+                console.log("Found no solution");
+            }
+            return false;
+        }
+        this._board.add(moves[0], Cause.TRIAL_CIPHER);
         return true;
     }    
 

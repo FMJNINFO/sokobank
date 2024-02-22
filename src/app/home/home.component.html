@@ -18,7 +18,10 @@ Sudoku<br/>
 <br/>
 <button type="button" (click)="doFillAutomatic($event)" clickable>Fill Automatic</button>
 <br/>
-<button type="button" (click)="doResolveByTrial($event)" clickable>Trial and Error</button>
+<button type="button" (click)="doResolveByTrial($event)" clickable>Find by Trial and Error</button>
+<button type="button" (click)="doFillBestTrialMove($event)" clickable>Use one</button>
+<br/>
+<button type="button" (click)="doSolveAutomatic($event)" clickable>Solve complete</button>
 <br/>
 <br/>
 <button type="button" (click)="setTestBoard('testboard0')" clickable>TestBoard 0</button>
@@ -28,4 +31,8 @@ Sudoku<br/>
 <button type="button" (click)="setTestBoard('testboard2')" clickable>TestBoard 2</button>
 <br/>
 <button type="button" (click)="setTestBoard('testboard3')" clickable>TestBoard 3</button>
+<br/>
+<button type="button" (click)="setTestBoard('testboard4')" clickable>TestBoard 4</button>
+<br/>
+<button type="button" (click)="setTestBoard('testboard5')" clickable>TestBoard 5</button>
 <br/>

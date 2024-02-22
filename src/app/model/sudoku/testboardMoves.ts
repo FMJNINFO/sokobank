@@ -10,6 +10,12 @@ export class TestBoardMoves {
     getMoves(id: string) {
         let moveString = "";
         switch(id) {
+            case "testboard5":
+                moveString = "8...7.9.....4...53.42..5........8.9.9..3......73...26.58.....32.....15...2.8.....";
+                break;
+            case "testboard4":
+                moveString = ".25..6.......2.1.68..4...9......7.6.68....5.1.5..8.........8..9.41....539...1....";
+                break;
             case "testboard3":
                 moveString = "..6....5...1..68.747........5924.......9..3.....1..52.8.........2..71...6.4.9...3";
                 break;
