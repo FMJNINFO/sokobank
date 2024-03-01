@@ -96,6 +96,13 @@ export class CipherSet {
         return entries;
     }
 
+    copy(): CipherSet {
+        var copy = new CipherSet();
+        copy._bitset = this._bitset;
+        copy._length = this._length;
+        return copy;
+    }
+
     static
     emptyFrequency(): number[] {
         return [0,0,0,0,0,0,0,0,0];

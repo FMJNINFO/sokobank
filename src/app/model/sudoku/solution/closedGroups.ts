@@ -1,7 +1,7 @@
-import { Board } from "./board";
-import { CipherSet } from "./cipherset";
-import { FieldContent } from "./fieldContent";
-import { Position } from "./position";
+import { Board } from "../board";
+import { CipherSet } from "../cipherset";
+import { FieldContent } from "../fieldContent";
+import { Position } from "../position";
 
 export class ClosedGroup {
     _poss: Position[];
@@ -124,6 +124,15 @@ export class ClosedGroup {
         }
         return false;
     }
+
+    static of(groupName: string, groupFields: FieldContent[], allows: CipherSet): ClosedGroup {
+        let cg = new ClosedGroup(groupName);
+        for (let fc of groupFields) {
+            cg._poss.push(fc.pos);
+        }
+        cg._allows = allows;
+        return cg;
+    }
 }
 
 export class ClosedGroups {
@@ -156,7 +165,7 @@ export class ClosedGroups {
         })
     }
 
-    _add(closedGroup: ClosedGroup) {
+    add(closedGroup: ClosedGroup) {
         this._groups.push(closedGroup);
     }
 
@@ -164,7 +173,7 @@ export class ClosedGroups {
         var closedGroup = new ClosedGroup(baseGroupName);
         fieldContents.forEach((fc) => closedGroup.add(fc));
         if (closedGroup.isValid) {
-            this._add(closedGroup)
+            this.add(closedGroup)
         }
     }
 
