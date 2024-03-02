@@ -2,8 +2,8 @@ import { Board } from "./board";
 import { FieldContent } from "./fieldContent";
 import { Position } from "./position";
 
-var doLogBoard = true;
-var doLogBoardEvaluation = false;
+let doLogBoard = true;
+let doLogBoardEvaluation = false;
 
 export function message(s: string) {
     alert(s);
@@ -32,11 +32,11 @@ export function logBoardEvaluationContent(fieldContent: FieldContent) {
 export function logBoard(board: Board, marked: Position | undefined=undefined): void {
     if (!doLogBoard)    return;
 
-    var line: string;
-    var pos: Position;
-    var ch = " ";
-    var digitChar: string;
-    var fc: FieldContent;
+    let line: string;
+    let pos: Position;
+    let ch = " ";
+    let digitChar: string;
+    let fc: FieldContent;
 
     if (board.isFull()) {
         println("Board is completely filled.");

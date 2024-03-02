@@ -76,7 +76,7 @@ export class FieldContent {
     }
 
     toString(): string {
-        var s = this._move.pos.toString();
+        let s = this._move.pos.toString();
         if (this.isEmpty()) {
             s += ": " + this.allowSet.toListString();
         } else {

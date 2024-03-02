@@ -39,9 +39,9 @@ export class ClosedGroup {
     }
 
     cleaningLevel(board: Board) {
-        var doLogging = false;
-        var fcGroup = board.fieldContents(this._poss);
-        var possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
+        let doLogging = false;
+        let fcGroup = board.fieldContents(this._poss);
+        let possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
 
         let group = Position.namedGroup(this._grpName);
         let possClean = board.fieldContents(group)
@@ -64,9 +64,9 @@ export class ClosedGroup {
     }
 
     clean(board: Board) {
-        var doLogging = false;
-        var fcGroup = board.fieldContents(this._poss);
-        var possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
+        let doLogging = false;
+        let fcGroup = board.fieldContents(this._poss);
+        let possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
 
         if (doLogging) {
             console.log("Filter in " + this._grpName + " of the joined group " + this._poss + " is " + this._allows.toListString());
@@ -170,7 +170,7 @@ export class ClosedGroups {
     }
 
     checkAndAdd(baseGroupName: string, fieldContents: FieldContent[]) {
-        var closedGroup = new ClosedGroup(baseGroupName);
+        let closedGroup = new ClosedGroup(baseGroupName);
         fieldContents.forEach((fc) => closedGroup.add(fc));
         if (closedGroup.isValid) {
             this.add(closedGroup)

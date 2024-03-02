@@ -18,7 +18,7 @@ export class LonelyCipherFinder {
     }
 
     #findOne(board: Board): Move[] {
-        var moves: Move[] = [];
+        let moves: Move[] = [];
 
         if (this._solver.memory.lastUser !== LonelyCipherFinder.username) {
             this._solver.adjustMemory(LonelyCipherFinder.username);
@@ -38,38 +38,37 @@ export class LonelyCipherFinder {
     }
 
     #findAll(board: Board): Move[] {
-        var moves: Move[] = [];
-        var moves = this.#candidates(board).map((fc) => new Move(fc.pos, fc.allowSet.entries[0]));
+        let moves: Move[] = this.#candidates(board).map((fc) => new Move(fc.pos, fc.allowSet.entries[0]));
         return moves;
     }
 
     markOne(board: Board) {
-        var moveSet = new Set(this.#findOne(board).map((m) => m.pos));
+        let moveSet = new Set(this.#findOne(board).map((m) => m.pos));
         board.mark(moveSet);
     }
 
     markAll(board: Board) {
         this._solver.adjustMemory();
-        var moveSet = new Set(this.#findAll(board).map((m) => m.pos));
+        let moveSet = new Set(this.#findAll(board).map((m) => m.pos));
         board.mark(moveSet);
     }
 
     solveOne(board: Board) {
-        var moves = this.#findOne(board);
+        let moves = this.#findOne(board);
         moves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
     }
 
     solveAll(board: Board) {
         this._solver.adjustMemory();
-        var moves = this.#findAll(board);
+        let moves = this.#findAll(board);
         moves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
     }
 
     findLonelyCiphers(board: Board, findAll: boolean=true): Move[] {
-        var moves: Move[] = [];
-        var move: Move;
+        let moves: Move[] = [];
+        let move: Move;
 
-        var fcLonelyCiphers = board.allEmptyFieldContents()
+        let fcLonelyCiphers = board.allEmptyFieldContents()
             .filter((fc) => fc.allowSet.length === 1);
         for (let fc of fcLonelyCiphers) {
             move = new Move(fc.pos, fc.allowSet.entries[0]);

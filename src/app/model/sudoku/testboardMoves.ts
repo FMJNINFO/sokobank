@@ -1,10 +1,8 @@
-import { MoveFinder } from "./moveFinder";
+import { Move } from "./move";
 
 export class TestBoardMoves {
-    moveFinder: MoveFinder;
 
     constructor() {
-        this.moveFinder = new MoveFinder();
     }
 
     getMoves(id: string) {
@@ -29,6 +27,6 @@ export class TestBoardMoves {
                 moveString = ".1..............14..8...65..5....2..1.3.42..6.8..93....9..8.7.523.7..........6.9.";
                 break;
         }
-        return this.moveFinder.stringToMoves(moveString);
+        return Move.stringToMoves(moveString);
     }
 }

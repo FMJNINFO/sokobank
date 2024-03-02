@@ -56,7 +56,7 @@ export class Solver {
     }
 
     #findOneLonelyCipher(board: Board): Move {
-        var moves = this.lonelyCipherFinder.findLonelyCiphers(board, false);
+        let moves = this.lonelyCipherFinder.findLonelyCiphers(board, false);
 
         if (moves.length < 1) {
             return new Move(Position.NoPosition);     // empty dummy
@@ -69,7 +69,7 @@ export class Solver {
     }
 
     #findOneUniqueCipher(board: Board): Move {
-        var moves = this.uniqueCipherFinder.findUniqueCiphers(board, false);
+        let moves = this.uniqueCipherFinder.findUniqueCiphers(board, false);
 
         if (moves.length < 1) {
             return new Move(Position.NoPosition);     // empty dummy
@@ -78,7 +78,6 @@ export class Solver {
     }
 
     findAllClosedGroups(board: Board): ClosedGroups {
-        this.closedGroupFinder.findAll(board);
         return this.closedGroupFinder.findAll(board);
     }
 
@@ -87,7 +86,7 @@ export class Solver {
     }
 
     #findOneClosedGroup(board: Board, but: Set<ClosedGroup>=new Set()) {
-        var closedGroups = this.closedGroupFinder.findAll(board);        
+        let closedGroups = this.closedGroupFinder.findAll(board);        
 
         for (let i=0; i<closedGroups.length; i++) {
             let closedGroup = closedGroups.group(i);
@@ -104,11 +103,11 @@ export class Solver {
     }
 
     solve(board: Board): boolean {
-        var doLogging = false;
+        let doLogging = false;
 
-        var retry: boolean;
-        var move: Move;
-        var knownGroups = new Set<ClosedGroup>();
+        let retry: boolean;
+        let move: Move;
+        let knownGroups = new Set<ClosedGroup>();
 
         do {
             retry = false;
@@ -116,6 +115,9 @@ export class Solver {
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move, Cause.LONELY_CIPHER);
+                if (board.hasErrors()) {
+                    return false;
+                }
                 knownGroups.clear();
                 continue;
             }
@@ -123,6 +125,9 @@ export class Solver {
             if (move.hasDigit()) {
                 retry = true;
                 board.add(move, Cause.UNIQUE_CIPHER);
+                if (board.hasErrors()) {
+                    return false;
+                }
                 knownGroups.clear();
                 continue;
             }

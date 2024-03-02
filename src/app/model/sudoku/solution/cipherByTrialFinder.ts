@@ -14,13 +14,13 @@ export class CipherByTrialFinder {
     _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): [boolean, Move, number] {
         //  Check how far any allowed cipher of the given FieldContent
         //  gets to a board solution or if it leads to an error
-        var doLogging = false;
-        var resolutionMove = new Move(fc.pos);    // dummy
-        var emptyFieldCount: number;
-        var testBoard: Board;
-        var testPos = fc.pos;
-        var testMove: Move;
-        var bestWin = 0;
+        let doLogging = false;
+        let resolutionMove = new Move(fc.pos);    // dummy
+        let emptyFieldCount: number;
+        let testBoard: Board;
+        let testPos = fc.pos;
+        let testMove: Move;
+        let bestWin = 0;
 
         for (let digit of fc.allowSet.entries) {
             testBoard = board.copy();
@@ -61,13 +61,13 @@ export class CipherByTrialFinder {
     }
 
     findAllResolvingMoves(board: Board): Move[] {
-        var doLogging = false;
-        var fcCandidates: FieldContent[] = [];
-        var count = 9;
-        var resolutionMove: Move;   //dummy
-        var solutionMoves: Move[] = []
-        var isSolving: boolean;
-        var digitWin: number;
+        let doLogging = true;
+        let fcCandidates: FieldContent[] = [];
+        let count = 9;
+        let resolutionMove: Move;   //dummy
+        let solutionMoves: Move[] = []
+        let isSolving: boolean;
+        let digitWin: number;
 
         for (let fc of board.allEmptyFieldContents()) {
             if (fc.allowSet.length < count) {
@@ -80,8 +80,16 @@ export class CipherByTrialFinder {
                 }
             }
         }
+        if (doLogging) {
+            console.log();
+            console.log("Minimal candidate size is " + count);
+            console.log("Found " + fcCandidates.length + " candidates of this size:");
+            for (let fc of fcCandidates) {
+                console.log("   " + fc.toString())
+            }
+        }
         if (count == 2) {
-            var possibleSolutionMoves: Move[] = [];
+            let possibleSolutionMoves: Move[] = [];
             for (let fc of fcCandidates) {
                 [isSolving, resolutionMove, digitWin] = this._findOneSolvingMoveByTrial(board, fc);
                 if (isSolving) {

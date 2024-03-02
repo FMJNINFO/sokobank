@@ -60,7 +60,7 @@ export class Position {
     }
 
     toString(): string {
-        var s = "["+this.row+","+this.col+"]";
+        let s = "["+this.row+","+this.col+"]";
         return s;
     }
 
@@ -230,7 +230,7 @@ export class Position {
     }
 
     static namedGroup(sGrp: string): Position[] {
-        var poss = Position._namedGroups.get(sGrp);
+        let poss = Position._namedGroups.get(sGrp);
         if (poss == undefined) {
             return [];
         }

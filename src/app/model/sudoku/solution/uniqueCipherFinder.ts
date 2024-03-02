@@ -23,7 +23,7 @@ export class UniqueCipherFinder {
         const fcs = this.#candidates(board, group);
         const frequency = fcs.reduce((frq, fc) => fc.allowSet.addFrequency(frq), CipherSet.emptyFrequency());
 
-        var moves: Move[] = []        
+        let moves: Move[] = []        
         let fc: FieldContent | undefined;
         let digit: number;
 
@@ -41,7 +41,7 @@ export class UniqueCipherFinder {
     }
 
     #findOne(board: Board): Move[] {
-        var moves: Move[] = [];
+        let moves: Move[] = [];
 
         if (this._solver.memory.lastUser !== UniqueCipherFinder.username) {
             this._solver.adjustMemory(UniqueCipherFinder.username);
@@ -61,8 +61,8 @@ export class UniqueCipherFinder {
     }
 
     #findAll(board: Board): Move[] {
-        var founds: Map<number, Move> = new Map();
-        var moves: Move[];
+        let founds: Map<number, Move> = new Map();
+        let moves: Move[];
         for (let [sGrp, grp] of Position.namedGrps()) {        
             moves = this.#findAllInGroup(board, grp);
             for (let move of moves) {
@@ -73,33 +73,33 @@ export class UniqueCipherFinder {
     }
 
     markOne(board: Board) {
-        var moveSet = new Set(this.#findOne(board).map((m) => m.pos));
+        let moveSet = new Set(this.#findOne(board).map((m) => m.pos));
         board.mark(moveSet);
     }
 
     markAll(board: Board) {
         this._solver.adjustMemory();
-        var moveSet = new Set(this.#findAll(board).map((m) => m.pos));
+        let moveSet = new Set(this.#findAll(board).map((m) => m.pos));
         board.mark(moveSet);
     }
 
     solveOne(board: Board) {
-        var moves = this.#findOne(board);
+        let moves = this.#findOne(board);
         moves.forEach((move) => board.add(move, UniqueCipherFinder.cause));
     }
 
     solveAll(board: Board) {
         this._solver.adjustMemory();
-        var moves = this.#findAll(board);
+        let moves = this.#findAll(board);
         moves.forEach((move) => board.add(move, UniqueCipherFinder.cause));
     }
 
     #findGroupUniqueCiphers(board: Board, group: Position[], findAll: boolean=true): Move[] {
-        var emptyFields: FieldContent[] = [];
-        var frequency: number[];
+        let emptyFields: FieldContent[] = [];
+        let frequency: number[];
         let fc: FieldContent | undefined;
-        var moves: Move[] = [];
-        var move: Move;
+        let moves: Move[] = [];
+        let move: Move;
 
         frequency = CipherSet.emptyFrequency();
         emptyFields = board.fieldContents(group).filter((fc) => fc.isEmpty()); 
@@ -124,7 +124,7 @@ export class UniqueCipherFinder {
     }    
 
     findUniqueCiphers(board: Board, findAll: boolean=true): Move[] {
-        var doLogging = false;
+        let doLogging = false;
         let moves: Move[];
         let joinedMoves: Move[] = [];
         for (let [sGrp, grp] of Position.namedGrps()) {

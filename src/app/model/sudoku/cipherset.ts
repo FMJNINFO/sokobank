@@ -1,5 +1,4 @@
 
-
 export class CipherSet {
     static zeroes = "000000000";
     static allOnes = 511;
@@ -15,9 +14,9 @@ export class CipherSet {
     }
 
     constructor(...digits: number[]) {
-        var digit: number;
-        var value: number | undefined;
-        var joinedValue = 0;
+        let digit: number;
+        let value: number | undefined;
+        let joinedValue = 0;
         for (digit of digits) {
             if (CipherSet.BaseValue.has(digit)) {
                 value = CipherSet.BaseValue.get(digit);
@@ -30,14 +29,14 @@ export class CipherSet {
     }
 
     toString(): string {
-        var s = CipherSet.zeroes + this._bitset.toString(2);
+        let s = CipherSet.zeroes + this._bitset.toString(2);
         return s.substring(s.length-9);
     }
 
     toListString(): string {
-        var s = "";
-        var cs = this._bitset;
-        var val = 1;
+        let s = "";
+        let cs = this._bitset;
+        let val = 1;
         while (cs > 0) {
             if ((cs & 1) > 0) {
                 s = s + (s.length>0 ? "," : "") + val;
@@ -53,25 +52,25 @@ export class CipherSet {
     }
 
     or(cs: CipherSet): CipherSet {
-        var ret = new CipherSet();
+        let ret = new CipherSet();
         ret._setBitset(this._bitset | cs._bitset);
         return ret;
     }
 
     and(cs: CipherSet): CipherSet {
-        var ret = new CipherSet();
+        let ret = new CipherSet();
         ret._setBitset(this._bitset & cs._bitset);
         return ret;
     }
 
     not(): CipherSet {
-        var ret = new CipherSet();
+        let ret = new CipherSet();
         ret._setBitset(~this._bitset & CipherSet.allOnes);
         return ret;
     }
 
     contains(digit: number): boolean {
-        var digitBits = CipherSet.BaseValue.get(digit);
+        let digitBits = CipherSet.BaseValue.get(digit);
         if (digitBits != undefined) {
             return (this._bitset & digitBits) != 0;
         }
@@ -83,9 +82,9 @@ export class CipherSet {
     }
 
     get entries(): number[] {
-        var entries = [];
-        var cs = this._bitset;
-        var val = 1;
+        let entries = [];
+        let cs = this._bitset;
+        let val = 1;
         while (cs > 0) {
             if ((cs & 1) > 0) {
                 entries.push(val);
@@ -97,7 +96,7 @@ export class CipherSet {
     }
 
     copy(): CipherSet {
-        var copy = new CipherSet();
+        let copy = new CipherSet();
         copy._bitset = this._bitset;
         copy._length = this._length;
         return copy;
@@ -109,8 +108,8 @@ export class CipherSet {
     }
 
     addFrequency(frequency: number[] = CipherSet.emptyFrequency()): number[] {
-        var cs = this._bitset;
-        var val = 0;
+        let cs = this._bitset;
+        let val = 0;
         while (cs > 0) {
             if ((cs & 1) > 0) {
                 frequency[val] += 1
@@ -137,7 +136,7 @@ export class CipherSet {
     }
 
     static ofAll(): CipherSet {
-        var ret = new CipherSet();
+        let ret = new CipherSet();
         ret._setBitset(CipherSet.allOnes);
         return ret;
     }

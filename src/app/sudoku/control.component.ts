@@ -2,8 +2,8 @@ import { Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
 import { StatusService } from "../services/status.service";
-import { MoveFinder } from "../model/sudoku/moveFinder";
 import { Cause } from "../model/sudoku/fieldContent";
+import { Move } from "../model/sudoku/move";
 
 export @Component({
     selector: 'control',
@@ -12,15 +12,9 @@ export @Component({
 
 })
 class ControlComponent {
-    moveFinder = new MoveFinder();
-
     constructor(private service: StatusService) {
         // service.showHint$.subscribe(visible => this.onHintVisibilityChanged(visible)); 
     }
-
-    // private onHintVisibilityChanged(visible: boolean) {
-    //     console.log("Hint is " + (visible ? "" : "not") + " visible.");
-    // }
 
     onHintVisibilityChanged($event: any) {
         this.service.showHint($event.currentTarget.checked);
@@ -82,7 +76,7 @@ class ControlComponent {
     doCopyToBoard(boardcopy: HTMLTextAreaElement) {
         console.log("To Board");
         let s = boardcopy.value;
-        let moves = this.moveFinder.stringToMoves(s);
+        let moves = Move.stringToMoves(s);
         this.service.setBoardByMoves(moves, Cause.PRESET);
     }
 }

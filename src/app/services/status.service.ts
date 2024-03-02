@@ -78,10 +78,10 @@ export class StatusService {
     }
 
     public markAllLonelyCiphers(): void {
-        var doLogging = true;
-        var solver = new Solver();
+        let doLogging = true;
+        let solver = new Solver();
 
-        var moves = solver.findAllLonelyCiphers(this._board);
+        let moves = solver.findAllLonelyCiphers(this._board);
         if (doLogging) {
             for (let move of moves) {
                 console.log("Lonely cipher: " + move.toString())
@@ -92,9 +92,9 @@ export class StatusService {
     }
 
     public fillLonelyCiphers(): void {
-        var solver = new Solver();
+        let solver = new Solver();
 
-        var moves = solver.findAllLonelyCiphers(this._board);
+        let moves = solver.findAllLonelyCiphers(this._board);
         for (let move of moves) {
             if (move.hasDigit()) {
                 this._board.add(move, Cause.LONELY_CIPHER);
@@ -103,10 +103,10 @@ export class StatusService {
     }
 
     public markUniqueCiphers() {
-        var doLogging = true;
-        var solver = new Solver();
+        let doLogging = true;
+        let solver = new Solver();
 
-        var moves = solver.findAllUniqueCiphers(this._board);
+        let moves = solver.findAllUniqueCiphers(this._board);
         if (doLogging) {
             for (let move of moves) {
                 console.log("Found unique cipher: " + move.toString());
@@ -117,8 +117,8 @@ export class StatusService {
     }
 
     public fillUniqueCiphers() {
-        var solver = new Solver();
-        var moves = solver.findAllUniqueCiphers(this._board);
+        let solver = new Solver();
+        let moves = solver.findAllUniqueCiphers(this._board);
         for (let move of moves) {
             if (move.hasDigit()) {
                 this._board.add(move, Cause.UNIQUE_CIPHER);
@@ -127,8 +127,8 @@ export class StatusService {
     }
 
     markClosedGroup() {
-        var solver = new Solver();
-        var closedGroup = solver.findBestClosedGroup(this._board);
+        let solver = new Solver();
+        let closedGroup = solver.findBestClosedGroup(this._board);
 
         if (closedGroup === undefined) {
             this._board.unmark()
@@ -138,8 +138,8 @@ export class StatusService {
     }
 
     cleanClosedGroup() {
-        var solver = new Solver();
-        var closedGroup = solver.findBestClosedGroup(this._board);
+        let solver = new Solver();
+        let closedGroup = solver.findBestClosedGroup(this._board);
 
         if (closedGroup !== undefined) {
             closedGroup.clean(this._board);
@@ -149,15 +149,15 @@ export class StatusService {
     }
 
     fillAutomatic() {
-        var solver = new Solver();
+        let solver = new Solver();
         solver.solve(this._board);
     }
 
     solveAutomatic(): boolean {
-        var solver = new Solver();
-        var moves: Move[];
-        var freeCount = this._board.emptyFields();
-        var prevFreeCount = freeCount + 1;
+        let solver = new Solver();
+        let moves: Move[];
+        let freeCount = this._board.emptyFields();
+        let prevFreeCount = freeCount + 1;
 
         while (freeCount < prevFreeCount) {
             if (freeCount === 0) {
@@ -165,7 +165,7 @@ export class StatusService {
             }
             prevFreeCount = freeCount;
             solver.solve(this._board);
-            var moves = solver.findAllResolvingMoves(this._board);
+            let moves = solver.findAllResolvingMoves(this._board);
             if (moves.length > 0) {
                 this._board.add(moves[0], Cause.TRIAL_CIPHER);
             }
@@ -178,9 +178,9 @@ export class StatusService {
         if (this._board.emptyFields() > 60) {
             return false;
         }
-        var doLogging = true;
-        var solver = new Solver();
-        var moves = solver.findAllResolvingMoves(this._board);
+        let doLogging = true;
+        let solver = new Solver();
+        let moves = solver.findAllResolvingMoves(this._board);
         if (moves.length == 0) {
             if (doLogging) {
                 console.log("Found no solution")
@@ -198,9 +198,9 @@ export class StatusService {
     }    
 
     fillBestTrialMove(): boolean {
-        var doLogging = true;
-        var solver = new Solver();
-        var moves = solver.findAllResolvingMoves(this._board);
+        let doLogging = true;
+        let solver = new Solver();
+        let moves = solver.findAllResolvingMoves(this._board);
         if (moves.length == 0) {
             if (doLogging) {
                 console.log("Found no solution");
@@ -236,10 +236,10 @@ export class StatusService {
     }
 
     public allowedChars(): string {
-        return Board.AllowedChars;
+        return Move.AllowedChars;
     }
 
     public spaceCharacter(): string {
-        return Board.SpaceChar;
+        return Move.SpaceChar;
     }
 }
