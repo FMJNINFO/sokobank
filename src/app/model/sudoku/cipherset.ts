@@ -25,7 +25,7 @@ export class CipherSet {
                 }
             }
         }
-        this._setBitset(joinedValue);
+        this.#setBitset(joinedValue);
     }
 
     toString(): string {
@@ -53,19 +53,19 @@ export class CipherSet {
 
     or(cs: CipherSet): CipherSet {
         let ret = new CipherSet();
-        ret._setBitset(this._bitset | cs._bitset);
+        ret.#setBitset(this._bitset | cs._bitset);
         return ret;
     }
 
     and(cs: CipherSet): CipherSet {
         let ret = new CipherSet();
-        ret._setBitset(this._bitset & cs._bitset);
+        ret.#setBitset(this._bitset & cs._bitset);
         return ret;
     }
 
     not(): CipherSet {
         let ret = new CipherSet();
-        ret._setBitset(~this._bitset & CipherSet.allOnes);
+        ret.#setBitset(~this._bitset & CipherSet.allOnes);
         return ret;
     }
 
@@ -120,7 +120,7 @@ export class CipherSet {
         return frequency;
     }
 
-    _setBitset(digit: number) {
+    #setBitset(digit: number) {
         this._bitset = digit;
         this._length = 0;
         while (digit > 0) {
@@ -137,7 +137,7 @@ export class CipherSet {
 
     static ofAll(): CipherSet {
         let ret = new CipherSet();
-        ret._setBitset(CipherSet.allOnes);
+        ret.#setBitset(CipherSet.allOnes);
         return ret;
     }
 }

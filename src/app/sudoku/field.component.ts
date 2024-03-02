@@ -22,7 +22,7 @@ class FieldComponent {
     _isEditing = false;
 
     constructor(private service: StatusService) { 
-        service.shouldEdit$.subscribe(pos => this.onEditorChanged(pos));        
+        service.shouldEdit$.subscribe(pos => this.#onEditorChanged(pos));        
     }
     
     get isEditing(): boolean {
@@ -62,7 +62,7 @@ class FieldComponent {
     }
 
     set value(value: string) {
-        let digit = this.toDigit(value);
+        let digit = this.#toDigit(value);
         this.service.setDigit(this.pos, digit, Cause.ENTERED);
     }
 
@@ -82,7 +82,7 @@ class FieldComponent {
         return this.service.isMarked(this.pos);
     }
 
-    private toDigit(sDigit: string): number {
+    #toDigit(sDigit: string): number {
         switch(sDigit) {
             case "1":   return 1;
             case "2":   return 2;
@@ -104,7 +104,7 @@ class FieldComponent {
     handleKeyboardEvent(event: KeyboardEvent) {
         if (this.isEditing) {
             console.log(event);
-            let digit = this.toDigit(event.key);
+            let digit = this.#toDigit(event.key);
             if (digit != 0) {
                 this.setDigit(digit);
                 this.service.shouldEdit$.emit(this.pos.right());
@@ -131,7 +131,7 @@ class FieldComponent {
         }
     }
 
-    private onEditorChanged(pos: Position) {
+    #onEditorChanged(pos: Position) {
         this.setEditing(pos.equals(this.pos));
         if (this.isEditing) {
             console.log("Current editor is " + this.pos);

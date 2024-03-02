@@ -5,13 +5,13 @@ import { Solver } from "../solver";
 
 
 export class CipherByTrialFinder {
-    private _solver: Solver;
+    _solver: Solver;
 
     constructor(solver: Solver) {
         this._solver = solver;
     }
 
-    _findOneSolvingMoveByTrial(board: Board, fc: FieldContent): [boolean, Move, number] {
+    #findOneSolvingMoveByTrial(board: Board, fc: FieldContent): [boolean, Move, number] {
         //  Check how far any allowed cipher of the given FieldContent
         //  gets to a board solution or if it leads to an error
         let doLogging = false;
@@ -91,7 +91,7 @@ export class CipherByTrialFinder {
         if (count == 2) {
             let possibleSolutionMoves: Move[] = [];
             for (let fc of fcCandidates) {
-                [isSolving, resolutionMove, digitWin] = this._findOneSolvingMoveByTrial(board, fc);
+                [isSolving, resolutionMove, digitWin] = this.#findOneSolvingMoveByTrial(board, fc);
                 if (isSolving) {
                     if (doLogging) {
                         console.log("Found resolving move at " + resolutionMove.toString())

@@ -7,13 +7,13 @@ import { Solver } from "../model/sudoku/solver";
 import { Cause } from "../model/sudoku/fieldContent";
 
 export class StatusService {
-    public shouldEdit$: EventEmitter<Position>;
-    public showHint$: EventEmitter<boolean>;
-    public boardChanged$: EventEmitter<Board>;
+    shouldEdit$: EventEmitter<Position>;
+    showHint$: EventEmitter<boolean>;
+    boardChanged$: EventEmitter<Board>;
 
-    private _editor: Position;
-    private _isHintVisible: boolean;
-    private _board: Board;
+    _editor: Position;
+    _isHintVisible: boolean;
+    _board: Board;
 
     constructor() {
         this.shouldEdit$ = new EventEmitter();
@@ -25,51 +25,51 @@ export class StatusService {
         this._board = new Board();
     }
 
-    public currentEditor(): Position {
+    currentEditor(): Position {
         return this._editor;
     }
-    public shouldEdit(pos: Position): void {
+    shouldEdit(pos: Position): void {
         this._editor = pos;
         this.shouldEdit$.emit(pos);
     }
-    public onEditorChange(pos: Position): void {
+    onEditorChange(pos: Position): void {
         this._editor = pos;
         this.shouldEdit$.emit(pos);
     }
 
-    public showHint(isHintVisible: boolean): void {
+    showHint(isHintVisible: boolean): void {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
     }
 
-    public onHintVisibilityChanged(isHintVisible: boolean): void {
+    onHintVisibilityChanged(isHintVisible: boolean): void {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
     }
 
-    public isHintVisible(): boolean {
+    isHintVisible(): boolean {
         return this._isHintVisible;
     }
 
-    public getBoard(): Board {
+    getBoard(): Board {
         return this._board;
     }
-    public changeBoard(board: Board) {
+    changeBoard(board: Board) {
         this._board = board;
         logBoard(this._board);
         console.log("");
         this.boardChanged$.emit(this._board);
     }
 
-    public getDigit(pos: Position): number {
+    getDigit(pos: Position): number {
         return this._board.fieldContent(pos).digit();
     }
 
-    public getBoardContentAsString(): string {
+    getBoardContentAsString(): string {
         return this._board.contentToString();
     }
 
-    public setBoardByMoves(moves: Move[], cause: Cause) {
+    setBoardByMoves(moves: Move[], cause: Cause) {
         this._board.startInitialize();
         for (let move of moves) {
             this._board.add(move, cause);
@@ -77,7 +77,7 @@ export class StatusService {
         this._board.stopInitialize();
     }
 
-    public markAllLonelyCiphers(): void {
+    markAllLonelyCiphers(): void {
         let doLogging = true;
         let solver = new Solver();
 
@@ -91,7 +91,7 @@ export class StatusService {
         this._board.mark(new Set(moves.map((m) => m.pos)));
     }
 
-    public fillLonelyCiphers(): void {
+    fillLonelyCiphers(): void {
         let solver = new Solver();
 
         let moves = solver.findAllLonelyCiphers(this._board);
@@ -102,7 +102,7 @@ export class StatusService {
         }
     }
 
-    public markUniqueCiphers() {
+    markUniqueCiphers() {
         let doLogging = true;
         let solver = new Solver();
 
@@ -116,7 +116,7 @@ export class StatusService {
         this._board.mark(new Set(moves.map((m) => m.pos)));
     }
 
-    public fillUniqueCiphers() {
+    fillUniqueCiphers() {
         let solver = new Solver();
         let moves = solver.findAllUniqueCiphers(this._board);
         for (let move of moves) {
@@ -211,35 +211,35 @@ export class StatusService {
         return true;
     }    
 
-    public getBoxDigit(boxId: number, idInBox: number): number {
+    getBoxDigit(boxId: number, idInBox: number): number {
         return this._board.getDigit(Position.box(boxId)[idInBox]);
     }
 
-    public setDigit(pos: Position, digit: number, cause: Cause) {
+    setDigit(pos: Position, digit: number, cause: Cause) {
         let move = new Move(pos, digit);
         this._board.add(move, cause);
     }
 
-    public hasError(pos: Position): boolean {
+    hasError(pos: Position): boolean {
         return this._board.hasError(pos);
     }
 
-    public isMarked(pos: Position): boolean {
+    isMarked(pos: Position): boolean {
         if (this._isHintVisible) {
             return this._board.isMarked(pos);
         }
         return false;
     }
 
-    public isAllowed(pos: Position, digit: number): boolean {
+    isAllowed(pos: Position, digit: number): boolean {
         return this._board.fieldContent(pos).allows(digit);
     }
 
-    public allowedChars(): string {
+    allowedChars(): string {
         return Move.AllowedChars;
     }
 
-    public spaceCharacter(): string {
+    spaceCharacter(): string {
         return Move.SpaceChar;
     }
 }

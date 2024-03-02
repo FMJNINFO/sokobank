@@ -6,7 +6,7 @@ import { Position } from "../position";
 import { ClosedGroup, ClosedGroups } from "./closedGroups";
 
 export class ClosedGroupFinder {
-    private static INVALID_GROUP = new ClosedGroup("");
+    static INVALID_GROUP = new ClosedGroup("");
 
     constructor() {
     }

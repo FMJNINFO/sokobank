@@ -1,11 +1,11 @@
 
 export class Position {
     static NoPosition = new Position(-1);
-    private static _pool: Position[] = Position._initPool();
-    private static _rows: Position[][] = Position._initRows();
-    private static _cols: Position[][] = Position._initCols();
-    private static _boxs: Position[][] = Position._initBoxs();
-    private static _namedGroups: Map<string, Position[]> = Position._initNamedGroups()
+    static _pool: Position[] = Position.#initPool();
+    static _rows: Position[][] = Position.#initRows();
+    static _cols: Position[][] = Position.#initCols();
+    static _boxs: Position[][] = Position.#initBoxs();
+    static _namedGroups: Map<string, Position[]> = Position.#initNamedGroups()
 
     //       C0  C1  C2   C3  C4  C5   C6  C7  C8
     //
@@ -22,12 +22,12 @@ export class Position {
     // R8    72  73  74   75  76  77   78  79  80
     //
 
-    private _posId: number;    //  0 .. 80
-    private _rowId: number;
-    private _colId: number;
-    private _boxId: number;
+    _posId: number;    //  0 .. 80
+    _rowId: number;
+    _colId: number;
+    _boxId: number;
 
-    private constructor(pos: number) {
+    constructor(pos: number) {
         this._posId = pos;
         this._rowId = Math.floor(pos/9);
         this._colId = pos % 9;
@@ -151,7 +151,7 @@ export class Position {
         return Position._pool;
     }
 
-    static _initPool() : Position[] {
+    static #initPool() : Position[] {
         let pool: Position[] = [];
         for (let i=0; i<81; i++) {
             pool.push( new Position(i) );
@@ -159,7 +159,7 @@ export class Position {
         return pool;
     }
 
-    static _initRows() : Position[][] {
+    static #initRows() : Position[][] {
         let rows: Position[][] = [];
         let row: Position[];
         let startPos: number;
@@ -174,7 +174,7 @@ export class Position {
         return rows;
     }
 
-    static _initCols() : Position[][] {
+    static #initCols() : Position[][] {
         let cols: Position[][] = [];
         let col: Position[];
         for (let idx=0; idx<9; idx++) {
@@ -187,7 +187,7 @@ export class Position {
         return cols;
     }
 
-    static _initBoxs() : Position[][] {
+    static #initBoxs() : Position[][] {
         let boxs: Position[][] = [];
         let box: Position[];
         let startPos: number;
@@ -204,7 +204,7 @@ export class Position {
         return boxs;
     }
 
-    static _initNamedGroups() : Map<string, Position[]> {
+    static #initNamedGroups() : Map<string, Position[]> {
         let grps: Map<string, Position[]> = new Map();
         let grp: Position[];
         let i = 0;

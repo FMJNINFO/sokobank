@@ -9,7 +9,7 @@ import { Solver } from "../solver";
 export class UniqueCipherFinder {
     static username = "UniqueCipher";
     static cause = Cause.UNIQUE_CIPHER;
-    private _solver: Solver;
+    _solver: Solver;
 
     constructor(solver: Solver) {
         this._solver = solver;

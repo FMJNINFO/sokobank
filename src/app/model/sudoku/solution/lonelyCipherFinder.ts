@@ -7,7 +7,7 @@ import { Solver } from "../solver";
 export class LonelyCipherFinder {
     static username = "LonelyCipher";
     static cause = Cause.LONELY_CIPHER;
-    private _solver: Solver;
+    _solver: Solver;
 
     constructor(solver: Solver) {
         this._solver = solver;

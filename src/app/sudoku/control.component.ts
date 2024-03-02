@@ -20,7 +20,7 @@ class ControlComponent {
         this.service.showHint($event.currentTarget.checked);
     }
 
-    _assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {
+    #assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {
         const chAllowed = this.service.allowedChars() + this.service.spaceCharacter();
         let jStart = selStart;
         let sNew = "";
@@ -58,7 +58,7 @@ class ControlComponent {
                 let textarea = $inpEvent.currentTarget as HTMLTextAreaElement;
                 let sel0 = textarea.selectionStart;
                 let sel1 = textarea.selectionEnd;
-                let [newText, selStart] = this._assembleBoardText(textarea.value, sel0, sel1)
+                let [newText, selStart] = this.#assembleBoardText(textarea.value, sel0, sel1)
                 textarea.value = newText;
                 textarea.selectionStart = selStart;
                 textarea.selectionEnd = selStart;
@@ -69,7 +69,7 @@ class ControlComponent {
     doCopyFromBoard(boardcopy: HTMLTextAreaElement) {
         console.log("From Board");
         let s = this.service.getBoardContentAsString();
-        let [newText, selStart] = this._assembleBoardText(s, 0, 0);
+        let [newText, selStart] = this.#assembleBoardText(s, 0, 0);
         boardcopy.value = newText;
     }
 
