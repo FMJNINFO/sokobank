@@ -4,6 +4,12 @@ import { logBoardEvaluationContent, logBoardEvaluationHeader } from "./logger";
 import { Move } from "./move";
 import { Position } from "./position";
 
+export class BoardError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "BoardError";
+    }
+}
 
 export class Board {
     static AllAllowed = [1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -33,7 +39,7 @@ export class Board {
         this.#evaluateAll();
     }
 
-    fieldContent(pos: Position): FieldContent {
+    fieldContentOf(pos: Position): FieldContent {
         let field = this._fields.get(pos);
         if (field != undefined) {
             return field;
@@ -42,9 +48,9 @@ export class Board {
     }
 
     add(move: Move, cause: Cause) {
-        let fieldContent = this.fieldContent(move.pos);
+        let fieldContent = this.fieldContentOf(move.pos);
         if (!fieldContent.hasDigit() || fieldContent.digit() != move.digit) {
-            this.fieldContent(move.pos).setDigit(move.digit, cause);
+            this.fieldContentOf(move.pos).setDigit(move.digit, cause);
             for (let group of move.pos.groups) {
                 this.#evaluateGroup(group);
             }
@@ -52,6 +58,9 @@ export class Board {
             this._errors = this.#searchErrors();
         }
         this.unmark();
+        if (this.hasErrors() && (cause !== Cause.ENTERED)) {
+            throw new BoardError("Error adding move " + move.toString());
+        }
     }
 
     mark(marks: Set<Position>): void {
@@ -74,13 +83,13 @@ export class Board {
 
         this._errors.clear();
 
-        this.fieldContents(Position.pool())
+        this.fieldContentsOf(Position.pool())
             .filter((fc) => !fc.hasDigit())
             .filter((fc) => fc.allowSet.isEmpty())
             .forEach((fc) => errors.add(fc.pos));
 
         for (let grp of Position.allGrps()) {
-            fieldContents = this.fieldContents(grp).filter((fc) => fc.hasDigit());
+            fieldContents = this.fieldContentsOf(grp).filter((fc) => fc.hasDigit());
             digits = fieldContents.map((fc) => fc.digit());
             unique = new Set(digits);
             if (digits.length != unique.size) {
@@ -104,23 +113,17 @@ export class Board {
         return this._errors.size > 0;
     }
 
-    allFieldContents(): FieldContent[] {
+    fieldContents(): FieldContent[] {
         return Array.from(this._fields.values());
     }
 
-    allEmptyFieldContents(): FieldContent[] {
-        let emptyFcs = this.allFieldContents()
-            .filter((fc) => fc.isEmpty());
+    emptyFieldContents(): FieldContent[] {
+        let emptyFcs = this.fieldContents().filter((fc) => fc.isEmpty());
         return emptyFcs;
     }
 
     #allowedInGroup(group: Position[]): CipherSet {
-        let used = [];
-
-        used= this.fieldContents(group)
-        .filter((fc) => fc.hasDigit())
-        .map((fc) => fc.digit());
-
+        let used = this.fieldContentsOf(group).filter((fc) => fc.hasDigit()).map((fc) => fc.digit());
         let cs = new CipherSet(...used);
         let ret = cs.not(); 
         return ret;
@@ -139,11 +142,11 @@ export class Board {
         if (typeof pos == 'number') {
             pos = Position.of(pos);
         }
-        return this.fieldContent(pos).digit();
+        return this.fieldContentOf(pos).digit();
     }
 
     #evaluateAt(pos: Position): void {
-        let fieldContent = this.fieldContent(pos);
+        let fieldContent = this.fieldContentOf(pos);
         if (fieldContent.isEmpty()) {
             fieldContent.setAllowSet(this.#allowedInField(pos));
         }
@@ -164,18 +167,14 @@ export class Board {
         this.#evaluateGroup(Position.pool())
     }
 
-    emptyFields(): number {
-        let count = 0;
-
-        count = this.fieldContents(Position.pool())
-                .filter((fc) => !fc.hasDigit())
-                .length;
+    emptyFieldCount(): number {
+        let count = this.fieldContentsOf(Position.pool()).filter((fc) => !fc.hasDigit()).length;
         return count;
     }
 
     isFull(): boolean {
         let doLogging = false;
-        let isFull = this.emptyFields() == 0;
+        let isFull = this.emptyFieldCount() == 0;
         if (isFull && doLogging) {
             let pos: Position;
             let cause: Cause;
@@ -191,17 +190,17 @@ export class Board {
 
     copy(): Board {
         let copy = new Board();
-        let fieldContent: FieldContent;
         for (let fc of this._fields.values()) {
             copy.add(fc.getMove(), fc.cause());
         }
+        copy.stopInitialize();
         return copy;
     }
 
-    fieldContents(poss: Position[]): FieldContent[] {
+    fieldContentsOf(poss: Position[]): FieldContent[] {
         let fields = []
         for (let ipos of poss) {
-            fields.push(this.fieldContent(ipos));
+            fields.push(this.fieldContentOf(ipos));
         }
         return fields;
     }

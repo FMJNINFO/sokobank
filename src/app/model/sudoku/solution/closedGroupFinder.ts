@@ -25,7 +25,7 @@ export class ClosedGroupFinder {
         }
 
         for (let [sGrp, grp] of Position.namedGrps()) {
-            fldConts = board.fieldContents(grp).filter((fc) => fc.isEmpty() );
+            fldConts = board.fieldContentsOf(grp).filter((fc) => fc.isEmpty() );
             if (fldConts.length >= 3) {
                 fndGrps = [];
                 this.#nextFindLevel(sGrp, fldConts, fndGrps);
@@ -43,6 +43,79 @@ export class ClosedGroupFinder {
             }
         }
         return closedGroups;
+    }
+
+    solveAll(board: Board): boolean {
+        let doLogging = true;
+        let fldConts: FieldContent[];
+        let fndGrps: ClosedGroup[];
+        let hasSolved = false;
+
+        if (board.isFull()) {
+            return false;
+        }
+        if (doLogging) {
+            logBoard(board);
+        }
+        
+        for (let [sGrp, grp] of Position.namedGrps()) {
+            fldConts = board.fieldContentsOf(grp).filter((fc) => fc.isEmpty() );
+            if (fldConts.length >= 3) {
+                fndGrps = [];
+                this.#nextFindLevel(sGrp, fldConts, fndGrps);
+                if (fndGrps.length >= 0) {
+                    for (let cg of fndGrps) {
+                        let cleanLevel = cg.cleaningLevel(board);
+                        if (doLogging) {
+                            console.log("["+cleanLevel+"] " + cg.toString());
+                        }
+                        if (cleanLevel > 0) {
+                            hasSolved ||= this.#solveOneClosedGroup(board, sGrp, fldConts);
+                        }
+                    }
+                }
+            }
+        }
+        return hasSolved;
+    }
+
+    #solveOneClosedGroup(board: Board, grpName: string, fldConts: FieldContent[], 
+        currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()): boolean {
+            let cnt = fldConts.length-idx0;
+            let foundGroup = ClosedGroupFinder.INVALID_GROUP;
+            let currAllows : CipherSet;
+
+            if (cnt >= 2) {
+                for (let idx=idx0; idx < fldConts.length; idx++) {
+                    currAllows = prevAllows.or(fldConts[idx].allowSet);
+
+                    currGrpFlds.push(fldConts[idx]);
+
+                    if (currAllows.length < currGrpFlds.length) {
+                        // Irgendwas ist hier schiefgelaufen.
+                        console.error();
+                        console.error("CurrAllows.length less than currGrpFlds.length");
+                        console.error("   CurrAllows: " + currAllows.toListString());
+                        console.error("   CurrGrpFlds:");
+                        for (let fc of currGrpFlds) {
+                            console.error("      " + fc.toString());
+                        }
+                    } else {
+                        if (currAllows.length == currGrpFlds.length) {
+                            foundGroup = ClosedGroup.of(grpName, currGrpFlds, currAllows);
+                            foundGroup.apply(board);
+                            return true;
+                        }
+            
+                        if (this.#solveOneClosedGroup(board, grpName, fldConts, currGrpFlds, idx+1, currAllows)) {
+                            return true;
+                        }
+                    }
+
+                    currGrpFlds.pop();                        
+                }
+            }
+            return false;
     }
 
     #nextFindLevel(grpName: string, fldConts: FieldContent[], fndGrps: ClosedGroup[], 

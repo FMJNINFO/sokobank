@@ -27,6 +27,10 @@ class AllowedComponent {
         return '_';
     }
 
+    digitsVisible(): boolean {
+        return false;
+    }
+
     get hasError(): boolean {
         return this.service.hasError(this.pos);
     }

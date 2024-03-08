@@ -75,7 +75,7 @@ class FieldComponent {
     }
 
     get showAllowance(): boolean {
-        return true;
+        return this.service.areDigitsVisible();
     }
 
     get isMarked(): boolean {

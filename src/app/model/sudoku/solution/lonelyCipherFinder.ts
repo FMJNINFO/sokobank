@@ -14,15 +14,15 @@ export class LonelyCipherFinder {
     }
 
     #candidates(board: Board): FieldContent[] {
-        return board.allEmptyFieldContents().filter((fc) => fc.allowSet.length === 1);
+        return board.emptyFieldContents().filter((fc) => fc.allowSet.length === 1);
     }
 
     #findOne(board: Board): Move[] {
         let moves: Move[] = [];
 
         if (this._solver.memory.lastUser !== LonelyCipherFinder.username) {
-            this._solver.adjustMemory(LonelyCipherFinder.username);
-            this._solver.memory.lonelyCiphers = this.#findAll(board);
+            this._solver.updateMemory(LonelyCipherFinder.username);
+            this._solver.memory.lonelyCiphers = this.findAll(board);
             this._solver.memory.lonelyCipherOfs = -1;
         }
         this._solver.memory.lonelyCipherOfs += 1;
@@ -37,7 +37,7 @@ export class LonelyCipherFinder {
         return moves;
     }
 
-    #findAll(board: Board): Move[] {
+    findAll(board: Board): Move[] {
         let moves: Move[] = this.#candidates(board).map((fc) => new Move(fc.pos, fc.allowSet.entries[0]));
         return moves;
     }
@@ -48,8 +48,8 @@ export class LonelyCipherFinder {
     }
 
     markAll(board: Board) {
-        this._solver.adjustMemory();
-        let moveSet = new Set(this.#findAll(board).map((m) => m.pos));
+        this._solver.updateMemory();
+        let moveSet = new Set(this.findAll(board).map((m) => m.pos));
         board.mark(moveSet);
     }
 
@@ -58,17 +58,19 @@ export class LonelyCipherFinder {
         moves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
     }
 
-    solveAll(board: Board) {
-        this._solver.adjustMemory();
-        let moves = this.#findAll(board);
+    solveAll(board: Board): boolean {
+        this._solver.updateMemory();
+        let moves = this.findAll(board);
+        let moveCount = moves.length;
         moves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
+        return moveCount > 0;
     }
 
     findLonelyCiphers(board: Board, findAll: boolean=true): Move[] {
         let moves: Move[] = [];
         let move: Move;
 
-        let fcLonelyCiphers = board.allEmptyFieldContents()
+        let fcLonelyCiphers = board.emptyFieldContents()
             .filter((fc) => fc.allowSet.length === 1);
         for (let fc of fcLonelyCiphers) {
             move = new Move(fc.pos, fc.allowSet.entries[0]);

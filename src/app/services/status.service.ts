@@ -9,19 +9,23 @@ import { Cause } from "../model/sudoku/fieldContent";
 export class StatusService {
     shouldEdit$: EventEmitter<Position>;
     showHint$: EventEmitter<boolean>;
+    showDigits$: EventEmitter<boolean>;
     boardChanged$: EventEmitter<Board>;
 
     _editor: Position;
     _isHintVisible: boolean;
+    _areDigitsVisible: boolean;
     _board: Board;
 
     constructor() {
         this.shouldEdit$ = new EventEmitter();
         this.showHint$ = new EventEmitter();
+        this.showDigits$ = new EventEmitter();
         this.boardChanged$ = new EventEmitter();
 
         this._editor = Position.NoPosition;
         this._isHintVisible = false;
+        this._areDigitsVisible = false;
         this._board = new Board();
     }
 
@@ -42,6 +46,16 @@ export class StatusService {
         this.showHint$.emit(isHintVisible);
     }
 
+    showDigits(areDigitsVisible: boolean): void {
+        this._areDigitsVisible = areDigitsVisible;
+        this.showDigits$.emit(areDigitsVisible);
+    }
+
+    onDigitVisibilityChanged(areDigitsVisible: boolean): void {
+        this._areDigitsVisible = areDigitsVisible;
+        this.showDigits$.emit(areDigitsVisible);
+    }
+
     onHintVisibilityChanged(isHintVisible: boolean): void {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
@@ -49,6 +63,10 @@ export class StatusService {
 
     isHintVisible(): boolean {
         return this._isHintVisible;
+    }
+
+    areDigitsVisible(): boolean {
+        return this._areDigitsVisible;
     }
 
     getBoard(): Board {
@@ -62,7 +80,7 @@ export class StatusService {
     }
 
     getDigit(pos: Position): number {
-        return this._board.fieldContent(pos).digit();
+        return this._board.fieldContentOf(pos).digit();
     }
 
     getBoardContentAsString(): string {
@@ -142,7 +160,7 @@ export class StatusService {
         let closedGroup = solver.findBestClosedGroup(this._board);
 
         if (closedGroup !== undefined) {
-            closedGroup.clean(this._board);
+            closedGroup.apply(this._board);
             this._board.unmark();
             this.markClosedGroup();
         }
@@ -153,29 +171,14 @@ export class StatusService {
         solver.solve(this._board);
     }
 
-    solveAutomatic(): boolean {
+    solveComplete(): boolean {
         let solver = new Solver();
-        let moves: Move[];
-        let freeCount = this._board.emptyFields();
-        let prevFreeCount = freeCount + 1;
-
-        while (freeCount < prevFreeCount) {
-            if (freeCount === 0) {
-                return true;
-            }
-            prevFreeCount = freeCount;
-            solver.solve(this._board);
-            let moves = solver.findAllResolvingMoves(this._board);
-            if (moves.length > 0) {
-                this._board.add(moves[0], Cause.TRIAL_CIPHER);
-            }
-            freeCount = this._board.emptyFields();
-        }
+        solver.solveComplete(this._board);
         return false;
     }
 
     markBestTrialMove(): boolean {
-        if (this._board.emptyFields() > 60) {
+        if (this._board.emptyFieldCount() > 60) {
             return false;
         }
         let doLogging = true;
@@ -232,7 +235,7 @@ export class StatusService {
     }
 
     isAllowed(pos: Position, digit: number): boolean {
-        return this._board.fieldContent(pos).allows(digit);
+        return this._board.fieldContentOf(pos).allows(digit);
     }
 
     allowedChars(): string {

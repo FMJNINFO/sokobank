@@ -41,7 +41,7 @@ export function logBoard(board: Board, marked: Position | undefined=undefined): 
     if (board.isFull()) {
         println("Board is completely filled.");
     } else {
-        println("Board is NOT completely filled (" + board.emptyFields() + " unfilled).");
+        println("Board is NOT completely filled (" + board.emptyFieldCount() + " unfilled).");
     }
     println(" ");
 
@@ -59,7 +59,7 @@ export function logBoard(board: Board, marked: Position | undefined=undefined): 
             }
             line = line + ch
             pos = Position.of(iRow * 9 + iCol);
-            fc = board.fieldContent(pos);
+            fc = board.fieldContentOf(pos);
             if (fc.hasDigit()) {
                 digitChar = fc.digit().toString();
             } else {

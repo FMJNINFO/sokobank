@@ -20,6 +20,10 @@ class ControlComponent {
         this.service.showHint($event.currentTarget.checked);
     }
 
+    onDigitVisibilityChanged($event: any) {
+        this.service.showDigits($event.currentTarget.checked);
+    }
+
     #assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {
         const chAllowed = this.service.allowedChars() + this.service.spaceCharacter();
         let jStart = selStart;

@@ -1,3 +1,4 @@
+import { baordReducer } from "src/app/core/sudoku.reducer";
 import { Board } from "../board";
 import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
@@ -40,11 +41,11 @@ export class ClosedGroup {
 
     cleaningLevel(board: Board) {
         let doLogging = false;
-        let fcGroup = board.fieldContents(this._poss);
+        let fcGroup = board.fieldContentsOf(this._poss);
         let possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
 
         let group = Position.namedGroup(this._grpName);
-        let possClean = board.fieldContents(group)
+        let possClean = board.fieldContentsOf(group)
                         .filter((fc) => fc.isEmpty())
                         .map((fc) => fc.pos)
                         .filter((pos) => !possGroupSet.has(pos))
@@ -52,7 +53,7 @@ export class ClosedGroup {
         let cleanAllow = this._allows.not()
         let level = 0;
         for (let pos of possClean) {
-            let fcToClean = board.fieldContent(pos);
+            let fcToClean = board.fieldContentOf(pos);
             let cleanedAllow = fcToClean.allowSet.and(cleanAllow);
             level += fcToClean.allowSet.length - cleanedAllow.length;
         }
@@ -63,9 +64,9 @@ export class ClosedGroup {
         return level;
     }
 
-    clean(board: Board) {
+    apply(board: Board) {
         let doLogging = false;
-        let fcGroup = board.fieldContents(this._poss);
+        let fcGroup = board.fieldContentsOf(this._poss);
         let possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
 
         if (doLogging) {
@@ -73,7 +74,7 @@ export class ClosedGroup {
         }
 
         let group = Position.namedGroup(this._grpName);
-        let possClean = board.fieldContents(group)
+        let possClean = board.fieldContentsOf(group)
                         .filter((fc) => fc.isEmpty())
                         .map((fc) => fc.pos)
                         .filter((pos) => !possGroupSet.has(pos))
@@ -81,7 +82,7 @@ export class ClosedGroup {
         let cleanAllow = this._allows.not()
         let level = 0;
         for (let pos of possClean) {
-            let fcToClean = board.fieldContent(pos);
+            let fcToClean = board.fieldContentOf(pos);
             let cleanedAllow = fcToClean.allowSet.and(cleanAllow);
             level += fcToClean.allowSet.length - cleanedAllow.length;
             fcToClean.setAllowSet(cleanedAllow);
@@ -179,5 +180,9 @@ export class ClosedGroups {
 
     get length(): number {
         return this._groups.length;
+    }
+
+    apply(board: Board) {
+        this._groups.forEach((cg) => cg.apply(board));
     }
 }
