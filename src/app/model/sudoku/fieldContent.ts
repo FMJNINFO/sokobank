@@ -71,10 +71,6 @@ export class FieldContent {
         return this._allowed.contains(digit);        
     }
 
-    copy(): FieldContent {
-        return new FieldContent(this._move.copy());
-    }
-
     toString(): string {
         let s = this._move.pos.toString();
         if (this.isEmpty()) {

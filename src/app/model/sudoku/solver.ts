@@ -1,6 +1,5 @@
 import { Board, BoardError } from "./board";
 import { ClosedGroup, ClosedGroups } from "./solution/closedGroups";
-import { FieldContent } from "./fieldContent";
 import { Move } from "./move";
 import { LonelyCipherFinder } from "./solution/lonelyCipherFinder";
 import { UniqueCipherFinder } from "./solution/uniqueCipherFinder";
@@ -21,12 +20,30 @@ export class SolveStep {
         this._closedGroups = undefined;
     }
 
+    get trialMove(): Move | undefined {
+        return this._trialMove;
+    }
+
+    get lonelyCipherMoves(): Move[] {
+        return this._lonelyCipherMoves;
+    }
+
+    get uniqueCipherMoves(): Move[] {
+        return this._uniqueCipherMoves;
+    }
+
     setLoneyCipherMoves(moves: Move[]) {
         this._lonelyCipherMoves = moves;
     }
 
     setUniqueCipherMoves(moves: Move[]) {
         this._uniqueCipherMoves = moves;
+    }
+
+    addTrialMove(moves: Move[]) {
+        if (this._trialMove != undefined) {
+            moves.push(this._trialMove);
+        }
     }
 
     setClosedGroups(closedGroups: ClosedGroups) {
@@ -222,154 +239,12 @@ export class Solver {
     }
 
     findAllResolvingMoves(board: Board): Move[] {
-        return this.cipherByTrialFinder.findAllResolvingMoves(board);
-    }
-
-    solve(board: Board): boolean {
-        let doLogging = false;
-        if (this.solveOneLevel(board)) {
-            return true;
-        }
-        this.cipherByTrialFinder.solveAll(board);
-        if (board.isFull()) {
-            if (doLogging) {
-                for (let fc of board.fieldContents()) {
-                    console.log(fc.getMove().toString());
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
-    #findSolveStep(state: SolutionState, trialMove: Move | undefined = undefined): SolutionState {
-        //  das Board - falls vorhanden - mit dem trialMove fuellen und dann
-        //  mit der Logik weitermachen, bis nichts mehr dazukommt oder ein Fehler auftritt
-        //  Das Board sollte ein Arbeitsboard (evtl. also eine Kopie) sein, da wir es vollschreiben
-        let ss: SolveStep;
-
-        do {
-            ss = new SolveStep(trialMove);
-            if (trialMove !== undefined) {
-                trialMove = undefined;
-            }
-            ss.setLoneyCipherMoves(this.lonelyCipherFinder.findAll(state.board));
-            ss.setUniqueCipherMoves(this.uniqueCipherFinder.findAll(state.board));
-            ss.setClosedGroups(this.closedGroupFinder.findAll(state.board));
-
-            if (ss.hasContent()) {
-                //   es wurden via Logik noch etwas gefunden
-                state.addStep(ss);  //  gefundene Steps merken
-                if (state.hasErrors()) return state;   //  bei Inkonsistenzen(Fehler) raus hier
-            }
-            //  solange wiederholen, bis die Logik ausgereizt wurde
-        } while (ss.hasContent());
-
-        //  Es ist kein Fehler aufgetreten und trialMove + Logik haben uns fehlerfrei bis hier gebracht
-        console.log("=== findSolveStep result: ===")
-        state.print();
-
-        return state;    //  der uebergebene trialMove hat allein noch kein Problem verursacht. Alles OK.
-    }
-
-    #dumpLog(name: string, board: Board, hasFrame: boolean) {
-        if (hasFrame) {
-            console.log("=============================================================");
-            console.log("=   " + name);
-            console.log("=============================================================");
-        }
-        if (board.isFull()) {
-            console.log("-   Board is completely filled.");
-        } else {
-            console.log("-   Board is NOT completely filled (" + board.emptyFieldCount() + " unfilled).");
-        }
-        if (hasFrame)
-            console.log("-------------------------------------------------------------");
-        console.log(" ");    
-    }
-
-    #checkOneTrialField(state: SolutionState, testFieldContent: FieldContent): SolutionState {
-        let loopState: SolutionState;
-        let resultState = state.copy(); // Das wird (hoffentlich) verbessert
-
-        for (let digit of testFieldContent.allowSet.entries) {
-            //  alle moeglichen Ziffern des Feld-Kandidaten pruefen
-            let testMove = new Move(testFieldContent.pos, digit);     // das ist der Move zum Test: Feld + Ziffer
-            console.log("--> move: " + testMove);
-            loopState = this.#findSolveStep(state.basedCopy(), testMove);
-
-            //  Wir testen nicht alle Move-Kombinationen in die Tiefe, sondern bleiben auf dieser Ebene                
-            //  irgendwie muss ein Zug ausgesucht werden
-            //  Suchen wir auf dieser Ebene den besten - der uns am weitesten bringt - zu finden
-            if (loopState.isOk()) {
-                //  kein Fehler aufgetreten
-                if (loopState.isBetterThan(resultState)) {
-                    //  Eindeutig besser, also merken
-                    resultState = loopState;
-                    if (resultState.isComplete()) {
-                        //  weiter kommen wir nicht! Also raus hier.
-                        break;
-                    }
-                }
-            }
-        }
-        return resultState;
-    }
-
-    #findOneTrialMove(state: SolutionState): SolutionState {
-        //  Alles loesen, was sich via Logik ergibt
-        this.#dumpLog("Easy clean", state.board, true);
-        let startState = this.#findSolveStep(state);
-        if (startState.isComplete()) {
-            return startState;      //  Loesung schon gefunden -> den Loesungsstatus zurueckgeben
-        }
-
-        let fcCandidates = this.cipherByTrialFinder.getCandidates(startState.board);   // welche Felder werden geprueft
-        let loopState = startState.basedCopy();
-
-        this.#dumpLog("Trial find", startState.board, true);
-        for (let fc of fcCandidates) {
-            //  einen Feld-Kandidaten durchtesten
-            console.log("==> Try at " + fc.pos.toString());
-            loopState = this.#checkOneTrialField(startState, fc);
-
-            if (loopState.isComplete()) {
-                //  Board ist voll. Auch hier raus.
-                break;
-            }
-        }
-        if (loopState.hasSteps()) {
-            startState = new SolutionState(loopState.board, [...startState.steps, ...loopState.steps])
-            console.log("Freie Felder: " + startState.emptyFieldCount);
-        }
-        return loopState;
-    }
-
-    #findTrialMoves(state: SolutionState): SolutionState {
-        //  Wir haben ein Board und suchen einen oder mehrere trials move in einer Reihe von SolveSteps
-        //  die das Board vollstaending loesen
-        let subState = state.basedCopy();
-
-        //  Wir arbeiten mit dem uebergebenen Board, da es sowieso eine Kopie ist,
-        //  denn es interessiert ja eigentlich nur die Reihe von SolveSteps
-        do {
-            let newState = this.#findOneTrialMove(subState);
-            console.log("Freie Felder: " + newState.emptyFieldCount);
-
-            // alle SolveSteps bis zur Loesung oder den Fehlerfall:
-            if (!newState.isBetterThan(subState)) {
-                return subState;
-            }
-            subState = new SolutionState(newState.board, [...subState.steps, ...newState.steps]);
-        } while (subState.isIncomplete());   // das Ganze geht, bis das Board voll ist
-
-        console.log("Freie Felder: " + subState.emptyFieldCount);
-        return subState;
+        return this.cipherByTrialFinder.findAllTrialMoves(board);
     }
 
     solveComplete(board: Board) {
         //  Wir haben ein board und suchen eine Loesung, d.h. eine Liste von SolveSteps
-        let resultState = this.#findTrialMoves(new SolutionState(board));
+        let resultState = this.cipherByTrialFinder.findTrialMoves(new SolutionState(board));
         console.log("Freie Felder: " + resultState.emptyFieldCount);
 
         if (resultState.isComplete()) {
@@ -388,7 +263,7 @@ export class Solver {
         logBoard(board);
     }
 
-    solveOneLevel(board: Board): boolean {
+    solveLogical(board: Board): boolean {
         let doLogging = false;
         let retry: boolean;
 
@@ -423,6 +298,7 @@ export class Solver {
                     console.log(fc.getMove().toString());
                 }
             }
+            return true;
         }
         return false;
     }

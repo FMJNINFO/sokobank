@@ -34,7 +34,7 @@ export class Position {
         this._boxId = (3 * Math.floor(pos/27)) + Math.floor((pos % 9)/3);
     }
 
-    isUndefined(): boolean {
+    #isUndefined(): boolean {
         return this._posId === -1;
     }
 
@@ -47,15 +47,15 @@ export class Position {
     get col(): number {
         return this._colId;
     }
-    get box(): number {
+    get #box(): number {
         return this._boxId;
     }
 
     get groups(): Position[][] {
         let grps: Position[][] = [];
-        grps.push(Position.row(this.row));
-        grps.push(Position.col(this.col));
-        grps.push(Position.box(this.box));
+        grps.push(Position.#row(this.row));
+        grps.push(Position.#col(this.col));
+        grps.push(Position.box(this.#box));
         return grps;
     }
 
@@ -75,7 +75,7 @@ export class Position {
     }
 
     right(): Position {
-        if (this.isUndefined()) {
+        if (this.#isUndefined()) {
             return this;
         }
         if (this.col === 8) {
@@ -85,7 +85,7 @@ export class Position {
     }
 
     left(): Position {
-        if (this.isUndefined()) {
+        if (this.#isUndefined()) {
             return this;
         }
         if (this.col === 0) {
@@ -95,7 +95,7 @@ export class Position {
     }
 
     up(): Position {
-        if (this.isUndefined()) {
+        if (this.#isUndefined()) {
             return this;
         }
         if (this.row === 0) {
@@ -105,7 +105,7 @@ export class Position {
     }
 
     down(): Position {
-        if (this.isUndefined()) {
+        if (this.#isUndefined()) {
             return this;
         }
         if (this.row === 8) {
@@ -118,7 +118,7 @@ export class Position {
         return Position._pool[pos];
     }
 
-    static row(rowId: number): Position[] {
+    static #row(rowId: number): Position[] {
         let newRow: Position[] = [];
         let startPos = rowId * 9;
         for (let i=0; i<9; i++) {
@@ -127,7 +127,7 @@ export class Position {
         return newRow;
     }
 
-    static col(colId: number): Position[] {
+    static #col(colId: number): Position[] {
         let newCol: Position[] = [];
         for (let i=0; i<81; i+=9) {
             newCol.push(Position.of(colId+i));

@@ -168,7 +168,7 @@ export class StatusService {
 
     fillAutomatic() {
         let solver = new Solver();
-        solver.solve(this._board);
+        solver.solveLogical(this._board);
     }
 
     solveComplete(): boolean {

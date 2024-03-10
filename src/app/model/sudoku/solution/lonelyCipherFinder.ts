@@ -42,22 +42,6 @@ export class LonelyCipherFinder {
         return moves;
     }
 
-    markOne(board: Board) {
-        let moveSet = new Set(this.#findOne(board).map((m) => m.pos));
-        board.mark(moveSet);
-    }
-
-    markAll(board: Board) {
-        this._solver.updateMemory();
-        let moveSet = new Set(this.findAll(board).map((m) => m.pos));
-        board.mark(moveSet);
-    }
-
-    solveOne(board: Board) {
-        let moves = this.#findOne(board);
-        moves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
-    }
-
     solveAll(board: Board): boolean {
         this._solver.updateMemory();
         let moves = this.findAll(board);

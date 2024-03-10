@@ -95,13 +95,6 @@ export class CipherSet {
         return entries;
     }
 
-    copy(): CipherSet {
-        let copy = new CipherSet();
-        copy._bitset = this._bitset;
-        copy._length = this._length;
-        return copy;
-    }
-
     static
     emptyFrequency(): number[] {
         return [0,0,0,0,0,0,0,0,0];
@@ -129,10 +122,6 @@ export class CipherSet {
             }
             digit = digit >> 1;
         }
-    }
-
-    get value(): string {
-        return CipherSet.chars[this._bitset];
     }
 
     static ofAll(): CipherSet {

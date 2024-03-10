@@ -117,15 +117,6 @@ export class ClosedGroup {
         return false;
     }
 
-    in(butSet: Set<ClosedGroup>): boolean {
-        for (let butGroup of butSet) {
-            if (butGroup.equals(this)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     static of(groupName: string, groupFields: FieldContent[], allows: CipherSet): ClosedGroup {
         let cg = new ClosedGroup(groupName);
         for (let fc of groupFields) {
@@ -143,39 +134,12 @@ export class ClosedGroups {
         this._groups = [];
     }
 
-    group(ofs: number=0): ClosedGroup {
-        if (this._groups.length > ofs) {
-            return this._groups[ofs];
-        }
-        return new ClosedGroup("dummy");
-    }
-
     sortedBySize(): ClosedGroup[] {
         return this._groups.sort((g1, g2) => g1.length - g2.length)
     }
 
-    sortedByName(): ClosedGroup[] {
-        return this._groups.sort((g1, g2) => {
-            if (g1.baseGroupName > g2.baseGroupName) {
-                return 1;
-            }
-            if (g1.baseGroupName < g2.baseGroupName) {
-                return -1;
-            }
-            return g1.length - g2.length;
-        })
-    }
-
     add(closedGroup: ClosedGroup) {
         this._groups.push(closedGroup);
-    }
-
-    checkAndAdd(baseGroupName: string, fieldContents: FieldContent[]) {
-        let closedGroup = new ClosedGroup(baseGroupName);
-        fieldContents.forEach((fc) => closedGroup.add(fc));
-        if (closedGroup.isValid) {
-            this.add(closedGroup)
-        }
     }
 
     get length(): number {
