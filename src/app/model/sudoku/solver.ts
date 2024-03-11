@@ -6,6 +6,7 @@ import { UniqueCipherFinder } from "./solution/uniqueCipherFinder";
 import { CipherByTrialFinder } from "./solution/cipherByTrialFinder";
 import { ClosedGroupFinder } from "./solution/closedGroupFinder";
 import { logBoard } from "./logger";
+import { Cause } from "./fieldContent";
 
 export class SolveStep {
     _trialMove: Move | undefined;
@@ -32,7 +33,7 @@ export class SolveStep {
         return this._uniqueCipherMoves;
     }
 
-    setLoneyCipherMoves(moves: Move[]) {
+    setLonelyCipherMoves(moves: Move[]) {
         this._lonelyCipherMoves = moves;
     }
 
@@ -261,6 +262,26 @@ export class Solver {
             ss.apply(board);
         }
         logBoard(board);
+    }
+
+    evaluate(board: Board): [boolean, Map<Cause, number>] {
+        let evals = new Map<Cause, number>();
+        let resultState = this.cipherByTrialFinder.findTrialMoves(new SolutionState(board));
+        let solvable = resultState.isComplete();
+        console.log("Freie Felder: " + resultState.emptyFieldCount);
+
+        for (let step of resultState.steps) {
+            if (step.trialMove != undefined) {
+                evals.set(Cause.TRIAL_CIPHER, evals.has(Cause.TRIAL_CIPHER) ? (evals.get(Cause.TRIAL_CIPHER)! + 1) : 1);
+            }
+            for (let move of step.lonelyCipherMoves) {
+                evals.set(Cause.LONELY_CIPHER, evals.has(Cause.LONELY_CIPHER) ? (evals.get(Cause.LONELY_CIPHER)! + 1) : 1);
+            }
+            for (let move of step.uniqueCipherMoves) {
+                evals.set(Cause.UNIQUE_CIPHER, evals.has(Cause.UNIQUE_CIPHER) ? (evals.get(Cause.UNIQUE_CIPHER)! + 1) : 1);
+            }
+        }
+        return [solvable, evals];        
     }
 
     solveLogical(board: Board): boolean {

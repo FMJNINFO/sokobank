@@ -7,6 +7,9 @@ Sudoku<br/>
 
 <br/>
 
+<div>{{solvableInfo}}<br/>Evaluation: {{evaluation}}</div>
+<br/>
+
 <button type="button" (click)="doFindLonelyCiphers($event)" clickable>Find Lonely Cipher</button>
 <button type="button" (click)="doFillLonelyCiphers($event)" clickable>Clean</button>
 <br/>
@@ -23,6 +26,8 @@ Sudoku<br/>
 <br/>
 <button type="button" (click)="doSolveAutomatic($event)" clickable>Solve complete</button>
 <br/>
+<button type="button" (click)="doEvaluate()" clickable>Evaluate</button>
+<br/>
 <br/>
 <button type="button" (click)="setTestBoard('testboard0')" clickable>TestBoard 0</button>
 <br/>
@@ -35,4 +40,6 @@ Sudoku<br/>
 <button type="button" (click)="setTestBoard('testboard4')" clickable>TestBoard 4</button>
 <br/>
 <button type="button" (click)="setTestBoard('testboard5')" clickable>TestBoard 5</button>
+<br/>
+<button type="button" (click)="doCleanBoard($event)" clickable>Clean Board</button>
 <br/>

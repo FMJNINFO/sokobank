@@ -39,7 +39,7 @@ export class CipherByTrialFinder {
             if (trialMove !== undefined) {
                 trialMove = undefined;
             }
-            ss.setLoneyCipherMoves(this._solver.lonelyCipherFinder.findAll(state.board));
+            ss.setLonelyCipherMoves(this._solver.lonelyCipherFinder.findAll(state.board));
             ss.setUniqueCipherMoves(this._solver.uniqueCipherFinder.findAll(state.board));
             ss.setClosedGroups(this._solver.closedGroupFinder.findAll(state.board));
 

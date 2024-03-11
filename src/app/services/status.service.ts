@@ -95,6 +95,11 @@ export class StatusService {
         this._board.stopInitialize();
     }
 
+    cleanBoard() {
+        this._board.startInitialize();
+        this._board.stopInitialize();
+    }
+
     markAllLonelyCiphers(): void {
         let doLogging = true;
         let solver = new Solver();
@@ -227,6 +232,10 @@ export class StatusService {
         return this._board.hasError(pos);
     }
 
+    hasErrors(): boolean {
+        return this._board.hasErrors();
+    }
+
     isMarked(pos: Position): boolean {
         if (this._isHintVisible) {
             return this._board.isMarked(pos);
@@ -244,5 +253,36 @@ export class StatusService {
 
     spaceCharacter(): string {
         return Move.SpaceChar;
+    }
+
+    get evaluation(): [boolean|undefined, string] {
+        let solver = new Solver();
+        let solvable: boolean;
+        let evaluation: Map<Cause, number>;
+
+        if (this._board.hasErrors()) {
+            return [false, "None, because there are errors on the board."];
+        }
+        if (this._board.emptyFieldCount() > 60) {
+            return [undefined, "None, because too many empty fields."];
+        }
+
+        [solvable, evaluation] = solver.evaluate(this._board);
+
+        let sEval = "";
+        if (solvable) {
+            let valTE =  evaluation.has(Cause.TRIAL_CIPHER) ? evaluation.get(Cause.TRIAL_CIPHER)! : 0;
+            let valUC =  evaluation.has(Cause.UNIQUE_CIPHER) ? evaluation.get(Cause.UNIQUE_CIPHER)! : 0;
+            let valLC =  evaluation.has(Cause.LONELY_CIPHER) ? evaluation.get(Cause.LONELY_CIPHER)! : 0;
+            let valAll = valTE * 200 + valUC * 2 + valLC;
+
+            sEval +=  "TE: " + valTE + " ";
+            sEval +=  "UC: " + valUC + " ";
+            sEval +=  "LC: " + valLC + " ";
+            sEval +=  " => " + valAll;
+        } else {
+            sEval = "None, because there are inconsistencies on the board.";
+        }
+        return [solvable, sEval];
     }
 }
