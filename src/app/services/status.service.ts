@@ -16,6 +16,7 @@ export class StatusService {
     _isHintVisible: boolean;
     _areDigitsVisible: boolean;
     _board: Board;
+    _emphasizedDigit: number | undefined;
 
     constructor() {
         this.shouldEdit$ = new EventEmitter();
@@ -27,6 +28,18 @@ export class StatusService {
         this._isHintVisible = false;
         this._areDigitsVisible = false;
         this._board = new Board();
+    }
+
+    emphasizeDigit(digit: number) {
+        if (this._emphasizedDigit == digit) {
+            this._emphasizedDigit = undefined;
+        } else {
+            this._emphasizedDigit = digit;
+        }
+    }
+
+    isDigitEmphasized(digit: number): boolean {
+        return digit == this._emphasizedDigit;
     }
 
     currentEditor(): Position {

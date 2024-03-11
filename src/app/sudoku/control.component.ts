@@ -24,6 +24,14 @@ class ControlComponent {
         this.service.showDigits($event.currentTarget.checked);
     }
 
+    markDigit(digit: number) {
+        this.service.emphasizeDigit(digit);
+    }
+
+    isDigitMarked(digit: number): boolean {
+        return this.service.isDigitEmphasized(digit);
+    }
+
     #assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {
         const chAllowed = this.service.allowedChars() + this.service.spaceCharacter();
         let jStart = selStart;

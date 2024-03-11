@@ -47,7 +47,11 @@ class FieldComponent {
                 if (this.isMarked) {
                     return "markedField";
                 } else {
-                    return "normalField";
+                    if (this.isEmphasized) {
+                        return "emphasizedField";
+                    } else {
+                        return "normalField";
+                    }
                 }
             }
         }
@@ -72,6 +76,13 @@ class FieldComponent {
 
     get hasError(): boolean {
         return this.service.hasError(this.pos);
+    }
+
+    get isEmphasized(): boolean {
+        if (this.hasDigit) {
+            return this.service.isDigitEmphasized(this.service.getDigit(this.pos));
+        }
+        return false;
     }
 
     get showAllowance(): boolean {

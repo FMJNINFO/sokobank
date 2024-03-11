@@ -8,6 +8,29 @@
     <span>Digits visible</span>
     <br/>
     <table>
+        <tr>
+            <td><button type="button" [ngClass]="isDigitMarked(1) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(1)" clickable>1</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(2) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(2)" clickable>2</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(3) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(3)" clickable>3</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(4) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(4)" clickable>4</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(5) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(5)" clickable>5</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(6) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(6)" clickable>6</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(7) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(7)" clickable>7</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(8) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(8)" clickable>8</button></td>
+            <td><button type="button" [ngClass]="isDigitMarked(9) ? 'markedDigit' : 'unmarkedDigit'" 
+                (click)="markDigit(9)" clickable>9</button></td>
+        </tr>
+    </table>
+    
+    <table>
     <tr>
         <td>
             <button type="button" (click)="doCopyFromBoard(boardcopy)" clickable>from board</button><br/>
