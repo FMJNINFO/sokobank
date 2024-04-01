@@ -11,6 +11,8 @@ import { FieldComponent } from './sudoku/field.component';
 import { BoxComponent } from './sudoku/box.component';
 import { AllowedComponent } from './sudoku/allowed.component';
 import { StatusService } from './services/status.service';
+import { CheatAreaComponent } from './sudoku/cheatarea.component';
+import { CheatButtonsComponent } from './sudoku/cheatbuttons.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { StatusService } from './services/status.service';
     FieldComponent,
     BoxComponent,
     AllowedComponent,
-    ControlComponent
+    ControlComponent,
+    CheatAreaComponent,
+    CheatButtonsComponent
   ],
   imports: [
     BrowserModule,

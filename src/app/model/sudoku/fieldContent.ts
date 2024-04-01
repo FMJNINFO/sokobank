@@ -2,31 +2,18 @@ import { CipherSet } from "./cipherset";
 import { Board } from "./board";
 import { Position } from "./position";
 import { Move } from "./move";
-import { INIT } from "@ngrx/store";
-
-export enum Cause {
-    INIT            = "INIT",
-    PRESET          = "PRESET",
-    ENTERED         = "ENTERED",
-    LONELY_CIPHER   = "LONELY CIPHER",
-    UNIQUE_CIPHER   = "UNIQUE CIPHER",
-    TRIAL_CIPHER    = "TRIAL CIPHER"
-}
+import { Cause } from "./cause";
 
 export class FieldContent {
-    static NoFieldContent = new FieldContent(new Move(Position.NoPosition), CipherSet.fullCipherSet());
+    static NoFieldContent = new FieldContent(Position.NoPosition, CipherSet.fullCipherSet());
 
     _move: Move;
     _allowed: CipherSet;
     _cause: Cause;
 
-    constructor(move: Move, allowed: CipherSet = new CipherSet(...Board.AllAllowed)) {
-        this._move = move;
-        if (move.hasDigit()) {
-            this._allowed = new CipherSet(move.digit);
-        } else {
-            this._allowed = allowed;
-        }
+    constructor(pos: Position, allowed: CipherSet = new CipherSet(...Board.AllAllowed)) {
+        this._move = new Move(pos);
+        this._allowed = allowed;
         this._cause = Cause.INIT;
     }
 
@@ -42,8 +29,7 @@ export class FieldContent {
         return !this._move.hasDigit();
     }
 
-    digit(): number {
-        return this._move.digit;
+    digit(): number {        return this._move.digit;
     }
 
     cause(): Cause {

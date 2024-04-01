@@ -1,32 +1,28 @@
 Sudoku<br/>
 
-<div style="display:flex">
+<div class="workarea">
     <sudoku></sudoku>
-    <control class="controldiv"></control>
+    <control></control>
 </div>
 
-<br/>
 
+<br/>
 <div>{{solvableInfo}}<br/>Evaluation: {{evaluation}}</div>
 <br/>
 
-<button type="button" (click)="doFindLonelyCiphers($event)" clickable>Find Lonely Cipher</button>
 <button type="button" (click)="doFillLonelyCiphers($event)" clickable>Clean</button>
 <br/>
-<button type="button" (click)="doFindClosedGroup($event)" clickable>Find Closed Group</button>
-<button type="button" (click)="doCleanClosedGroup($event)" clickable>Clean</button>
 <br/>
-<button type="button" (click)="doFindUniqueCiphers($event)" clickable>Find Unique Cipher</button>
 <button type="button" (click)="doFillUniqueCiphers($event)" clickable>Clean</button>
 <br/>
 <button type="button" (click)="doFillAutomatic($event)" clickable>Fill Automatic</button>
 <br/>
-<button type="button" (click)="doResolveByTrial($event)" clickable>Find by Trial and Error</button>
-<button type="button" (click)="doFillBestTrialMove($event)" clickable>Use one</button>
+<button type="button" (click)="doFillBestTrialStep($event)" clickable>Use one</button>
 <br/>
 <button type="button" (click)="doSolveAutomatic($event)" clickable>Solve complete</button>
 <br/>
-<button type="button" (click)="doEvaluate()" clickable>Evaluate</button>
+<button type="button" (click)="doFindAllCheats($event)" clickable>Find all cheats</button>
+<br/>
 <br/>
 <br/>
 <button type="button" (click)="setTestBoard('testboard0')" clickable>TestBoard 0</button>

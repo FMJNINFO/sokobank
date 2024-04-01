@@ -1,10 +1,12 @@
-import { baordReducer } from "src/app/core/sudoku.reducer";
-import { Board } from "../board";
+import { Board, Cheat } from "../board";
 import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
 import { Position } from "../position";
+import { Cause } from "../cause";
 
-export class ClosedGroup {
+export class ClosedGroup implements Cheat {
+    static NO_CLOSED_GROUP = new ClosedGroup("");
+
     _poss: Position[];
     _grpName: string;
     _allows: CipherSet;
@@ -13,6 +15,19 @@ export class ClosedGroup {
         this._grpName = groupName;
         this._poss = [];
         this._allows = new CipherSet();
+    }
+
+    get cause(): Cause {
+        return Cause.CLOSED_GROUP;
+    }
+    
+    affectedBy(pos: Position): boolean {
+        for (let p of this._poss) {
+            if (p.pos == pos.pos) {
+                return true;
+            }
+        }
+        return false;
     }
 
     add(fc: FieldContent): void {
@@ -134,6 +149,10 @@ export class ClosedGroups {
         this._groups = [];
     }
 
+    get groups(): ClosedGroup[] {
+        return this._groups;
+    }
+
     sortedBySize(): ClosedGroup[] {
         return this._groups.sort((g1, g2) => g1.length - g2.length)
     }
@@ -148,5 +167,9 @@ export class ClosedGroups {
 
     apply(board: Board) {
         this._groups.forEach((cg) => cg.apply(board));
+    }
+
+    getGroup(ofs: number): ClosedGroup {
+        return this._groups[ofs];
     }
 }

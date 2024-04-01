@@ -1,9 +1,10 @@
 import { Board } from "../board";
+import { Cause } from "../cause";
 import { CipherSet } from "../cipherset";
-import { Cause, FieldContent } from "../fieldContent";
-import { Move } from "../move";
+import { FieldContent } from "../fieldContent";
 import { Position } from "../position";
 import { Solver } from "../solver";
+import { Step } from "../step";
 
 
 export class UniqueCipherFinder {
@@ -19,11 +20,11 @@ export class UniqueCipherFinder {
         return board.fieldContentsOf(group).filter((fc) => fc.isEmpty());
     }
 
-    #findAllInGroup(board: Board, group: Position[]): Move[] {
+    #findAllInGroup(board: Board, group: Position[]): Step[] {
         const fcs = this.#candidates(board, group);
         const frequency = fcs.reduce((frq, fc) => fc.allowSet.addFrequency(frq), CipherSet.emptyFrequency());
 
-        let moves: Move[] = []        
+        let steps: Step[] = []        
         let fc: FieldContent | undefined;
         let digit: number;
 
@@ -34,58 +35,31 @@ export class UniqueCipherFinder {
                 if (fc === undefined) {
                     throw new SyntaxError("Should never happen.")
                 }
-                moves.push(new Move(fc.pos, digit));
+                steps.push(new Step(Cause.UNIQUE_CIPHER, fc.pos, digit));
             }                                    
         }
-        return moves;
+        return steps;
     }
 
-    #findOne(board: Board): Move[] {
-        let moves: Move[] = [];
-
-        if (this._solver.memory.lastUser !== UniqueCipherFinder.username) {
-            this._solver.updateMemory(UniqueCipherFinder.username);
-            this._solver.memory.uniqueCiphers = this.findAll(board);
-            this._solver.memory.uniqueCipherOfs = -1;
-        }
-        this._solver.memory.uniqueCipherOfs += 1;
-        if (this._solver.memory.uniqueCiphers.length > this._solver.memory.uniqueCipherOfs) {
-            moves.push(this._solver.memory.uniqueCiphers[this._solver.memory.uniqueCipherOfs]);
-        } else {
-            if (this._solver.memory.uniqueCiphers.length > 0) {
-                this._solver.memory.uniqueCipherOfs -= this._solver.memory.uniqueCiphers.length; 
-                moves.push(this._solver.memory.uniqueCiphers[this._solver.memory.uniqueCipherOfs]);
-            }
-        }
-        return moves;
-    }
-
-    findAll(board: Board): Move[] {
-        let founds: Map<number, Move> = new Map();
-        let moves: Move[];
+    getAllSteps(board: Board): Step[] {
+        let founds: Map<number, Step> = new Map();
+        let steps: Step[];
         for (let [sGrp, grp] of Position.namedGrps()) {        
-            moves = this.#findAllInGroup(board, grp);
-            for (let move of moves) {
-                founds.set(move.pos.pos, move);
+            steps = this.#findAllInGroup(board, grp);
+            for (let step of steps) {
+                founds.set(step.pos.pos, step);
             }
         }
-        return Array.from(founds.values());
+        steps = Array.from(founds.values());
+        return steps;        
     }
 
-    solveAll(board: Board): boolean {
-        this._solver.updateMemory();
-        let moves = this.findAll(board);
-        let moveCount = moves.length;
-        moves.forEach((move) => board.add(move, UniqueCipherFinder.cause));
-        return moveCount > 0;
-    }
-
-    #findGroupUniqueCiphers(board: Board, group: Position[], findAll: boolean=true): Move[] {
+    #findGroupUniqueCiphers(board: Board, group: Position[], findAll: boolean=true): Step[] {
         let emptyFields: FieldContent[] = [];
         let frequency: number[];
         let fc: FieldContent | undefined;
-        let moves: Move[] = [];
-        let move: Move;
+        let steps: Step[] = [];
+        let step: Step;
 
         frequency = CipherSet.emptyFrequency();
         emptyFields = board.fieldContentsOf(group).filter((fc) => fc.isEmpty()); 
@@ -96,42 +70,38 @@ export class UniqueCipherFinder {
             if (frequency[j] == 1) {
                 fc = emptyFields.find((fc) => fc.allowSet.contains(j+1));
                 if (fc != undefined) {
-                    if (moves.find((m) => (fc!=undefined) && (m.pos.pos == fc.pos.pos)) == undefined) {
-                        move = new Move(fc.pos, j+1);
-                        moves.push(move);
+                    if (steps.find((s) => (fc!=undefined) && (s.pos.pos == fc.pos.pos)) == undefined) {
+                        step = new Step(Cause.UNIQUE_CIPHER, fc.pos, j+1);
+                        steps.push(step);
                         if (!findAll) {
-                            return moves;
+                            return steps;
                         }
                     }
                 }                                    
             }
         }
-        return moves;
+        return steps;
     }    
 
-    findUniqueCiphers(board: Board, findAll: boolean=true): Move[] {
+    findUniqueCiphers(board: Board): Step[] {
         let doLogging = false;
-        let moves: Move[];
-        let joinedMoves: Move[] = [];
+        let steps: Step[];
+        let joinedSteps: Step[] = [];
         for (let [sGrp, grp] of Position.namedGrps()) {
             if (doLogging)
                 console.log("Look for unique cipher in " + sGrp)
-            moves = this.#findGroupUniqueCiphers(board, grp, findAll);
-            if (!findAll && (moves.length > 0)) {
-                return moves;
-            }
-            for (let move of moves) {
+            steps = this.#findGroupUniqueCiphers(board, grp);
+            for (let step of steps) {
                 if (doLogging)
-                    console.log("Found unique cipher in " + sGrp + ": " + move.toString())
-                if (joinedMoves.find((m) => (m.pos.pos == move.pos.pos)) == undefined) {
-                    joinedMoves.push(move);
+                    console.log("Found unique cipher in " + sGrp + ": " + step.toString())
+                if (joinedSteps.find((s) => (s.pos.pos == step.pos.pos)) == undefined) {
+                    joinedSteps.push(step);
                 } else {
                     if (doLogging)
                         console.log("... but we know it already.")
                 }
             }
         }
-        return joinedMoves;
+        return joinedSteps;
     }
-    
 }

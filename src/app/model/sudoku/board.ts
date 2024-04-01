@@ -1,8 +1,16 @@
+import { Cause } from "./cause";
 import { CipherSet } from "./cipherset";
-import { Cause, FieldContent } from "./fieldContent";
+import { FieldContent } from "./fieldContent";
 import { logBoardEvaluationContent, logBoardEvaluationHeader } from "./logger";
 import { Move } from "./move";
 import { Position } from "./position";
+import { Step } from "./step";
+
+export interface Cheat {
+    apply: (board: Board) => void;
+    affectedBy: (pos: Position) => boolean;
+    cause: Cause;
+}    
 
 export class BoardError extends Error {
     constructor(message: string) {
@@ -16,22 +24,77 @@ export class Board {
     static EmptyAllowedSet = new Set<number>([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     static AllFieldIndices = [...Array(81).keys()];
 
+    _steps: Step[] = [];
+    _plans: Step[] = [];
     _fields: Map<Position, FieldContent> = new Map();
     _errors: Set<Position> = new Set();
     _marked: Set<Position> = new Set();
-    _initializing = true;
+    _markedCheat: Cheat | undefined = undefined ;
+    _initializing = false;
 
     constructor() {
-        this.startInitialize()
+        // this.startInitialize()
+        this.reset();
+    }
+
+    addSteps(steps: Step[]) {
+        for (let step of steps) {
+            this.addStep(step);
+        }
+    }
+
+    addStep(step: Step) {
+        this.#step(step._move.pos, step._move.digit, step._cause);
+        this._steps.push(step);
+    }
+
+    addPlans(steps: Step[]) {
+        for (let step of steps) {
+            this.addPlan(step);
+        }
+    }
+
+    addPlan(step: Step) {
+        this._plans.push(step);
+    }
+
+    planToStep() {
+        let step = this._plans.pop();
+        if (step !== undefined) {
+            this.addStep(step);
+        }
+    }
+
+    #step(pos: Position, digit: number, cause: Cause): void {
+        let fieldContent = this.fieldContentOf(pos);
+        if (!fieldContent.hasDigit() || fieldContent.digit() != digit) {
+            this.fieldContentOf(pos).setDigit(digit, cause);
+            for (let group of pos.groups) {
+                this.#evaluateGroup(group);
+            }
+            this.#evaluateAt(pos);
+            this._errors = this.#searchErrors();
+        }
+        this.unmarkCheat();
+        if (this.hasErrors() && (cause !== Cause.ENTERED)) {
+            throw new BoardError("Error adding digit " + digit + " at " + pos.toString() + " by " + cause);
+        }
     }
 
     startInitialize(): void {
         this._initializing = true;
+        this.reset();
+    }
+
+    reset(): void {
+        this._steps = [];
+        this._plans = [];
         let pos: Position;
         for (let iPos = 0; iPos < 81; iPos++) {
             pos = Position.of(iPos);
-            this._fields.set(pos, new FieldContent(new Move(pos), new CipherSet(...Board.AllAllowed)));
+            this._fields.set(pos, new FieldContent(pos, new CipherSet(...Board.AllAllowed)));
         }
+        this.#evaluateAll();
     }
 
     stopInitialize(): void {
@@ -47,32 +110,30 @@ export class Board {
         return FieldContent.NoFieldContent;
     }
 
-    add(move: Move, cause: Cause) {
-        let fieldContent = this.fieldContentOf(move.pos);
-        if (!fieldContent.hasDigit() || fieldContent.digit() != move.digit) {
-            this.fieldContentOf(move.pos).setDigit(move.digit, cause);
-            for (let group of move.pos.groups) {
-                this.#evaluateGroup(group);
-            }
-            this.#evaluateAt(move.pos);
-            this._errors = this.#searchErrors();
-        }
-        this.unmark();
-        if (this.hasErrors() && (cause !== Cause.ENTERED)) {
-            throw new BoardError("Error adding move " + move.toString());
+    markCheat(cheat: Cheat | undefined) {
+        this._markedCheat = cheat;
+    }
+
+    applyCheat() {
+        if (this._markedCheat !== undefined) {
+            this._markedCheat.apply(this);
+            this._markedCheat = undefined;
         }
     }
 
-    mark(marks: Set<Position>): void {
-        this._marked = marks;
+    hasCheat(): boolean {
+        return this._markedCheat !== undefined;
     }
 
-    unmark(): void {
-        this._marked.clear();
+    unmarkCheat() {
+        this._markedCheat = undefined;
     }
 
     isMarked(pos: Position): boolean {
-        return this._marked.has(pos);
+        if (this._markedCheat === undefined) {
+            return false;
+        }
+        return this._markedCheat.affectedBy(pos);
     }
 
     #searchErrors(): Set<Position> {
@@ -190,10 +251,9 @@ export class Board {
 
     copy(): Board {
         let copy = new Board();
-        for (let fc of this._fields.values()) {
-            copy.add(fc.getMove(), fc.cause());
+        for (let step of this._steps) {
+            copy.addStep(step);
         }
-        copy.stopInitialize();
         return copy;
     }
 

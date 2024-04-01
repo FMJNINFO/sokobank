@@ -6,12 +6,13 @@ import { Position } from "../position";
 import { ClosedGroup, ClosedGroups } from "./closedGroups";
 
 export class ClosedGroupFinder {
-    static INVALID_GROUP = new ClosedGroup("");
+    static username = "ClosedGroups";
+    static EMPTY_GROUP = new ClosedGroup("");
 
     constructor() {
     }
 
-    findAll(board: Board): ClosedGroups {
+    getAll(board: Board): ClosedGroups {
         let doLogging = true;
         let fldConts: FieldContent[];
         let fndGrps: ClosedGroup[];
@@ -25,16 +26,23 @@ export class ClosedGroupFinder {
         }
 
         for (let [sGrp, grp] of Position.namedGrps()) {
+            //  Aus jeder Gruppe die leeren Felder sammeln, ...
             fldConts = board.fieldContentsOf(grp).filter((fc) => fc.isEmpty() );
             if (fldConts.length >= 3) {
+                //  ... wenn es mehr als 3 leere Felder sind ...
                 fndGrps = [];
+                //  ... dann die geschlossenen (Unter)gruppen sammeln
                 this.#nextFindLevel(sGrp, fldConts, fndGrps);
                 if (fndGrps.length >= 0) {
+                    //  Wenn geschlossene Gruppen gefunden wurden, ...
                     for (let cg of fndGrps) {
+                        //  ... dann die Anzahl der Felder zählen, die in den übrigen
+                        //  Feldern entfernt würden und ...
                         let cleanLevel = cg.cleaningLevel(board);
                         if (doLogging) {
                             console.log("["+cleanLevel+"] " + cg.toString());
                         }
+                        //  ... wenn wirklich Felder entfernt würden, die Gruppe speichern
                         if (cleanLevel > 0) {
                             closedGroups.add(cg);
                         }
@@ -45,7 +53,31 @@ export class ClosedGroupFinder {
         return closedGroups;
     }
 
+    solveOne(board: Board, group: ClosedGroup): boolean {
+        let doLogging = true;
+        let cleanLevel = group.cleaningLevel(board);
+
+        if (doLogging) {
+            console.log("["+cleanLevel+"] " + group.toString());
+        }
+        if (cleanLevel > 0) {
+            group.apply(board);
+            return true;
+        }
+        return false;
+    }
+
     solveAll(board: Board): boolean {
+        let solvedSomething = false;
+        let groups = this.getAll(board);
+
+        for (let group of groups.groups) {
+            solvedSomething ||= this.solveOne(board, group);
+        }
+        return solvedSomething;
+    }
+
+    solveAllXX(board: Board): boolean {
         let doLogging = true;
         let fldConts: FieldContent[];
         let fndGrps: ClosedGroup[];
@@ -82,7 +114,7 @@ export class ClosedGroupFinder {
     #solveOneClosedGroup(board: Board, grpName: string, fldConts: FieldContent[], 
         currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()): boolean {
             let cnt = fldConts.length-idx0;
-            let foundGroup = ClosedGroupFinder.INVALID_GROUP;
+            let foundGroup = ClosedGroupFinder.EMPTY_GROUP;
             let currAllows : CipherSet;
 
             if (cnt >= 2) {
@@ -120,42 +152,52 @@ export class ClosedGroupFinder {
 
     #nextFindLevel(grpName: string, fldConts: FieldContent[], fndGrps: ClosedGroup[], 
         currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()) {
-            let cnt = fldConts.length-idx0;
-            let foundGroup = ClosedGroupFinder.INVALID_GROUP;
+        //  Geschlossene (Unter)Gruppen suchen und beim Index idx0 beginnen
+        let cnt = fldConts.length-idx0;
+
+        if (cnt >= 2) {
+            //  Wenn mehr als 2 Felder übrig sind
+            let foundGroup = ClosedGroupFinder.EMPTY_GROUP;
             let currAllows : CipherSet;
+                
+            for (let idx=idx0; idx < fldConts.length; idx++) {
+                //  Für jeden Startindex die erlaubten Ziffern sammeln und
+                //  das zugehörige Feld merken
+                currAllows = prevAllows.or(fldConts[idx].allowSet);
+                currGrpFlds.push(fldConts[idx]);
 
-            if (cnt >= 2) {
-                for (let idx=idx0; idx < fldConts.length; idx++) {
-                    currAllows = prevAllows.or(fldConts[idx].allowSet);
-
-                    currGrpFlds.push(fldConts[idx]);
-
-                    if (currAllows.length < currGrpFlds.length) {
-                        // Irgendwas ist hier schiefgelaufen.
-                        console.error();
-                        console.error("CurrAllows.length less than currGrpFlds.length");
-                        console.error("   CurrAllows: " + currAllows.toListString());
-                        console.error("   CurrGrpFlds:");
-                        for (let fc of currGrpFlds) {
-                            console.error("      " + fc.toString());
-                        }
-                    } else {
-                        if (currAllows.length == currGrpFlds.length) {
-                            foundGroup = ClosedGroup.of(grpName, currGrpFlds, currAllows);
-                            fndGrps.push(foundGroup);
-                        }
-            
-                        this.#nextFindLevel(grpName, fldConts, fndGrps, currGrpFlds, idx+1, currAllows);    
+                if (currAllows.length < currGrpFlds.length) {
+                    //  Es gibt weniger erlaubte Ziffern als untersuchte Felder
+                    //  Kann eigentlich nicht sein
+                    console.error();
+                    console.error("CurrAllows.length less than currGrpFlds.length");
+                    console.error("   CurrAllows: " + currAllows.toListString());
+                    console.error("   CurrGrpFlds:");
+                    for (let fc of currGrpFlds) {
+                        console.error("      " + fc.toString());
                     }
-
-                    currGrpFlds.pop();                        
+                } else {
+                    if (currAllows.length == currGrpFlds.length) {
+                        //  Wenn die Anzahl der untersuchten Felder genau der Anzahl
+                        //  insgesamt erlaubter Ziffern entspricht, haben wir eine
+                        //  geschlossene Gruppe gefunden.
+                        //  Also merken:
+                        foundGroup = ClosedGroup.of(grpName, currGrpFlds, currAllows);
+                        fndGrps.push(foundGroup);
+                    }
+                    //  In jedem Fall beim nächsten Index weitersuchen:
+                    this.#nextFindLevel(grpName, fldConts, fndGrps, currGrpFlds, idx+1, currAllows);    
                 }
-            }    
+                //  Mit dem Feld am aktuellen Index sind wir fertig, also das Feld
+                //  (es ist das letzte) aus der Merkliste wieder entfernen
+                currGrpFlds.pop();                        
+            }
+        }    
     }
 
     findBestClosedGroup(board: Board): ClosedGroup | undefined {
         let doLogging = false;      
-        let closedGroups = this.findAll(board).sortedBySize();
+        let closedGroups = this.getAll(board).sortedBySize();
         let bestLevel = 0;
         let bestLength = 9;
         let bestGroup = undefined;
@@ -191,5 +233,4 @@ export class ClosedGroupFinder {
         }
         return bestGroup;
     }
-
 }

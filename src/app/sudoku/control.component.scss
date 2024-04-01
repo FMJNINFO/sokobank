@@ -1,9 +1,10 @@
 .controldiv {
     width: 213px;
-    height: 80%;
+    height: 100%;
     display: block;
     background-color: darksalmon;
-    margin: 20px;
+    margin: 0 0 0 20px;
+    float: left;
 }
 .boardcopy {
     font-family: monospace, sans-serif;

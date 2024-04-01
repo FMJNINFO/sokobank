@@ -2,8 +2,7 @@ import { Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
 import { StatusService } from "../services/status.service";
-import { Cause } from "../model/sudoku/fieldContent";
-import { Move } from "../model/sudoku/move";
+import { Step } from "../model/sudoku/step";
 
 export @Component({
     selector: 'control',
@@ -13,7 +12,6 @@ export @Component({
 })
 class ControlComponent {
     constructor(private service: StatusService) {
-        // service.showHint$.subscribe(visible => this.onHintVisibilityChanged(visible)); 
     }
 
     onHintVisibilityChanged($event: any) {
@@ -88,7 +86,7 @@ class ControlComponent {
     doCopyToBoard(boardcopy: HTMLTextAreaElement) {
         console.log("To Board");
         let s = boardcopy.value;
-        let moves = Move.stringToMoves(s);
-        this.service.setBoardByMoves(moves, Cause.PRESET);
+        let steps = Step.stringToSteps(s);
+        this.service.setBoardBySteps(steps);
     }
 }

@@ -6,9 +6,12 @@ import { UniqueCipherFinder } from "./solution/uniqueCipherFinder";
 import { CipherByTrialFinder } from "./solution/cipherByTrialFinder";
 import { ClosedGroupFinder } from "./solution/closedGroupFinder";
 import { logBoard } from "./logger";
-import { Cause } from "./fieldContent";
+import { SolverMemory } from "./solverMemory";
+import { Cause } from "./cause";
+import { Step } from "./step";
 
-export class SolveStep {
+export class SolveSet {
+    _steps: Step[];
     _trialMove: Move | undefined;
     _lonelyCipherMoves: Move[];
     _uniqueCipherMoves: Move[];
@@ -18,6 +21,7 @@ export class SolveStep {
         this._trialMove = trialMove;
         this._lonelyCipherMoves = [];
         this._uniqueCipherMoves = [];
+        this._steps = [];
         this._closedGroups = undefined;
     }
 
@@ -33,18 +37,22 @@ export class SolveStep {
         return this._uniqueCipherMoves;
     }
 
-    setLonelyCipherMoves(moves: Move[]) {
-        this._lonelyCipherMoves = moves;
-    }
-
-    setUniqueCipherMoves(moves: Move[]) {
-        this._uniqueCipherMoves = moves;
-    }
-
-    addTrialMove(moves: Move[]) {
+    addTrialStep(steps: Step[]) {
         if (this._trialMove != undefined) {
-            moves.push(this._trialMove);
+            steps.push(new Step(Cause.TRIAL_CIPHER, this._trialMove.pos, this._trialMove.digit));
         }
+    }
+
+    get steps(): Step[] {
+        return this._steps;
+    }
+
+    addSteps(steps: Step[]) {
+        this._steps = this._steps.concat(steps);
+    }
+
+    addStep(step: Step) {
+        this._steps.push(step);
     }
 
     setClosedGroups(closedGroups: ClosedGroups) {
@@ -82,13 +90,13 @@ export class SolveStep {
 
         try {
             if (this._trialMove !== undefined) {
-                board.add(this._trialMove, CipherByTrialFinder.cause);
+                board.addStep(new Step(CipherByTrialFinder.cause, this._trialMove.pos, this._trialMove.digit ));
             }
             if (this._lonelyCipherMoves.length > 0) {
-                this._lonelyCipherMoves.forEach((move) => board.add(move, LonelyCipherFinder.cause));
+                this._lonelyCipherMoves.forEach((move) => board.addStep(new Step(LonelyCipherFinder.cause, move.pos, move.digit)));
             }
             if (this._uniqueCipherMoves.length > 0) {
-                this._uniqueCipherMoves.forEach((move) => board.add(move, UniqueCipherFinder.cause));
+                this._uniqueCipherMoves.forEach((move) => board.addStep(new Step(UniqueCipherFinder.cause, move.pos, move.digit )));
             }
             if ((this._closedGroups !== undefined) && (this._closedGroups?.length > 0)) {
                 this._closedGroups.apply(board);
@@ -104,22 +112,25 @@ export class SolveStep {
 
 export class SolutionState {
     _errorFree: boolean;
-    _steps: SolveStep[];
+    _sets: SolveSet[];
     _board: Board;
     _emptyFieldCount: number;
+    _steps: Step[];
     
-    constructor(board: Board, steps: SolveStep[] = []) {
-        this._steps = steps;
+    constructor(board: Board, sets: SolveSet[] = []) {
+        this._sets = sets;
+        this._steps = sets.reduce((steps: Step[], set) => steps.concat(set.steps), []);
         this._board = board.copy();
         this._errorFree = !board.hasErrors();
         this._emptyFieldCount = board.emptyFieldCount();
     }
 
-    addStep(step: SolveStep) {
+    addSet(set: SolveSet) {
         if (this._errorFree) {
-            this._errorFree = step.apply(this._board);
+            this._errorFree = set.apply(this._board);
             this._emptyFieldCount = this._board.emptyFieldCount();
-            this._steps.push(step);
+            this._sets.push(set);
+            this._steps = set.steps.concat(this._steps);
         }
     }
 
@@ -136,6 +147,10 @@ export class SolutionState {
 
     isIncomplete(): boolean {
         return !this.isComplete();
+    }
+
+    hasSets(): boolean {
+        return this._sets.length > 0;
     }
 
     hasSteps(): boolean {
@@ -163,6 +178,7 @@ export class SolutionState {
     copy(): SolutionState {
         //  erzeugt eine FLACHE Kopie von diesem Status, d.h. die Steps sind dieselben
         let state = new SolutionState(this._board);
+        state._sets = this._sets;
         state._steps = this._steps;
         return state;
     }
@@ -171,8 +187,12 @@ export class SolutionState {
         return this._emptyFieldCount < state._emptyFieldCount;
     }
 
-    get steps(): SolveStep[] {
+    get steps(): Step[] {
         return this._steps;
+    }
+
+    get sets(): SolveSet[] {
+        return this._sets;
     }
 
     get emptyFieldCount(): number {
@@ -180,77 +200,86 @@ export class SolutionState {
     }
 }
 
-interface SolverMemory {
-    lastUser: string;
-    lonelyCiphers: Move[];
-    lonelyCipherOfs: number;
-    uniqueCiphers: Move[];
-    uniqueCipherOfs: number;
-    closedGroups: Object[];
-}    
-
 export class Solver {
-    memory: SolverMemory = {
-        lastUser: "",
-        lonelyCiphers: [],
-        lonelyCipherOfs: -1,
-        uniqueCiphers: [],
-        uniqueCipherOfs: -1,
-        closedGroups: []
-    };
-
     uniqueCipherFinder: UniqueCipherFinder;
     lonelyCipherFinder: LonelyCipherFinder;
     cipherByTrialFinder: CipherByTrialFinder;
     closedGroupFinder: ClosedGroupFinder;
+    memory: SolverMemory;
+    steps: Step[];
 
-    constructor() {
-        this.updateMemory();
+    constructor(memory: SolverMemory) {
+        this.memory = memory;
         this.uniqueCipherFinder = new UniqueCipherFinder(this);
         this.lonelyCipherFinder = new LonelyCipherFinder(this);
         this.cipherByTrialFinder = new CipherByTrialFinder(this);
         this.closedGroupFinder = new ClosedGroupFinder();
+        this.steps = [];
     }
 
-    updateMemory(userName: string="") {
-        if ((this.memory.lastUser != userName) || (userName === "")) {
-            this.memory.lastUser = userName;
-            this.memory.lonelyCiphers = [];
-            this.memory.lonelyCipherOfs = -1;
-            this.memory.uniqueCiphers = [];
-            this.memory.uniqueCipherOfs = -1;
-            this.memory.closedGroups = [];    
+    findAllCheats(board: Board): void {
+        let doLogging = true;
+
+        this.memory.reset();
+
+        let steps = this.findAllLonelyCiphers(board);
+        this.memory.saveLonelyCiphers(steps);
+        if (doLogging) {
+            for (let step of steps) {
+                console.log("Lonely cipher: " + step.toString())
+            }
+            console.log("-- Find Lonely Cipher done.")
+        }    
+
+        steps = this.findAllUniqueCiphers(board);
+        this.memory.saveUniqueCiphers(steps);
+
+        if (doLogging) {
+            for (let step of steps) {
+                console.log("Found unique cipher: " + step.toString());
+            }
+            console.log("-- Find Unique Cipher done.")
+        }
+
+        let groups = this.findAllClosedGroups(board);
+        this.memory.saveClosedGroups(groups);
+
+        if (doLogging) {
+            for (let group of groups.groups) {
+                console.log("Found closed groups: " + groups.toString());
+            }
+            console.log("-- Find Closed Groups done.")
         }
     }
 
-    findAllLonelyCiphers(board: Board): Move[] {
-        return this.lonelyCipherFinder.findLonelyCiphers(board, true);
+    findAllLonelyCiphers(board: Board): Step[] {
+        return this.lonelyCipherFinder.getAllSteps(board);
     }
 
-    findAllUniqueCiphers(board: Board): Move[] {
-        return this.uniqueCipherFinder.findUniqueCiphers(board, true);
+    findAllUniqueCiphers(board: Board): Step[] {
+        return this.uniqueCipherFinder.findUniqueCiphers(board);
     }
 
     findAllClosedGroups(board: Board): ClosedGroups {
-        return this.closedGroupFinder.findAll(board);
+        return this.closedGroupFinder.getAll(board);
     }
 
     findBestClosedGroup(board: Board): ClosedGroup | undefined {
         return this.closedGroupFinder.findBestClosedGroup(board);
     }
 
-    findAllResolvingMoves(board: Board): Move[] {
-        return this.cipherByTrialFinder.findAllTrialMoves(board);
+    findAllResolvingSteps(board: Board): Step[] {
+        return this.cipherByTrialFinder.findAllTrialSteps(board);
     }
 
     solveComplete(board: Board) {
         //  Wir haben ein board und suchen eine Loesung, d.h. eine Liste von SolveSteps
-        let resultState = this.cipherByTrialFinder.findTrialMoves(new SolutionState(board));
+        let resultState = this.cipherByTrialFinder.findTrialSteps(new SolutionState(board));
         console.log("Freie Felder: " + resultState.emptyFieldCount);
 
         if (resultState.isComplete()) {
             console.log("Solution was successful");
-            for (let step of resultState.steps) {
+            for (let step of resultState.sets) {
                 if (step._trialMove != undefined) {
                     console.log("Trial move: " + step._trialMove.toString());
                 }
@@ -258,7 +287,7 @@ export class Solver {
         } else {
             console.log("Solution was NOT successful");
         }
-        for (let ss of resultState.steps) {
+        for (let ss of resultState.sets) {
             ss.apply(board);
         }
         logBoard(board);
@@ -266,18 +295,18 @@ export class Solver {
 
     evaluate(board: Board): [boolean, Map<Cause, number>] {
         let evals = new Map<Cause, number>();
-        let resultState = this.cipherByTrialFinder.findTrialMoves(new SolutionState(board));
+        let resultState = this.cipherByTrialFinder.findTrialSteps(new SolutionState(board));
         let solvable = resultState.isComplete();
         console.log("Freie Felder: " + resultState.emptyFieldCount);
 
-        for (let step of resultState.steps) {
-            if (step.trialMove != undefined) {
+        for (let solveset of resultState.sets) {
+            if (solveset.trialMove != undefined) {
                 evals.set(Cause.TRIAL_CIPHER, evals.has(Cause.TRIAL_CIPHER) ? (evals.get(Cause.TRIAL_CIPHER)! + 1) : 1);
             }
-            for (let move of step.lonelyCipherMoves) {
+            for (let move of solveset.lonelyCipherMoves) {
                 evals.set(Cause.LONELY_CIPHER, evals.has(Cause.LONELY_CIPHER) ? (evals.get(Cause.LONELY_CIPHER)! + 1) : 1);
             }
-            for (let move of step.uniqueCipherMoves) {
+            for (let move of solveset.uniqueCipherMoves) {
                 evals.set(Cause.UNIQUE_CIPHER, evals.has(Cause.UNIQUE_CIPHER) ? (evals.get(Cause.UNIQUE_CIPHER)! + 1) : 1);
             }
         }
@@ -287,6 +316,9 @@ export class Solver {
     solveLogical(board: Board): boolean {
         let doLogging = false;
         let retry: boolean;
+        let steps: Step[];
+        let count: number;
+        let groups: ClosedGroups;
 
         do {
             retry = true;
@@ -296,13 +328,39 @@ export class Solver {
             }
 
             try {
-                if (this.lonelyCipherFinder.solveAll(board)) {
-                    this.closedGroupFinder.solveAll(board);
+                steps = this.lonelyCipherFinder.getAllSteps(board);
+                count = steps.length;
+                steps.forEach((step) => board.addStep(step));
+                let solvedSomething= count > 0;        
+                this.memory.clearLonelyCiphers();
+                if (solvedSomething) {
+                    solvedSomething = false;
+                    groups = this.closedGroupFinder.getAll(board);                    
+                    for (let group of groups.groups) {
+                        if (group.cleaningLevel(board) > 0) {
+                            group.apply(board);
+                            solvedSomething = true;
+                        }
+                    }
+                    this.memory.clearClosedGroups();
                     continue;
                 }
 
-                if (this.uniqueCipherFinder.solveAll(board)) {
-                    this.closedGroupFinder.solveAll(board);
+                steps = this.uniqueCipherFinder.getAllSteps(board);
+                count = steps.length;
+                steps.forEach((step) => board.addStep(step));
+                solvedSomething= count > 0;        
+                this.memory.clearUniqueCiphers();
+                if (solvedSomething) {
+                    solvedSomething = false;
+                    groups = this.closedGroupFinder.getAll(board);                    
+                    for (let group of groups.groups) {
+                        if (group.cleaningLevel(board) > 0) {
+                            group.apply(board);
+                            solvedSomething = true;
+                        }
+                    }
+                    this.memory.clearClosedGroups();
                     continue;
                 }
             } catch(error) {

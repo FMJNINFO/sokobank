@@ -4,7 +4,9 @@ import { Board } from "../model/sudoku/board";
 import { logBoard } from "../model/sudoku/logger";
 import { Move } from "../model/sudoku/move";
 import { Solver } from "../model/sudoku/solver";
-import { Cause } from "../model/sudoku/fieldContent";
+import { SolverMemory } from "../model/sudoku/solverMemory";
+import { Step } from "../model/sudoku/step";
+import { Cause } from "../model/sudoku/cause";
 
 export class StatusService {
     shouldEdit$: EventEmitter<Position>;
@@ -17,6 +19,7 @@ export class StatusService {
     _areDigitsVisible: boolean;
     _board: Board;
     _emphasizedDigit: number | undefined;
+    _solverMemory: SolverMemory;
 
     constructor() {
         this.shouldEdit$ = new EventEmitter();
@@ -28,6 +31,7 @@ export class StatusService {
         this._isHintVisible = false;
         this._areDigitsVisible = false;
         this._board = new Board();
+        this._solverMemory = new SolverMemory();
     }
 
     emphasizeDigit(digit: number) {
@@ -100,135 +104,99 @@ export class StatusService {
         return this._board.contentToString();
     }
 
-    setBoardByMoves(moves: Move[], cause: Cause) {
-        this._board.startInitialize();
-        for (let move of moves) {
-            this._board.add(move, cause);
-        }
-        this._board.stopInitialize();
+    setBoardBySteps(steps: Step[]) {
+        this._board.reset();
+        this._board.addSteps(steps);
     }
-
+    
     cleanBoard() {
-        this._board.startInitialize();
-        this._board.stopInitialize();
+        this._board.reset();
     }
 
-    markAllLonelyCiphers(): void {
-        let doLogging = true;
-        let solver = new Solver();
+    hasLonelyCipher(): boolean {
+        return this._solverMemory.hasLonelyCipher();
+    }
 
-        let moves = solver.findAllLonelyCiphers(this._board);
-        if (doLogging) {
-            for (let move of moves) {
-                console.log("Lonely cipher: " + move.toString())
-            }
-            console.log("-- Find Lonely Cipher done.")
-        }
-        this._board.mark(new Set(moves.map((m) => m.pos)));
+    hasUniqueCipher(): boolean {
+        return this._solverMemory.hasUniqueCipher();
+    }
+
+    hasClosedGroup(): boolean {
+        return this._solverMemory.hasClosedGroup();
+    }
+
+    findAllCheats(): void {
+        let solver = new Solver(this._solverMemory);
+        solver.findAllCheats(this._board);
+    }
+
+    markNextLonelyCipher(): void {
+        let stepToMark = this._solverMemory.getNextLonelyCipher();
+        this._board.markCheat(stepToMark);
+    }
+
+    markNextUniqueCipher(): void {
+        let stepToMark = this._solverMemory.getNextUniqueCipher();
+        this._board.markCheat(stepToMark);
+    }
+
+    markNextClosedGroup(): void {
+        let groupToMark = this._solverMemory.getNextClosedGroup();
+        this._board.markCheat(groupToMark);
+    }
+
+    hasCheat(): boolean {
+        return this._board.hasCheat();
+    }
+
+    applyCheat(): void {
+        this._board.applyCheat();
+        this.findAllCheats();
     }
 
     fillLonelyCiphers(): void {
-        let solver = new Solver();
+        let solver = new Solver(this._solverMemory);
 
-        let moves = solver.findAllLonelyCiphers(this._board);
-        for (let move of moves) {
-            if (move.hasDigit()) {
-                this._board.add(move, Cause.LONELY_CIPHER);
+        let steps = solver.findAllLonelyCiphers(this._board);
+        for (let step of steps) {
+            if (step.hasDigit()) {
+                this._board.addStep(step);
             }
         }
-    }
-
-    markUniqueCiphers() {
-        let doLogging = true;
-        let solver = new Solver();
-
-        let moves = solver.findAllUniqueCiphers(this._board);
-        if (doLogging) {
-            for (let move of moves) {
-                console.log("Found unique cipher: " + move.toString());
-            }
-            console.log("-- Find Unique Cipher done.")
-        }
-        this._board.mark(new Set(moves.map((m) => m.pos)));
     }
 
     fillUniqueCiphers() {
-        let solver = new Solver();
-        let moves = solver.findAllUniqueCiphers(this._board);
-        for (let move of moves) {
-            if (move.hasDigit()) {
-                this._board.add(move, Cause.UNIQUE_CIPHER);
+        let solver = new Solver(this._solverMemory);
+        let steps = solver.findAllUniqueCiphers(this._board);
+        for (let step of steps) {
+            if (step.hasDigit()) {
+                this._board.addStep(step);
             }
-        }
-    }
-
-    markClosedGroup() {
-        let solver = new Solver();
-        let closedGroup = solver.findBestClosedGroup(this._board);
-
-        if (closedGroup === undefined) {
-            this._board.unmark()
-        } else {
-            this._board.mark(closedGroup.asSet())
-        }
-    }
-
-    cleanClosedGroup() {
-        let solver = new Solver();
-        let closedGroup = solver.findBestClosedGroup(this._board);
-
-        if (closedGroup !== undefined) {
-            closedGroup.apply(this._board);
-            this._board.unmark();
-            this.markClosedGroup();
         }
     }
 
     fillAutomatic() {
-        let solver = new Solver();
+        let solver = new Solver(this._solverMemory);
         solver.solveLogical(this._board);
     }
 
     solveComplete(): boolean {
-        let solver = new Solver();
+        let solver = new Solver(this._solverMemory);
         solver.solveComplete(this._board);
         return false;
     }
 
-    markBestTrialMove(): boolean {
-        if (this._board.emptyFieldCount() > 60) {
-            return false;
-        }
+    fillBestTrialStep(): boolean {
         let doLogging = true;
-        let solver = new Solver();
-        let moves = solver.findAllResolvingMoves(this._board);
-        if (moves.length == 0) {
-            if (doLogging) {
-                console.log("Found no solution")
-            }
-            return false;
-        }
-        if (doLogging) {
-            console.log("Found resolving moves at:")
-            for (let move of moves) {
-                console.log("   " + move.toString())
-            }
-        }
-        this._board.mark(new Set(moves.map((m) => m.pos)));
-        return true;
-    }    
-
-    fillBestTrialMove(): boolean {
-        let doLogging = true;
-        let solver = new Solver();
-        let moves = solver.findAllResolvingMoves(this._board);
-        if (moves.length == 0) {
+        let solver = new Solver(this._solverMemory);
+        let steps = solver.findAllResolvingSteps(this._board);
+        if (steps.length == 0) {
             if (doLogging) {
                 console.log("Found no solution");
             }
             return false;
         }
-        this._board.add(moves[0], Cause.TRIAL_CIPHER);
+        this._board.addStep(steps[0]);
         return true;
     }    
 
@@ -237,8 +205,8 @@ export class StatusService {
     }
 
     setDigit(pos: Position, digit: number, cause: Cause) {
-        let move = new Move(pos, digit);
-        this._board.add(move, cause);
+        let step = new Step(cause, pos, digit);
+        this._board.addStep(step);
     }
 
     hasError(pos: Position): boolean {
@@ -269,7 +237,7 @@ export class StatusService {
     }
 
     get evaluation(): [boolean|undefined, string] {
-        let solver = new Solver();
+        let solver = new Solver(this._solverMemory);
         let solvable: boolean;
         let evaluation: Map<Cause, number>;
 

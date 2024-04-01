@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { message } from '../model/sudoku/logger';
 import { TestBoardMoves } from '../model/sudoku/testboardMoves';
 import { StatusService } from '../services/status.service';
-import { Cause } from '../model/sudoku/fieldContent';
 
 @Component({    
     selector: 'app-home',
@@ -26,8 +25,7 @@ export class HomeComponent implements OnInit {
     ngOnInit() {}
 
     setTestBoard(id: string) {
-        this.service.setBoardByMoves(this.testBoardMoves.getMoves(id), Cause.PRESET);
-        this.doEvaluate();
+        this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
     }
 
     get solvableInfo(): string {
@@ -54,53 +52,33 @@ export class HomeComponent implements OnInit {
 
     doCleanBoard($event: Event) {
         this.service.cleanBoard();
-        this.doEvaluate();
-    }
-
-    doFindLonelyCiphers($event: Event) {
-        this.service.markAllLonelyCiphers();
     }
 
     doFillLonelyCiphers($event: Event) {
         this.service.fillLonelyCiphers();
     }
 
-    doFindUniqueCiphers($event: Event) {
-        this.service.markUniqueCiphers();
-    }
-
     doFillUniqueCiphers($event: Event) {
         this.service.fillUniqueCiphers();
-    }
-
-    doFindClosedGroup($event: Event) {
-        this.service.markClosedGroup();
-    }
-
-    doCleanClosedGroup($event: Event) {
-        this.service.cleanClosedGroup();
     }
 
     doFillAutomatic($event: Event) {
         this.service.fillAutomatic();
     }
 
-    doResolveByTrial($event: Event) {
+    doFillBestTrialStep($event: Event) {
         if (this.service.getBoard().emptyFieldCount() > 60) {
             message("Insufficient filled fields (<20) or no resolution found.");
         }
-        this.service.markBestTrialMove();
-    }    
-
-    doFillBestTrialMove($event: Event) {
-        if (this.service.getBoard().emptyFieldCount() > 60) {
-            message("Insufficient filled fields (<20) or no resolution found.");
-        }
-        this.service.fillBestTrialMove();
+        this.service.fillBestTrialStep();
     }    
 
     doSolveAutomatic($event: Event) {
         this.service.solveComplete();
+    }
+
+    doFindAllCheats($event: Event) {
+        this.service.findAllCheats();
     }
 }
 

@@ -1,0 +1,72 @@
+import { Board, Cheat } from "./board";
+import { Cause } from "./cause";
+import { Move } from "./move";
+import { Position } from "./position";
+
+export class Step implements Cheat {
+    _move: Move;
+    _cause: Cause;
+
+    constructor(cause: Cause, pos: Position=Position.NoPosition, digit: number=0) {
+        this._move = new Move(pos, digit);
+        this._cause = cause;
+    }
+
+    apply(board: Board) {
+        board.addStep(this);        
+    }
+
+    affectedBy(pos: Position): boolean {
+        return this.pos.pos == pos.pos;
+    }
+
+    get pos(): Position {
+        return this._move.pos;
+    }
+
+    get cause(): Cause {
+        return this._cause;
+    }
+
+    isIn(steps: Step[]) {
+        if (steps.length === 0) {
+            return false;
+        }
+        let found = steps.find((step) => this.pos.pos === step.pos.pos);
+        return found;
+    }
+
+    hasDigit(): boolean {
+        return this._move._digit != 0;
+    }
+
+    toString(): string {
+        let s = this._move.toString() + "  by " + this._cause;
+        return s;
+    }
+
+    static stringToSteps(s: string, ): Step[] {
+        const pool = Position.pool();
+        let steps: Step[] = [];
+        let ch: string | undefined;
+        let digit: number | undefined;
+        let ofs = 0;
+        let iPos = 0;
+
+        while (iPos < 81) {
+            ch = s.at(ofs);
+            if (ch === undefined) {
+                ch = Move.SpaceChar;
+            }
+            ofs += 1;
+            if ((ch === Move.SpaceChar) || Move.AllowedChars.includes(ch)) {
+                if (ch !== Move.SpaceChar) {
+                    digit = parseInt(ch);
+                    steps.push(new Step(Cause.PRESET, pool[iPos], digit))
+                }
+                iPos += 1;
+            }
+        }
+        return steps;
+    }
+}
