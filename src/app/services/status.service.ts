@@ -113,6 +113,10 @@ export class StatusService {
         this._board.reset();
     }
 
+    isBoardFull(): boolean {
+        return this._board.isFull();
+    }
+
     hasLonelyCipher(): boolean {
         return this._solverMemory.hasLonelyCipher();
     }
@@ -184,6 +188,24 @@ export class StatusService {
         let solver = new Solver(this._solverMemory);
         solver.solveComplete(this._board);
         return false;
+    }
+
+    fillComplete() {
+        let doLogging = true;
+
+        while (!this._board.isFull()) {
+            let solver = new Solver(this._solverMemory);
+            let steps = solver.findAllResolvingSteps(this._board);
+            if (steps.length == 0) {
+                if (doLogging) {
+                    console.log("Found no solution");
+                }
+                return;
+            }
+            for (let step of steps) {
+                this._board.addStep(step);
+            }
+        }
     }
 
     fillBestTrialStep(): boolean {

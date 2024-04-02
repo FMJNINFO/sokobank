@@ -21,6 +21,8 @@ Sudoku<br/>
 <br/>
 <button type="button" (click)="doSolveAutomatic($event)" clickable>Solve complete</button>
 <br/>
+<button type="button" (click)="doFillComplete($event)" [disabled]="isBoardFull()" clickable>Fill complete</button>
+<br/>
 <button type="button" (click)="doFindAllCheats($event)" clickable>Find all cheats</button>
 <br/>
 <br/>

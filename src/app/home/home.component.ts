@@ -77,8 +77,16 @@ export class HomeComponent implements OnInit {
         this.service.solveComplete();
     }
 
+    doFillComplete($event: Event) {
+        this.service.fillComplete();
+    }
+
     doFindAllCheats($event: Event) {
         this.service.findAllCheats();
+    }
+
+    isBoardFull():boolean {
+        return this.service.isBoardFull();
     }
 }
 

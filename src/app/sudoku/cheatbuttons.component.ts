@@ -30,7 +30,7 @@ class CheatButtonsComponent {
         if (type == "Lonely Cipher") {
             this.service.markNextLonelyCipher();
         }
-        if (type == "Uniqe Cipher") {
+        if (type == "Unique Cipher") {
             this.service.markNextUniqueCipher();
         }
         if (type == "Closed Group") {

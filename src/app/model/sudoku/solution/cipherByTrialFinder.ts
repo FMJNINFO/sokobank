@@ -194,6 +194,9 @@ export class CipherByTrialFinder {
             let testStep = new Step(Cause.TRIAL_CIPHER, fc.pos, digit);
 
             [isSolved, win] = this.#checkOneStep(board, testStep);
+            if (isSolved) {
+                return [true, testStep, win];
+            }
 
             if (win > bestWin) {
                 bestWin = win;

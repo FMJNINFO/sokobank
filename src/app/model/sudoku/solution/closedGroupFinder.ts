@@ -33,7 +33,7 @@ export class ClosedGroupFinder {
                 fndGrps = [];
                 //  ... dann die geschlossenen (Unter)gruppen sammeln
                 this.#nextFindLevel(sGrp, fldConts, fndGrps);
-                if (fndGrps.length >= 0) {
+                if (fndGrps.length > 0) {
                     //  Wenn geschlossene Gruppen gefunden wurden, ...
                     for (let cg of fndGrps) {
                         //  ... dann die Anzahl der Felder zählen, die in den übrigen
@@ -67,7 +67,7 @@ export class ClosedGroupFinder {
         return false;
     }
 
-    solveAll(board: Board): boolean {
+    solveAllYY(board: Board): boolean {
         let solvedSomething = false;
         let groups = this.getAll(board);
 
@@ -77,7 +77,7 @@ export class ClosedGroupFinder {
         return solvedSomething;
     }
 
-    solveAllXX(board: Board): boolean {
+    solveAll(board: Board): boolean {
         let doLogging = true;
         let fldConts: FieldContent[];
         let fndGrps: ClosedGroup[];
