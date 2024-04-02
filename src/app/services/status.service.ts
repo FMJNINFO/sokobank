@@ -28,8 +28,8 @@ export class StatusService {
         this.boardChanged$ = new EventEmitter();
 
         this._editor = Position.NoPosition;
-        this._isHintVisible = false;
-        this._areDigitsVisible = false;
+        this._isHintVisible = true;
+        this._areDigitsVisible = true;
         this._board = new Board();
         this._solverMemory = new SolverMemory();
     }
@@ -40,6 +40,10 @@ export class StatusService {
         } else {
             this._emphasizedDigit = digit;
         }
+    }
+
+    unemphasizeDigits() {
+        this._emphasizedDigit = undefined;
     }
 
     isDigitEmphasized(digit: number): boolean {

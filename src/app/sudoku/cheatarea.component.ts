@@ -19,4 +19,20 @@ class CheatAreaComponent {
     hasCheat(): boolean {
         return this.service.hasCheat();
     }
+
+    onHintVisibilityChanged($event: any) {
+        this.service.showHint($event.currentTarget.checked);
+    }
+
+    get isHintVisible(): boolean {
+        return this.service.isHintVisible();
+    }
+
+    onDigitVisibilityChanged($event: any) {
+        this.service.showDigits($event.currentTarget.checked);
+    }
+
+    get areDigitsVisible(): boolean {
+        return this.service.areDigitsVisible();
+    }
 }

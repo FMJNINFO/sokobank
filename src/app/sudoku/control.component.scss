@@ -6,6 +6,16 @@
     margin: 0 0 0 20px;
     float: left;
 }
+.foldheader {
+    background-color: brown;
+}
+.fullwidth {
+    width: 100%;
+}
+.cheatarea {
+    display: block;
+    border-collapse: collapse;
+}
 .boardcopy {
     font-family: monospace, sans-serif;
     font-stretch: 200%;
@@ -35,4 +45,8 @@
     padding: 3px 5px;
     border-radius: 3px;
     cursor: pointer;
+}
+.headline {
+    padding-left: 3px;
+    font-weight: bold;
 }

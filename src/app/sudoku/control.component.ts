@@ -11,15 +11,35 @@ export @Component({
 
 })
 class ControlComponent {
+    copyOptionVisible = false;
+    cheatOptionVisible = false;
+    digitHighlighting = false;
+
     constructor(private service: StatusService) {
+    }
+
+    onCopyOptionVisibilityChanged($event: any) {
+        this.copyOptionVisible = $event.currentTarget.checked;
     }
 
     onHintVisibilityChanged($event: any) {
         this.service.showHint($event.currentTarget.checked);
+        if (this.isHintVisible) {
+            this.service.findAllCheats();
+        }
+    }
+
+    get isHintVisible(): boolean {
+        return this.service.isHintVisible();
     }
 
     onDigitVisibilityChanged($event: any) {
         this.service.showDigits($event.currentTarget.checked);
+    }
+
+    onDigitHighlightingChanged($event: any) {
+        this.digitHighlighting = $event.currentTarget.checked;
+        this.service.unemphasizeDigits()
     }
 
     markDigit(digit: number) {
