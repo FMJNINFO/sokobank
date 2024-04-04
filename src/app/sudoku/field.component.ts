@@ -93,6 +93,10 @@ class FieldComponent {
         return this.service.isMarked(this.pos);
     }
 
+    get isHintVisible(): boolean {
+        return this.service.isHintVisible();
+    }
+
     #toDigit(sDigit: string): number {
         switch(sDigit) {
             case "1":   return 1;

@@ -1,5 +1,6 @@
-<tr *ngIf="isHintVisible"><td class="digitVisibleBox"><input type="checkbox" (change)="onDigitVisibilityChanged($event)"/>Digits visible</td></tr>
-<tr *ngIf="isHintVisible"><cheatbuttons class="cheatbuttons" [type]="'Lonely Cipher'"></cheatbuttons></tr>
-<tr *ngIf="isHintVisible"><cheatbuttons class="cheatbuttons" [type]="'Unique Cipher'"></cheatbuttons></tr>
-<tr *ngIf="isHintVisible && areDigitsVisible"><cheatbuttons class="cheatbuttons" [type]="'Closed Group'"></cheatbuttons></tr>
-<tr *ngIf="isHintVisible"><td class="applyCheatBox"><button class="applyCheatButton" [disabled]="!hasCheat()" (click)="doApplyCheat($event)" clickable>Apply</button></td></tr>
+<tr *ngIf="isVisible"><td class="digitVisibleBox"><input type="checkbox"
+    [checked]="digitVisibility" (change)="onDigitVisibilityChanged($event)"/>Digits visible</td></tr>
+<tr *ngIf="isVisible"><cheatbuttons class="cheatbuttons" [type]="'Lonely Cipher'"></cheatbuttons></tr>
+<tr *ngIf="isVisible"><cheatbuttons class="cheatbuttons" [type]="'Unique Cipher'"></cheatbuttons></tr>
+<tr *ngIf="isVisible && areDigitsVisible"><cheatbuttons class="cheatbuttons" [type]="'Closed Group'"></cheatbuttons></tr>
+<tr *ngIf="isVisible"><td class="applyCheatBox"><button class="applyCheatButton" [disabled]="!hasCheat()" (click)="doApplyCheat($event)" clickable>Apply</button></td></tr>

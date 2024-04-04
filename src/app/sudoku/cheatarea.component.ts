@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { StatusService } from "../services/status.service";
 
 export @Component({
@@ -8,6 +8,7 @@ export @Component({
 })
 
 class CheatAreaComponent {
+    @Input()  isVisible = false;
 
     constructor(private service: StatusService) {         
     }
@@ -20,16 +21,20 @@ class CheatAreaComponent {
         return this.service.hasCheat();
     }
 
-    onHintVisibilityChanged($event: any) {
-        this.service.showHint($event.currentTarget.checked);
-    }
-
     get isHintVisible(): boolean {
         return this.service.isHintVisible();
     }
 
     onDigitVisibilityChanged($event: any) {
         this.service.showDigits($event.currentTarget.checked);
+    }
+
+    get digitVisibility(): boolean {
+        return this.service.areDigitsVisible();
+    }
+
+    set digitVisibility(isVisible: boolean) {
+        this.service.showHint(isVisible);
     }
 
     get areDigitsVisible(): boolean {

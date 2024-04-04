@@ -1,9 +1,9 @@
 <td class="entry" (click)="switchEdit()">
     <div class="field" [ngClass]="fieldColor">
-        <div *ngIf="isEditing || hasDigit || !showAllowance">
+        <div *ngIf="isEditing || hasDigit || !showAllowance || !isHintVisible">
             <div>{{value}}</div>
         </div>
-        <div *ngIf="!isEditing && !hasDigit && showAllowance">
+        <div *ngIf="!isEditing && !hasDigit && showAllowance && isHintVisible">
             <div>
                 <table class="emptyFieldTable">
                     <tr class="emptyFieldRow">

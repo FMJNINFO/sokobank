@@ -13,6 +13,8 @@ import { AllowedComponent } from './sudoku/allowed.component';
 import { StatusService } from './services/status.service';
 import { CheatAreaComponent } from './sudoku/cheatarea.component';
 import { CheatButtonsComponent } from './sudoku/cheatbuttons.component';
+import { ImExportComponent } from './sudoku/imexport.component';
+import { DigitHighlightingComponent } from './sudoku/digitHighlighting.component';
 
 @NgModule({
   declarations: [
@@ -24,7 +26,9 @@ import { CheatButtonsComponent } from './sudoku/cheatbuttons.component';
     AllowedComponent,
     ControlComponent,
     CheatAreaComponent,
-    CheatButtonsComponent
+    CheatButtonsComponent,
+    ImExportComponent,
+    DigitHighlightingComponent
   ],
   imports: [
     BrowserModule,

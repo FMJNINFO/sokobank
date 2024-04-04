@@ -1,0 +1,12 @@
+<tr *ngIf="isVisible" style="vertical-align: middle;">
+    <td>
+        <button type="button" (click)="doCopyFromBoard(boardcopy)" clickable>--&gt;</button>
+        <br/>
+        <br/>
+        <br/>
+        <button type="button" (click)="doCopyToBoard(boardcopy)" clickable>&lt;--</button>
+    </td>
+    <td>
+    <textarea id="boardcopy" #boardcopy class="boardcopy" (input)="onInput($event)"></textarea>
+    </td>
+</tr>

@@ -2,49 +2,25 @@
     <span class="headline">Hilfsfunktionen</span>
     <br/>
 
-    <table>
-        <tr><td colspan="9" class="foldheader"><input type="checkbox" (change)="onDigitHighlightingChanged($event)"/>Digit Highlighting</td></tr>
-        <tr *ngIf="digitHighlighting">
-            <td><button type="button" [ngClass]="isDigitMarked(1) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(1)" clickable>1</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(2) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(2)" clickable>2</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(3) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(3)" clickable>3</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(4) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(4)" clickable>4</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(5) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(5)" clickable>5</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(6) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(6)" clickable>6</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(7) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(7)" clickable>7</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(8) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(8)" clickable>8</button></td>
-            <td><button type="button" [ngClass]="isDigitMarked(9) ? 'markedDigit' : 'unmarkedDigit'" 
-                (click)="markDigit(9)" clickable>9</button></td>
-        </tr>
+    <table class="fullwidth">
+        <tr><td colspan="9" class="foldheader">
+            <input type="checkbox" (change)="onDigitHighlightingChanged($event)"/>Digit Highlighting
+        </td></tr>
+        <digitHighlighting [isVisible]="digitHighlighting"></digitHighlighting>
     </table>
 
     <table class="fullwidth">
-        <tr><td class="foldheader"><input type="checkbox" (change)="onHintVisibilityChanged($event)"/>Cheat-Options</td></tr>
-        <cheatarea *ngIf="isHintVisible" class="cheatarea"></cheatarea>
+        <tr><td class="foldheader">
+            <input type="checkbox" (change)="onHintVisibilityChanged($event)"/>Cheat-Options
+        </td></tr>
+        <cheatarea [isVisible]="cheatOptionVisible" class="cheatarea"></cheatarea>
     </table>
     
     <table class="fullwidth">
-    <tr><td colspan="2" class="foldheader"><input type="checkbox" (change)="onCopyOptionVisibilityChanged($event)"/>Import/Export</td></tr>
-    <tr *ngIf="copyOptionVisible">
-        <td>
-            <button type="button" (click)="doCopyFromBoard(boardcopy)" clickable>--&gt;</button>
-            <br/>
-            <br/>
-            <br/>
-            <button type="button" (click)="doCopyToBoard(boardcopy)" clickable>&lt;--</button>
-        </td>
-        <td>
-        <textarea id="boardcopy" #boardcopy class="boardcopy" (input)="onInput($event)"></textarea>
-        </td>
-    </tr>
+        <tr><td colspan="2" class="foldheader">
+            <input type="checkbox" (change)="onCopyOptionVisibilityChanged($event)"/>Import/Export
+        </td></tr>
+        <imexport [isVisible]="copyOptionVisible"></imexport>
     </table>
 
 </div>    

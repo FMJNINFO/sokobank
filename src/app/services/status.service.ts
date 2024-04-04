@@ -28,8 +28,8 @@ export class StatusService {
         this.boardChanged$ = new EventEmitter();
 
         this._editor = Position.NoPosition;
-        this._isHintVisible = true;
-        this._areDigitsVisible = true;
+        this._isHintVisible = false;
+        this._areDigitsVisible = false;
         this._board = new Board();
         this._solverMemory = new SolverMemory();
     }
