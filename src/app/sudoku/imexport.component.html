@@ -7,6 +7,24 @@
         <button type="button" (click)="doCopyToBoard(boardcopy)" clickable>&lt;--</button>
     </td>
     <td>
-    <textarea id="boardcopy" #boardcopy class="boardcopy" (input)="onInput($event)"></textarea>
+        <textarea id="boardcopy" #boardcopy class="boardcopy" (input)="onInput($event)"></textarea>
     </td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard0')" clickable>&lt;-- TestBoard 0</button></td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard1')" clickable>&lt;-- TestBoard 1</button></td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard2')" clickable>&lt;-- TestBoard 2</button></td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard3')" clickable>&lt;-- TestBoard 3</button></td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard4')" clickable>&lt;-- TestBoard 4</button></td>
+</tr>
+<tr *ngIf="isVisible">
+    <td><button type="button" (click)="setTestBoard('testboard5')" clickable>&lt;-- TestBoard 5</button></td>
 </tr>

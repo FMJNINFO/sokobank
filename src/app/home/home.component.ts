@@ -13,20 +13,20 @@ export class HomeComponent implements OnInit {
     static SOLVABLE_YES = "Ist lösbar.";
     static SOLVABLE_NO = "Ist NICHT lösbar.";
 
-    testBoardMoves: TestBoardMoves;
+    // testBoardMoves: TestBoardMoves;
     _solvableInfo = HomeComponent.SOLVABLE_DONT_KNOW;
     _evaluation = "Click evaluate.";
 
     constructor(private service: StatusService) {
-        this.testBoardMoves = new TestBoardMoves();
-        this.setTestBoard("testboard3");
+        // this.testBoardMoves = new TestBoardMoves();
+        // this.setTestBoard("testboard3");
     }
 
     ngOnInit() {}
 
-    setTestBoard(id: string) {
-        this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
-    }
+    // setTestBoard(id: string) {
+    //     this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
+    // }
 
     get solvableInfo(): string {
         return this._solvableInfo;

@@ -5,11 +5,13 @@ Sudoku<br/>
     <control></control>
 </div>
 
-
+<br/>
+<button type="button" (click)="doCleanBoard($event)" clickable>Clean Board</button>
+<br/>
+<br/>
 <br/>
 <div>{{solvableInfo}}<br/>Evaluation: {{evaluation}}</div>
 <br/>
-
 <button type="button" (click)="doFillLonelyCiphers($event)" clickable>Clean</button>
 <br/>
 <button type="button" (click)="doEvaluate()" clickable>Evaluate</button>
@@ -25,20 +27,3 @@ Sudoku<br/>
 <button type="button" (click)="doFillComplete($event)" [disabled]="isBoardFull()" clickable>Fill complete</button>
 <br/>
 <button type="button" (click)="doFindAllCheats($event)" clickable>Find all cheats</button>
-<br/>
-<br/>
-<br/>
-<button type="button" (click)="setTestBoard('testboard0')" clickable>TestBoard 0</button>
-<br/>
-<button type="button" (click)="setTestBoard('testboard1')" clickable>TestBoard 1</button>
-<br/>
-<button type="button" (click)="setTestBoard('testboard2')" clickable>TestBoard 2</button>
-<br/>
-<button type="button" (click)="setTestBoard('testboard3')" clickable>TestBoard 3</button>
-<br/>
-<button type="button" (click)="setTestBoard('testboard4')" clickable>TestBoard 4</button>
-<br/>
-<button type="button" (click)="setTestBoard('testboard5')" clickable>TestBoard 5</button>
-<br/>
-<button type="button" (click)="doCleanBoard($event)" clickable>Clean Board</button>
-<br/>

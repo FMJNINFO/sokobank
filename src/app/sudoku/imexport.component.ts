@@ -1,6 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { StatusService } from "../services/status.service";
 import { Step } from "../model/sudoku/step";
+import { TestBoardMoves } from "../model/sudoku/testboardMoves";
 
 export @Component({
     selector: 'imexport',
@@ -10,8 +11,13 @@ export @Component({
 
 class ImExportComponent {
     @Input()  isVisible = false;
+    testBoardMoves = new TestBoardMoves();
 
     constructor(private service: StatusService) {
+    }
+
+    setTestBoard(id: string) {
+        this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
     }
 
     #assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {
