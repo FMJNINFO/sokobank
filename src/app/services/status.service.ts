@@ -121,6 +121,10 @@ export class StatusService {
         return this._board.isFull();
     }
 
+    hasBoardErrors(): boolean {
+        return this._board.hasErrors();
+    }
+
     hasLonelyCipher(): boolean {
         return this._solverMemory.hasLonelyCipher();
     }
@@ -162,44 +166,18 @@ export class StatusService {
         this.findAllCheats();
     }
 
-    fillLonelyCiphers(): void {
-        let solver = new Solver(this._solverMemory);
-
-        let steps = solver.findAllLonelyCiphers(this._board);
-        for (let step of steps) {
-            if (step.hasDigit()) {
-                this._board.addStep(step);
-            }
-        }
-    }
-
-    fillUniqueCiphers() {
-        let solver = new Solver(this._solverMemory);
-        let steps = solver.findAllUniqueCiphers(this._board);
-        for (let step of steps) {
-            if (step.hasDigit()) {
-                this._board.addStep(step);
-            }
-        }
-    }
-
-    fillAutomatic() {
-        let solver = new Solver(this._solverMemory);
-        solver.solveLogical(this._board);
-    }
-
     solveComplete(): boolean {
         let solver = new Solver(this._solverMemory);
         solver.solveComplete(this._board);
         return false;
     }
 
-    fillComplete() {
+    fillCompleteBroad() {
         let doLogging = true;
 
         while (!this._board.isFull()) {
             let solver = new Solver(this._solverMemory);
-            let steps = solver.findAllResolvingSteps(this._board);
+            let steps = solver.findAllResolvingStepsBroad(this._board);
             if (steps.length == 0) {
                 if (doLogging) {
                     console.log("Found no solution");
@@ -211,20 +189,6 @@ export class StatusService {
             }
         }
     }
-
-    fillBestTrialStep(): boolean {
-        let doLogging = true;
-        let solver = new Solver(this._solverMemory);
-        let steps = solver.findAllResolvingSteps(this._board);
-        if (steps.length == 0) {
-            if (doLogging) {
-                console.log("Found no solution");
-            }
-            return false;
-        }
-        this._board.addStep(steps[0]);
-        return true;
-    }    
 
     getBoxDigit(boxId: number, idInBox: number): number {
         return this._board.getDigit(Position.box(boxId)[idInBox]);
@@ -260,6 +224,10 @@ export class StatusService {
 
     spaceCharacter(): string {
         return Move.SpaceChar;
+    }
+
+    isCompleteSolutionProhibited(): boolean {
+        return this.isBoardFull() || this.hasBoardErrors() || !this._board.hasMinimalDigitCount();
     }
 
     get evaluation(): [boolean|undefined, string] {

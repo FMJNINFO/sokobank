@@ -45,7 +45,29 @@ export class Board {
 
     addStep(step: Step) {
         this.#step(step._move.pos, step._move.digit, step._cause);
-        this._steps.push(step);
+
+        if (step._move.digit != 0) {
+            this._steps.push(step);
+        } else {
+            this.removeStep(step);
+        }
+    }
+
+    removeStep(step: Step) {
+        this.#step(step._move.pos, 0, step._cause);
+        this._steps = this._steps.filter((localstep) => step._move.pos.pos !== localstep.move.pos.pos);
+    }
+
+    mayAddStep(step: Step) {
+        for (let grp of step.pos.groups) {
+            let isDigitUsed = this.fieldContentsOf(grp).filter((fc) => fc.hasDigit())
+                .map((fc) => fc.digit())
+                .find((digit) => step._move.digit == digit);
+            if (isDigitUsed) {
+                return false;
+            }
+        }
+        return true;
     }
 
     addPlans(steps: Step[]) {
@@ -183,6 +205,16 @@ export class Board {
         return emptyFcs;
     }
 
+    digitCount(): number {
+        let count = this.fieldContentsOf(Position.pool()).filter((fc) => fc.hasDigit()).length;
+        return count;
+    }
+
+    hasMinimalDigitCount(): boolean {
+        //  mindestens 17 Zahlen werden für ein eindeutiges Sokoban benötigt
+        return this.digitCount() >= 17;
+    }
+
     #allowedInGroup(group: Position[]): CipherSet {
         let used = this.fieldContentsOf(group).filter((fc) => fc.hasDigit()).map((fc) => fc.digit());
         let cs = new CipherSet(...used);
@@ -277,5 +309,13 @@ export class Board {
             }
         }
         return s;
+    }
+
+    additionalStepsAbove(baseBoard: Board): Step[] {
+        //  baseBoard has to be the base board of this, that is, the whole
+        //  steps of baseBoard had to be the beginning steps of this
+        let baseStepsCount = baseBoard._steps.length;
+        let addSteps = this._steps.filter((step, index) => index >= baseStepsCount);
+        return addSteps;
     }
 }

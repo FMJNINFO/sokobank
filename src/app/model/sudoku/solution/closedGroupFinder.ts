@@ -1,4 +1,4 @@
-import { Board } from "../board";
+import { Board, BoardError } from "../board";
 import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
 import { logBoard } from "../logger";
@@ -13,7 +13,7 @@ export class ClosedGroupFinder {
     }
 
     getAll(board: Board): ClosedGroups {
-        let doLogging = true;
+        let doLogging = false;
         let fldConts: FieldContent[];
         let fndGrps: ClosedGroup[];
         let closedGroups = new ClosedGroups();
@@ -113,6 +113,8 @@ export class ClosedGroupFinder {
 
     #solveOneClosedGroup(board: Board, grpName: string, fldConts: FieldContent[], 
         currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()): boolean {
+            let doLogging = false;
+
             let cnt = fldConts.length-idx0;
             let foundGroup = ClosedGroupFinder.EMPTY_GROUP;
             let currAllows : CipherSet;
@@ -125,13 +127,16 @@ export class ClosedGroupFinder {
 
                     if (currAllows.length < currGrpFlds.length) {
                         // Irgendwas ist hier schiefgelaufen.
-                        console.error();
-                        console.error("CurrAllows.length less than currGrpFlds.length");
-                        console.error("   CurrAllows: " + currAllows.toListString());
-                        console.error("   CurrGrpFlds:");
-                        for (let fc of currGrpFlds) {
-                            console.error("      " + fc.toString());
+                        if (doLogging) {
+                            console.error();
+                            console.error("CurrAllows.length less than currGrpFlds.length");
+                            console.error("   CurrAllows: " + currAllows.toListString());
+                            console.error("   CurrGrpFlds:");
+                            for (let fc of currGrpFlds) {
+                                console.error("      " + fc.toString());
+                            }
                         }
+                        throw new BoardError("Error in closed group, because of board inconsitencies.");
                     } else {
                         if (currAllows.length == currGrpFlds.length) {
                             foundGroup = ClosedGroup.of(grpName, currGrpFlds, currAllows);
@@ -151,7 +156,9 @@ export class ClosedGroupFinder {
     }
 
     #nextFindLevel(grpName: string, fldConts: FieldContent[], fndGrps: ClosedGroup[], 
-        currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()) {
+        currGrpFlds: FieldContent[]=[], idx0: number=0, prevAllows: CipherSet=new CipherSet()) {    
+        let doLogging = false;
+
         //  Geschlossene (Unter)Gruppen suchen und beim Index idx0 beginnen
         let cnt = fldConts.length-idx0;
 
@@ -169,13 +176,17 @@ export class ClosedGroupFinder {
                 if (currAllows.length < currGrpFlds.length) {
                     //  Es gibt weniger erlaubte Ziffern als untersuchte Felder
                     //  Kann eigentlich nicht sein
-                    console.error();
-                    console.error("CurrAllows.length less than currGrpFlds.length");
-                    console.error("   CurrAllows: " + currAllows.toListString());
-                    console.error("   CurrGrpFlds:");
-                    for (let fc of currGrpFlds) {
-                        console.error("      " + fc.toString());
+                    if (doLogging) {
+                        console.error();
+                        console.error("CurrAllows.length less than currGrpFlds.length");
+                        console.error("   CurrAllows: " + currAllows.toListString());
+                        console.error("   CurrGrpFlds:");
+                        for (let fc of currGrpFlds) {
+                            console.error("      " + fc.toString());
+                        }
                     }
+                    fndGrps = []
+                    throw new BoardError("Error in closed group, because of board inconsitencies.");
                 } else {
                     if (currAllows.length == currGrpFlds.length) {
                         //  Wenn die Anzahl der untersuchten Felder genau der Anzahl

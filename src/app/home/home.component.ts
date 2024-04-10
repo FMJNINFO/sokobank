@@ -54,39 +54,18 @@ export class HomeComponent implements OnInit {
         this.service.cleanBoard();
     }
 
-    doFillLonelyCiphers($event: Event) {
-        this.service.fillLonelyCiphers();
-    }
-
-    doFillUniqueCiphers($event: Event) {
-        this.service.fillUniqueCiphers();
-    }
-
-    doFillAutomatic($event: Event) {
-        this.service.fillAutomatic();
-    }
-
-    doFillBestTrialStep($event: Event) {
-        if (this.service.getBoard().emptyFieldCount() > 60) {
-            message("Insufficient filled fields (<20) or no resolution found.");
+    doFillCompleteBroad($event: Event) {
+        if (!this.isCompleteSolutionProhibited()) {
+            this.service.fillCompleteBroad();
         }
-        this.service.fillBestTrialStep();
-    }    
-
-    doSolveAutomatic($event: Event) {
-        this.service.solveComplete();
-    }
-
-    doFillComplete($event: Event) {
-        this.service.fillComplete();
-    }
-
-    doFindAllCheats($event: Event) {
-        this.service.findAllCheats();
     }
 
     isBoardFull():boolean {
         return this.service.isBoardFull();
+    }
+
+    isCompleteSolutionProhibited():boolean {
+        return this.service.isCompleteSolutionProhibited();
     }
 }
 

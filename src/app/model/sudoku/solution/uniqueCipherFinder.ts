@@ -42,11 +42,19 @@ export class UniqueCipherFinder {
     }
 
     getAllSteps(board: Board): Step[] {
+        let doLogging = false;
         let founds: Map<number, Step> = new Map();
         let steps: Step[];
+
+        if (doLogging) {
+            console.log("== getAllSteps ==");
+        }
         for (let [sGrp, grp] of Position.namedGrps()) {        
             steps = this.#findAllInGroup(board, grp);
             for (let step of steps) {
+                if (doLogging) {
+                    console.log("   Add " + step.toString() + " from " + sGrp);
+                }
                 founds.set(step.pos.pos, step);
             }
         }

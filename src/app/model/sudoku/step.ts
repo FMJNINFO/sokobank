@@ -28,6 +28,10 @@ export class Step implements Cheat {
         return this._cause;
     }
 
+    get move(): Move {
+        return this._move;
+    }
+
     isIn(steps: Step[]) {
         if (steps.length === 0) {
             return false;
@@ -43,6 +47,11 @@ export class Step implements Cheat {
     toString(): string {
         let s = this._move.toString() + "  by " + this._cause;
         return s;
+    }
+
+    static get EMPTY_STEPS(): Step[] {
+        let steps: Step[] =  [];
+        return steps;
     }
 
     static stringToSteps(s: string, ): Step[] {

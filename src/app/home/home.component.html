@@ -1,5 +1,3 @@
-Sudoku<br/>
-
 <div class="workarea">
     <sudoku></sudoku>
     <control></control>
@@ -12,18 +10,6 @@ Sudoku<br/>
 <br/>
 <div>{{solvableInfo}}<br/>Evaluation: {{evaluation}}</div>
 <br/>
-<button type="button" (click)="doFillLonelyCiphers($event)" clickable>Clean</button>
-<br/>
 <button type="button" (click)="doEvaluate()" clickable>Evaluate</button>
 <br/>
-<button type="button" (click)="doFillUniqueCiphers($event)" clickable>Clean</button>
-<br/>
-<button type="button" (click)="doFillAutomatic($event)" clickable>Fill Automatic</button>
-<br/>
-<button type="button" (click)="doFillBestTrialStep($event)" clickable>Use one</button>
-<br/>
-<button type="button" (click)="doSolveAutomatic($event)" clickable>Solve complete</button>
-<br/>
-<button type="button" (click)="doFillComplete($event)" [disabled]="isBoardFull()" clickable>Fill complete</button>
-<br/>
-<button type="button" (click)="doFindAllCheats($event)" clickable>Find all cheats</button>
+<button type="button" (click)="doFillCompleteBroad($event)" [disabled]="isCompleteSolutionProhibited()" clickable>Fill complete</button>

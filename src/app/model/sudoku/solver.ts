@@ -268,12 +268,12 @@ export class Solver {
         return this.closedGroupFinder.findBestClosedGroup(board);
     }
 
-    findAllResolvingSteps(board: Board): Step[] {        
-        let steps = this.findLogicalSteps(board);
+    findAllResolvingStepsBroad(board: Board): Step[] {        
         let testBoard = board.copy();
-        steps.forEach((step) => testBoard.addStep(step));
+        let steps = this.findLogicalSteps(testBoard);
+        // steps.forEach((step) => testBoard.addStep(step));
         if (!testBoard.isFull()) {
-            let trialSteps = this.cipherByTrialFinder.findAllResolvingSteps(testBoard);
+            let [isSolving, trialSteps] = this.cipherByTrialFinder.findAllResolvingStepsBroad(testBoard);
             steps.push(...trialSteps);
         }
         return steps;
@@ -321,7 +321,7 @@ export class Solver {
     }
 
     solveLogical(board: Board): boolean {
-        let doLogging = false;
+        let doLogging = true;
         let retry: boolean;
         let steps: Step[];
         let count: number;
@@ -378,9 +378,83 @@ export class Solver {
             retry = false;
         } while (retry);
 
+        if (doLogging) {            
+            logBoard(board);
+            if (board.isFull()) {
+                console.log("==> BOARD IS FULL.");
+            } else {
+                console.log("==> board is not full.");
+            }
+        }
+        if (board.isFull()) {
+            // if (doLogging) {
+            //     for (let fc of board.fieldContents()) {
+            //         console.log(fc.getMove().toString());
+            //     }
+            // }
+            return true;
+        }
+        return false;
+    }
+
+    applyLogicalSteps(board: Board): boolean {
+        //  Find and apply all logical derived steps from board
+        //  Return if board is Full
+        let doLogging = false;
+        let retry: boolean;
+        let steps: Step[];
+        let count: number;
+        let groups: ClosedGroups;
+
+        do {
+            retry = true;
+
+            if (board.isFull()) {
+                return true;
+            }
+
+            steps = this.lonelyCipherFinder.getAllSteps(board);
+            count = steps.length;
+            steps.forEach((step) => board.addStep(step));
+            let solvedSomething= count > 0;        
+            this.memory.clearLonelyCiphers();
+            if (solvedSomething) {
+                solvedSomething = false;
+                groups = this.closedGroupFinder.getAll(board);                    
+                for (let group of groups.groups) {
+                    if (group.cleaningLevel(board) > 0) {
+                        group.apply(board);
+                        solvedSomething = true;
+                    }
+                }
+                this.memory.clearClosedGroups();
+                continue;
+            }
+
+            steps = this.uniqueCipherFinder.getAllSteps(board);
+            count = steps.length;
+            steps.forEach((step) => board.addStep(step));
+            solvedSomething= count > 0;        
+            this.memory.clearUniqueCiphers();
+            if (solvedSomething) {
+                solvedSomething = false;
+                groups = this.closedGroupFinder.getAll(board);                    
+                for (let group of groups.groups) {
+                    if (group.cleaningLevel(board) > 0) {
+                        group.apply(board);
+                        solvedSomething = true;
+                    }
+                }
+                this.memory.clearClosedGroups();
+                continue;
+            }
+            retry = false;
+        } while (retry);        
+
         if (board.isFull()) {
             if (doLogging) {
-                for (let fc of board.fieldContents()) {
+                console.log("== FOUND COMPLETE SOLUTION ==");
+                for (let fc of board.fieldContents()) {                    
                     console.log(fc.getMove().toString());
                 }
             }
@@ -389,7 +463,8 @@ export class Solver {
         return false;
     }
 
-    findLogicalSteps(board: Board): Step[] {
+    findLogicalSteps(testBoard: Board): Step[] {
+        //  the same as this.logicalSteps(board)
         let doLogging = false;
         let retry: boolean;
         let steps: Step[] = [];
@@ -397,56 +472,50 @@ export class Solver {
         let count: number;
         let groups: ClosedGroups;
 
-        let testBoard = board.copy();
+        // let testBoard = board.copy();
         do {
             retry = true;
 
             if (testBoard.isFull()) {
-                return steps;
+                return logicalSteps;
             }
 
-            try {
-                steps = this.lonelyCipherFinder.getAllSteps(testBoard);
-                logicalSteps.push(...steps);
-                count = steps.length;
-                steps.forEach((step) => testBoard.addStep(step));
-                let solvedSomething= count > 0;        
-                this.memory.clearLonelyCiphers();
-                if (solvedSomething) {
-                    solvedSomething = false;
-                    groups = this.closedGroupFinder.getAll(testBoard);                    
-                    for (let group of groups.groups) {
-                        if (group.cleaningLevel(testBoard) > 0) {
-                            group.apply(testBoard);
-                            solvedSomething = true;
-                        }
+            steps = this.lonelyCipherFinder.getAllSteps(testBoard);
+            logicalSteps.push(...steps);
+            count = steps.length;
+            steps.forEach((step) => testBoard.addStep(step));
+            let solvedSomething= count > 0;        
+            this.memory.clearLonelyCiphers();
+            if (solvedSomething) {
+                solvedSomething = false;
+                groups = this.closedGroupFinder.getAll(testBoard);                    
+                for (let group of groups.groups) {
+                    if (group.cleaningLevel(testBoard) > 0) {
+                        group.apply(testBoard);
+                        solvedSomething = true;
                     }
-                    this.memory.clearClosedGroups();
-                    continue;
                 }
+                this.memory.clearClosedGroups();
+                continue;
+            }
 
-                steps = this.uniqueCipherFinder.getAllSteps(testBoard);
-                logicalSteps.push(...steps);
-                count = steps.length;
-                steps.forEach((step) => testBoard.addStep(step));
-                solvedSomething= count > 0;        
-                this.memory.clearUniqueCiphers();
-                if (solvedSomething) {
-                    solvedSomething = false;
-                    groups = this.closedGroupFinder.getAll(testBoard);                    
-                    for (let group of groups.groups) {
-                        if (group.cleaningLevel(testBoard) > 0) {
-                            group.apply(testBoard);
-                            solvedSomething = true;
-                        }
+            steps = this.uniqueCipherFinder.getAllSteps(testBoard);
+            logicalSteps.push(...steps);
+            count = steps.length;
+            steps.forEach((step) => testBoard.addStep(step));
+            solvedSomething= count > 0;        
+            this.memory.clearUniqueCiphers();
+            if (solvedSomething) {
+                solvedSomething = false;
+                groups = this.closedGroupFinder.getAll(testBoard);                    
+                for (let group of groups.groups) {
+                    if (group.cleaningLevel(testBoard) > 0) {
+                        group.apply(testBoard);
+                        solvedSomething = true;
                     }
-                    this.memory.clearClosedGroups();
-                    continue;
                 }
-            } catch(error) {
-                if (error instanceof BoardError) {
-                    break;
-                }
+                this.memory.clearClosedGroups();
+                continue;
             }
             retry = false;
         } while (retry);

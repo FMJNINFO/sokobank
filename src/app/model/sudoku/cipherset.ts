@@ -13,6 +13,10 @@ export class CipherSet {
         return new CipherSet(1,2,3,4,5,6,7,8,9);
     }
 
+    get bits(): number {
+        return this._bitset;
+    }
+
     constructor(...digits: number[]) {
         let digit: number;
         let value: number | undefined;
