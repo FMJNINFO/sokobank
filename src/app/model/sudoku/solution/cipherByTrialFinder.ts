@@ -102,7 +102,7 @@ export class CipherByTrialFinder {
             return startState;      //  Loesung schon gefunden -> den Loesungsstatus zurueckgeben
         }
 
-        let fcCandidates = this.getCandidates(startState.board);   // welche Felder werden geprueft
+        let fcCandidates = this.#getCandidates(startState.board);   // welche Felder werden geprueft
         let loopState = startState.basedCopy();
 
         this.#dumpLog("Trial find", startState.board, true);
@@ -145,13 +145,13 @@ export class CipherByTrialFinder {
         return subState;
     }
 
-    findAllTrialSteps(board: Board): Step[] {
-        let trialSteps: Step[] = [];
-        let resultState = this.findTrialSteps(new SolutionState(board));
+    // findAllTrialSteps(board: Board): Step[] {
+    //     let trialSteps: Step[] = [];
+    //     let resultState = this.findTrialSteps(new SolutionState(board));
 
-        resultState.sets.forEach((solveset) => solveset.addTrialStep(trialSteps));
-        return trialSteps;
-    }
+    //     resultState.sets.forEach((solveset) => solveset.addTrialStep(trialSteps));
+    //     return trialSteps;
+    // }
 
     #checkOneStep(testBoard: Board, step: Step): [boolean, number, Step[]] {
         //  Führt den step auf dem testBoard aus und füllt alle logisch herleitbaren Steps durch. 
@@ -213,6 +213,9 @@ export class CipherByTrialFinder {
             let solvedSteps: Step[];
 
             [isSolved, win, solvedSteps] = this.#checkOneStep(board, testStep);
+            if (win == 1) {
+                testStep._cause = Cause.ANY_CIPHER;
+            }
             if (isSolved) {
                 return [true, testStep, win, solvedSteps];
             }
@@ -229,7 +232,7 @@ export class CipherByTrialFinder {
         return [false, bestStep, bestWin, bestSteps];
     }
 
-    getCandidates(board: Board): FieldContent[] {
+    #getCandidates(board: Board, reversed: boolean=false): FieldContent[] {
         let fcCandidates: FieldContent[] = [];
         let count = 9;
 
@@ -243,6 +246,9 @@ export class CipherByTrialFinder {
                     fcCandidates.push(fc);
                 }
             }
+        }
+        if (reversed) {
+            fcCandidates.reverse();
         }
         return fcCandidates;
     }
@@ -284,60 +290,12 @@ export class CipherByTrialFinder {
         return [false, undefined, []];
     }
 
-    findAllResolvingStepsDeep(board: Board): Step[] {
-        let doLogging = true;
-        let solutionSteps: Step[] = [];
-
-        let fcCandidates = this.getCandidates(board);
-
-        if (doLogging) {
-            this.#logCandidates(fcCandidates);
-        }
-
-        for (let fc of fcCandidates) {
-            for (let digit of fc.allowSet.entries) {
-                let boardCopy = board.copy();
-                let testStep = new Step(Cause.TRIAL_CIPHER, fc.pos, digit);
-
-                if (board.mayAddStep(testStep)) {
-                    //  Boards vorher vergleichen
-                    for (let fc1 of board.fieldContents()) {
-                        let fc2 = board.fieldContentOf(fc1.pos);
-                        if (fc1.allowSet.bits != fc2.allowSet.bits) {
-                            throw new BoardError("Abweichung allowSet zwischen " + fc1.toString() + " != " + fc2.toString());
-                        }
-                        if (fc1.digit() != fc2.digit()) {
-                            throw new BoardError("Abweichung digit zwischen " + fc1.toString() + " != " + fc2.toString());
-                        }
-                    }
-                    console.log("Teste " + testStep.toString());
-                    logBoard(board);
-                    board.addStep(testStep);
-                    board.removeStep(testStep);
-                    logBoard(board);
-                    //  Boards nachher vergleichen
-                    for (let fc1 of board.fieldContents()) {
-                        let fc2 = board.fieldContentOf(fc1.pos);
-                        if (fc1.allowSet.bits != fc2.allowSet.bits) {
-                            throw new BoardError("Abweichung allowSet zwischen " + fc1.toString() + " != " + fc2.toString());
-                        }
-                        if (fc1.digit() != fc2.digit()) {
-                            throw new BoardError("Abweichung digit zwischen " + fc1.toString() + " != " + fc2.toString());
-                        }
-                    }
-                }
-            }
-        }
-
-        return solutionSteps;
-    }
-
-    findAllResolvingStepsBroad(board: Board): [boolean, Step[]] {
+    findAllResolvingSteps(board: Board, reversed: boolean=true): [boolean, Step[]] {
         let isSolving = false;
         let doLogging = true;
         let solutionSteps: Step[] = [];
 
-        let fcCandidates = this.getCandidates(board);
+        let fcCandidates = this.#getCandidates(board, reversed);
 
         if (doLogging) {
             this.#logCandidates(fcCandidates);
@@ -378,7 +336,7 @@ export class CipherByTrialFinder {
                         let foundSteps: Step[] = [];
                         // this._solver.solveLogical(testBoard);
                         // let logicalSteps = this._solver.findLogicalSteps(testBoard);
-                        [isSolving, foundSteps] = this.findAllResolvingStepsBroad(testBoard);
+                        [isSolving, foundSteps] = this.findAllResolvingSteps(testBoard);
                         if (foundSteps.length > 0) {
                             solutionSteps.push(checkStep);
                             solutionSteps.push(...foundSteps);

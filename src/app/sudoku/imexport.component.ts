@@ -18,6 +18,7 @@ class ImExportComponent {
 
     setTestBoard(id: string) {
         this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
+        this.service.findAllCheats();
     }
 
     #assembleBoardText(sOld: string, selStart: number, selEnd: number):  [string, number] {

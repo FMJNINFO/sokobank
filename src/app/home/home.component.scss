@@ -2,5 +2,16 @@
     content: "";
     clear: both;
     display: table;
-  }
-  
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.showing {
+  visibility: inherit;
+}
+
+.evalButtonInTable {
+  vertical-align: top;
+}

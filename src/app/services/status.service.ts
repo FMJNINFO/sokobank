@@ -1,6 +1,6 @@
 import { EventEmitter } from "@angular/core";
 import { Position } from "../model/sudoku/position";
-import { Board } from "../model/sudoku/board";
+import { Board, BoardError } from "../model/sudoku/board";
 import { logBoard } from "../model/sudoku/logger";
 import { Move } from "../model/sudoku/move";
 import { Solver } from "../model/sudoku/solver";
@@ -172,13 +172,13 @@ export class StatusService {
         return false;
     }
 
-    fillCompleteBroad() {
+    fillComplete() {
         let doLogging = true;
 
-        while (!this._board.isFull()) {
+        if (!this._board.isFull()) {
             let solver = new Solver(this._solverMemory);
-            let steps = solver.findAllResolvingStepsBroad(this._board);
-            if (steps.length == 0) {
+            let [isSolved, steps] = solver.findAllResolvingSteps(this._board);
+            if (!isSolved) {
                 if (doLogging) {
                     console.log("Found no solution");
                 }
@@ -188,6 +188,60 @@ export class StatusService {
                 this._board.addStep(step);
             }
         }
+    }
+
+    #evaluationMapToText(evalMap: Map<Cause, number>): string {
+        let n1, n2, n3: number;
+        let s = "";
+
+        n1 = (evalMap.has(Cause.TRIAL_CIPHER) ? evalMap.get(Cause.TRIAL_CIPHER)! : 0)
+          + (evalMap.has(Cause.ANY_CIPHER) ? evalMap.get(Cause.ANY_CIPHER)! : 0);
+        n2 = (evalMap.has(Cause.UNIQUE_CIPHER) ? evalMap.get(Cause.UNIQUE_CIPHER)! : 0);
+        n3 = (evalMap.has(Cause.LONELY_CIPHER) ? evalMap.get(Cause.LONELY_CIPHER)! : 0);
+
+        s += (n1.toString().padStart(2, '0'));
+        s += '.';
+        s += (n2.toString().padStart(2, '0'));
+        s += '.';
+        s += (n3.toString().padStart(2, '0'));
+        return s;
+    }
+
+    evaluate(): [boolean, boolean, string] {
+        let solver = new Solver(this._solverMemory);
+        let isSolved1 = false;
+        let isSolved2 = false;
+        let solvedBoard: Board;
+
+        [isSolved1, solvedBoard] = solver.getResolvedBoard(this._board);
+        let solution1 = solvedBoard.contentToString();
+        let sumCauses1 = Step.summarizeCauses(Step.compress(solvedBoard._steps));
+
+        [isSolved2, solvedBoard] = solver.getResolvedBoard(this._board, true);
+        let solution2 = solvedBoard.contentToString();
+        let sumCauses2 = Step.summarizeCauses(Step.compress(solvedBoard._steps));
+
+        if (isSolved1 != isSolved2) {
+            throw new BoardError("The two evaluation resolutions yields different solve states.");
+        }
+
+        console.log("SOLUTION1: " + solution1);
+        console.log("SOLUTION2: " + solution2);
+
+        let s1 = this.#evaluationMapToText(sumCauses1);
+        let s2 = this.#evaluationMapToText(sumCauses2);
+
+        let isSolved = isSolved2;
+        let isUnique = solution1 == solution2;
+        let value = (s1 < s2 ? s1 : s2);
+
+        console.log();
+        console.log("Evaluation 1: " + s1);
+        console.log("Evaluation 2: " + s2);
+
+        console.log(" ==> " + (s1 < s2 ? s1 : s2));
+
+        return [isSolved, isUnique, value];
     }
 
     getBoxDigit(boxId: number, idInBox: number): number {
@@ -230,34 +284,7 @@ export class StatusService {
         return this.isBoardFull() || this.hasBoardErrors() || !this._board.hasMinimalDigitCount();
     }
 
-    get evaluation(): [boolean|undefined, string] {
-        let solver = new Solver(this._solverMemory);
-        let solvable: boolean;
-        let evaluation: Map<Cause, number>;
-
-        if (this._board.hasErrors()) {
-            return [false, "None, because there are errors on the board."];
-        }
-        if (this._board.emptyFieldCount() > 60) {
-            return [undefined, "None, because too many empty fields."];
-        }
-
-        [solvable, evaluation] = solver.evaluate(this._board);
-
-        let sEval = "";
-        if (solvable) {
-            let valTE =  evaluation.has(Cause.TRIAL_CIPHER) ? evaluation.get(Cause.TRIAL_CIPHER)! : 0;
-            let valUC =  evaluation.has(Cause.UNIQUE_CIPHER) ? evaluation.get(Cause.UNIQUE_CIPHER)! : 0;
-            let valLC =  evaluation.has(Cause.LONELY_CIPHER) ? evaluation.get(Cause.LONELY_CIPHER)! : 0;
-            let valAll = valTE * 200 + valUC * 2 + valLC;
-
-            sEval +=  "TE: " + valTE + " ";
-            sEval +=  "UC: " + valUC + " ";
-            sEval +=  "LC: " + valLC + " ";
-            sEval +=  " => " + valAll;
-        } else {
-            sEval = "None, because there are inconsistencies on the board.";
-        }
-        return [solvable, sEval];
+    isFillCompleteAllowed(): boolean {
+        return !this.isBoardFull() && !this.hasBoardErrors() && this._board.hasMinimalDigitCount();
     }
 }

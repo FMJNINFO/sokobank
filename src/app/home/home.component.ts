@@ -9,63 +9,65 @@ import { StatusService } from '../services/status.service';
     styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-    static SOLVABLE_DONT_KNOW = "Ist wahrscheinlich lösbar.";
-    static SOLVABLE_YES = "Ist lösbar.";
-    static SOLVABLE_NO = "Ist NICHT lösbar.";
+    static UNIQUE_SOLVABLE = "There is a unique solution.";
+    static SOLVABLE_BUT_NOT_UNIQUE = "There is a solution, but not unique.";
+    static NOT_SOLVABLE = "There is NO solution.";
+    static EVAL_VALUE_PREFIX_UNIQUE = "Evaluation: ";
+    static EVAL_VALUE_PREFIX_NOT_UNIQUE = "Least found evaluation: ";
 
-    // testBoardMoves: TestBoardMoves;
-    _solvableInfo = HomeComponent.SOLVABLE_DONT_KNOW;
-    _evaluation = "Click evaluate.";
+    _evalSolved : boolean | undefined = undefined;
+    _evalUnique : boolean = false;
+    _evalValue: string = "";
 
     constructor(private service: StatusService) {
-        // this.testBoardMoves = new TestBoardMoves();
-        // this.setTestBoard("testboard3");
     }
 
     ngOnInit() {}
 
-    // setTestBoard(id: string) {
-    //     this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
-    // }
-
-    get solvableInfo(): string {
-        return this._solvableInfo;
+    get evaluationClass(): string {
+        if (this._evalSolved == undefined) {
+            return "invisible";
+        }
+        return "showing";
     }
 
-    get evaluation(): string {
-        return this._evaluation;
-    }
-    
-    doEvaluate() {
-        let isSolvable: boolean | undefined;
-        [isSolvable, this._evaluation] = this.service.evaluation;
-        if (isSolvable === undefined) {
-            this._solvableInfo = HomeComponent.SOLVABLE_DONT_KNOW;
-        } else {
-            if (isSolvable) {
-                this._solvableInfo = HomeComponent.SOLVABLE_YES;
+    get evaluationState(): string {
+        if (this._evalSolved == undefined) {
+            return "";
+        }
+        if (this._evalSolved) {
+            if (this._evalUnique) {
+                return HomeComponent.UNIQUE_SOLVABLE;
             } else {
-                this._solvableInfo = HomeComponent.SOLVABLE_NO;
+                return HomeComponent.SOLVABLE_BUT_NOT_UNIQUE
             }
         }
+        return HomeComponent.NOT_SOLVABLE;
+    }
+
+    get evaluationValue(): string {
+        if ((this._evalSolved == undefined) || !this._evalSolved) {
+            return "";
+        }
+        if (this._evalUnique) {
+            return HomeComponent.EVAL_VALUE_PREFIX_UNIQUE + " " + this._evalValue;
+        } else {
+            return HomeComponent.EVAL_VALUE_PREFIX_NOT_UNIQUE + " " + this._evalValue;
+        }
+    }
+
+    doEvaluate() {
+        [this._evalSolved, this._evalUnique, this._evalValue] = this.service.evaluate();
     }
 
     doCleanBoard($event: Event) {
+        this._evalSolved = undefined;
         this.service.cleanBoard();
+        this.service.findAllCheats();
     }
 
-    doFillCompleteBroad($event: Event) {
-        if (!this.isCompleteSolutionProhibited()) {
-            this.service.fillCompleteBroad();
-        }
-    }
-
-    isBoardFull():boolean {
-        return this.service.isBoardFull();
-    }
-
-    isCompleteSolutionProhibited():boolean {
-        return this.service.isCompleteSolutionProhibited();
+    isFillCompleteAllowed():boolean {
+        return this.service.isFillCompleteAllowed();
     }
 }
 

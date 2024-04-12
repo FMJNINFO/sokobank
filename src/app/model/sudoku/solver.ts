@@ -268,15 +268,37 @@ export class Solver {
         return this.closedGroupFinder.findBestClosedGroup(board);
     }
 
-    findAllResolvingStepsBroad(board: Board): Step[] {        
+    findAllResolvingSteps(board: Board): [boolean, Step[]] {
         let testBoard = board.copy();
         let steps = this.findLogicalSteps(testBoard);
-        // steps.forEach((step) => testBoard.addStep(step));
+        let isSolved = true;
         if (!testBoard.isFull()) {
-            let [isSolving, trialSteps] = this.cipherByTrialFinder.findAllResolvingStepsBroad(testBoard);
+            let trialSteps: Step[] = [];
+            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard);
             steps.push(...trialSteps);
         }
-        return steps;
+        return [isSolved, steps];
+    }
+
+    getResolvedBoard(board: Board, reversed: boolean=false): [boolean, Board] {
+        let testBoard = board.copy();
+        let steps : Step[] = [];
+        try {
+            steps = this.findLogicalSteps(testBoard);
+        } catch(error) {
+            return [false, testBoard];
+        }
+
+        let isSolved = true;
+        let trialSteps: Step[] = []
+        if (!testBoard.isFull()) {
+            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, reversed);            
+            steps.push(...trialSteps);
+            for (let step of steps) {
+                testBoard.addStep(step);
+            }
+        }
+        return [isSolved, testBoard];
     }
 
     solveComplete(board: Board) {
@@ -386,14 +408,6 @@ export class Solver {
                 console.log("==> board is not full.");
             }
         }
-        if (board.isFull()) {
-            // if (doLogging) {
-            //     for (let fc of board.fieldContents()) {
-            //         console.log(fc.getMove().toString());
-            //     }
-            // }
-            return true;
-        }
         return false;
     }
 
@@ -472,7 +486,6 @@ export class Solver {
         let count: number;
         let groups: ClosedGroups;
 
-        // let testBoard = board.copy();
         do {
             retry = true;
 

@@ -17,6 +17,12 @@ class CheatAreaComponent {
         this.service.applyCheat();
     }
 
+    doFillComplete($event: MouseEvent) {
+        if (this.isFillCompleteAllowed()) {
+            this.service.fillComplete();
+        }
+    }
+
     hasCheat(): boolean {
         return this.service.hasCheat();
     }
@@ -39,5 +45,9 @@ class CheatAreaComponent {
 
     get areDigitsVisible(): boolean {
         return this.service.areDigitsVisible();
+    }
+
+    isFillCompleteAllowed():boolean {
+        return this.service.isFillCompleteAllowed();
     }
 }

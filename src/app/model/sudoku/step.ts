@@ -78,4 +78,35 @@ export class Step implements Cheat {
         }
         return steps;
     }
+
+    static summarizeCauses(steps: Step[]): Map<Cause, number> {
+        let summary = new Map<Cause, number>();
+
+        Object.values(Cause).forEach((cause) => summary.set(cause, 0))
+
+        let count: number | undefined;
+        for (let step of steps) {
+            count = summary.get(step.cause);
+            if (count !== undefined) {
+                summary.set(step.cause, count+1);
+            }
+        }
+
+        return summary;
+    }
+
+    static compress(steps: Step[]): Step[] {
+        let inxs: Set<number> = new Set();
+        let compressedSteps: Step[] = [];
+        for (let step of steps.reverse()) {
+            if (!inxs.has(step.pos.pos)) {
+                inxs.add(step.pos.pos);
+                if (step.hasDigit()) {
+                    compressedSteps.push(step)
+                }
+            }
+        }
+        steps.reverse();
+        return compressedSteps.reverse();
+    }
 }
