@@ -50,18 +50,6 @@ export class StatusService {
         return digit == this._emphasizedDigit;
     }
 
-    currentEditor(): Position {
-        return this._editor;
-    }
-    shouldEdit(pos: Position): void {
-        this._editor = pos;
-        this.shouldEdit$.emit(pos);
-    }
-    onEditorChange(pos: Position): void {
-        this._editor = pos;
-        this.shouldEdit$.emit(pos);
-    }
-
     showHint(isHintVisible: boolean): void {
         this._isHintVisible = isHintVisible;
         this.showHint$.emit(isHintVisible);
@@ -72,32 +60,12 @@ export class StatusService {
         this.showDigits$.emit(areDigitsVisible);
     }
 
-    onDigitVisibilityChanged(areDigitsVisible: boolean): void {
-        this._areDigitsVisible = areDigitsVisible;
-        this.showDigits$.emit(areDigitsVisible);
-    }
-
-    onHintVisibilityChanged(isHintVisible: boolean): void {
-        this._isHintVisible = isHintVisible;
-        this.showHint$.emit(isHintVisible);
-    }
-
     isHintVisible(): boolean {
         return this._isHintVisible;
     }
 
     areDigitsVisible(): boolean {
         return this._areDigitsVisible;
-    }
-
-    getBoard(): Board {
-        return this._board;
-    }
-    changeBoard(board: Board) {
-        this._board = board;
-        logBoard(this._board);
-        console.log("");
-        this.boardChanged$.emit(this._board);
     }
 
     getDigit(pos: Position): number {
@@ -117,11 +85,11 @@ export class StatusService {
         this._board.reset();
     }
 
-    isBoardFull(): boolean {
+    #isBoardFull(): boolean {
         return this._board.isFull();
     }
 
-    hasBoardErrors(): boolean {
+    #hasBoardErrors(): boolean {
         return this._board.hasErrors();
     }
 
@@ -164,12 +132,6 @@ export class StatusService {
     applyCheat(): void {
         this._board.applyCheat();
         this.findAllCheats();
-    }
-
-    solveComplete(): boolean {
-        let solver = new Solver(this._solverMemory);
-        solver.solveComplete(this._board);
-        return false;
     }
 
     fillComplete() {
@@ -244,10 +206,6 @@ export class StatusService {
         return [isSolved, isUnique, value];
     }
 
-    getBoxDigit(boxId: number, idInBox: number): number {
-        return this._board.getDigit(Position.box(boxId)[idInBox]);
-    }
-
     setDigit(pos: Position, digit: number, cause: Cause) {
         let step = new Step(cause, pos, digit);
         this._board.addStep(step);
@@ -255,10 +213,6 @@ export class StatusService {
 
     hasError(pos: Position): boolean {
         return this._board.hasError(pos);
-    }
-
-    hasErrors(): boolean {
-        return this._board.hasErrors();
     }
 
     isMarked(pos: Position): boolean {
@@ -280,11 +234,7 @@ export class StatusService {
         return Move.SpaceChar;
     }
 
-    isCompleteSolutionProhibited(): boolean {
-        return this.isBoardFull() || this.hasBoardErrors() || !this._board.hasMinimalDigitCount();
-    }
-
     isFillCompleteAllowed(): boolean {
-        return !this.isBoardFull() && !this.hasBoardErrors() && this._board.hasMinimalDigitCount();
+        return !this.#isBoardFull() && !this.#hasBoardErrors() && this._board.hasMinimalDigitCount();
     }
 }

@@ -21,26 +21,12 @@ export class Move {
         return this._digit;
     }
 
-    equals(move: Move): boolean {
-        if (this.pos.pos != move.pos.pos) {
-            return false;
-        }
-        if (this.digit != move.digit) {
-            return false;
-        }
-        return true;
-    }
-
     setDigit(digit: number) {
         this._digit = digit;
     }
 
     hasDigit(): boolean {
         return this._digit != 0;
-    }
-
-    copy(): Move {
-        return new Move(this._pos, this._digit);
     }
 
     toString(): string {

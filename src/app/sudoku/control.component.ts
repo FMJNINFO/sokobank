@@ -32,10 +32,6 @@ class ControlComponent {
         }
     }
 
-    onDigitVisibilityChanged($event: any) {
-        this.service.showDigits($event.currentTarget.checked);
-    }
-
     onDigitHighlightingChanged($event: any) {
         this.digitHighlighting = $event.currentTarget.checked;
         this.service.unemphasizeDigits()

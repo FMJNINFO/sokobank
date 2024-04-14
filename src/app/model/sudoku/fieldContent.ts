@@ -29,7 +29,8 @@ export class FieldContent {
         return !this._move.hasDigit();
     }
 
-    digit(): number {        return this._move.digit;
+    digit(): number {        
+        return this._move.digit;
     }
 
     cause(): Cause {
@@ -39,10 +40,6 @@ export class FieldContent {
     setDigit(digit: number, cause: Cause) {
         this._move.setDigit(digit);
         this._cause = cause;
-    }
-
-    getMove(): Move {
-        return this._move.copy();
     }
 
     get allowSet(): CipherSet {

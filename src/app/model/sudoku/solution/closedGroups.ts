@@ -30,21 +30,8 @@ export class ClosedGroup implements Cheat {
         return false;
     }
 
-    add(fc: FieldContent): void {
-        this._poss.push(fc.pos);
-        this._allows = this._allows.or(fc.allowSet);
-    }
-    
-    get baseGroupName(): string {
-        return this._grpName;
-    }
-
     get length(): number {
         return this._poss.length;
-    }
-
-    get isValid(): boolean {
-        return (this._allows.length <= this._poss.length) && this.length > 0;
     }
 
     toString(): string {
@@ -108,30 +95,6 @@ export class ClosedGroup implements Cheat {
         }
     }    
 
-    asSet(): Set<Position> {
-        let groupSet = new Set<Position>();
-        for (let pos of this._poss) {
-            groupSet.add(pos);
-        }
-        return groupSet;
-    }
-
-    equals(other: any): boolean {
-        if (other instanceof ClosedGroup) {
-            let otherGroup: ClosedGroup = other;
-            if (otherGroup._poss.length == this._poss.length) {
-                // OK, because same order by construction
-                for (let i=0; i<this._poss.length; i++) {                        
-                    if (!otherGroup._poss[i].equals(this._poss[i])) {
-                        return false;
-                    }
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-
     static of(groupName: string, groupFields: FieldContent[], allows: CipherSet): ClosedGroup {
         let cg = new ClosedGroup(groupName);
         for (let fc of groupFields) {
@@ -151,10 +114,6 @@ export class ClosedGroups {
 
     get groups(): ClosedGroup[] {
         return this._groups;
-    }
-
-    sortedBySize(): ClosedGroup[] {
-        return this._groups.sort((g1, g2) => g1.length - g2.length)
     }
 
     add(closedGroup: ClosedGroup) {

@@ -2,7 +2,6 @@
 export class CipherSet {
     static zeroes = "000000000";
     static allOnes = 511;
-    static chars = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
     static BaseValue = new Map<number, number>(
         [[1, 1], [2, 2], [3, 4], [4, 8], [5, 16], [6, 32], [7,64], [8, 128], [9, 256]]);
 
@@ -11,10 +10,6 @@ export class CipherSet {
 
     static fullCipherSet(): CipherSet {
         return new CipherSet(1,2,3,4,5,6,7,8,9);
-    }
-
-    get bits(): number {
-        return this._bitset;
     }
 
     constructor(...digits: number[]) {
@@ -30,11 +25,6 @@ export class CipherSet {
             }
         }
         this.#setBitset(joinedValue);
-    }
-
-    toString(): string {
-        let s = CipherSet.zeroes + this._bitset.toString(2);
-        return s.substring(s.length-9);
     }
 
     toListString(): string {

@@ -27,16 +27,12 @@ class AllowedComponent {
         return '_';
     }
 
-    digitsVisible(): boolean {
-        return false;
-    }
-
-    get hasError(): boolean {
+    get #hasError(): boolean {
         return this.service.hasError(this.pos);
     }
 
     get fieldColor(): string {
-        if (this.hasError) {
+        if (this.#hasError) {
             return "errorField";
         }
         return "normalField";

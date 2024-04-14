@@ -1,4 +1,3 @@
-import { Move } from "./move";
 import { Step } from "./step";
 
 export class TestBoardMoves {

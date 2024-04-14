@@ -27,10 +27,6 @@ class CheatAreaComponent {
         return this.service.hasCheat();
     }
 
-    get isHintVisible(): boolean {
-        return this.service.isHintVisible();
-    }
-
     onDigitVisibilityChanged($event: any) {
         this.service.showDigits($event.currentTarget.checked);
     }

@@ -26,10 +26,6 @@ export class SolverMemory {
         this.lonelyCipherOfs = -1;
     }
 
-    rememberLonelyCiphers(steps: Step[]) {
-        this.saveLonelyCiphers(steps);
-    }
-
     saveLonelyCiphers(steps: Step[]) {
         this.lonelyCiphers = steps.map((step) => step._move);
         this.lonelyCipherOfs = -1;
@@ -61,10 +57,6 @@ export class SolverMemory {
         this.uniqueCipherOfs = -1;
     }
 
-    rememberUniqueCiphers(steps: Step[]) {
-        this.saveUniqueCiphers(steps);
-    }
-
     saveUniqueCiphers(steps: Step[]) {
         this.uniqueCiphers = steps.map((step) => step._move);
         this.uniqueCipherOfs = -1;
@@ -74,7 +66,7 @@ export class SolverMemory {
         return this.uniqueCiphers.length !== 0;
     }
 
-    getCurrentUniqueCipher(): Step | undefined {
+    #getCurrentUniqueCipher(): Step | undefined {
         let move = this.uniqueCiphers[this.uniqueCipherOfs];
         let step = new Step(Cause.UNIQUE_CIPHER, move.pos, move.digit);
         return step;
@@ -83,7 +75,7 @@ export class SolverMemory {
     getNextUniqueCipher(): Step | undefined {        
         if (this.hasUniqueCipher()) {
             this.uniqueCipherOfs = (this.uniqueCipherOfs+1) % this.uniqueCiphers.length;
-            return this.getCurrentUniqueCipher();
+            return this.#getCurrentUniqueCipher();
         }
         return undefined;
     }
@@ -91,10 +83,6 @@ export class SolverMemory {
     clearClosedGroups() {
         this.closedGroups = new ClosedGroups();    
         this.closedGroupsOfs = -1;
-    }
-
-    rememberClosedGroups(groups: ClosedGroups) {
-        this.saveClosedGroups(groups);
     }
 
     saveClosedGroups(groups: ClosedGroups) {
@@ -106,7 +94,7 @@ export class SolverMemory {
         return this.closedGroups.length !== 0;
     }
 
-    getCurrentClosedGroup(): ClosedGroup {
+    #getCurrentClosedGroup(): ClosedGroup {
         if (this.hasClosedGroup()) {
             return this.closedGroups.getGroup(this.closedGroupsOfs);
         }
@@ -116,7 +104,7 @@ export class SolverMemory {
     getNextClosedGroup(): ClosedGroup {
         if (this.hasClosedGroup()) {
             this.closedGroupsOfs = (this.closedGroupsOfs+1) % this.closedGroups.length;
-            return this.getCurrentClosedGroup();
+            return this.#getCurrentClosedGroup();
         }
         return ClosedGroup.NO_CLOSED_GROUP;
     }    

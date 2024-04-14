@@ -145,14 +145,6 @@ export class CipherByTrialFinder {
         return subState;
     }
 
-    // findAllTrialSteps(board: Board): Step[] {
-    //     let trialSteps: Step[] = [];
-    //     let resultState = this.findTrialSteps(new SolutionState(board));
-
-    //     resultState.sets.forEach((solveset) => solveset.addTrialStep(trialSteps));
-    //     return trialSteps;
-    // }
-
     #checkOneStep(testBoard: Board, step: Step): [boolean, number, Step[]] {
         //  Führt den step auf dem testBoard aus und füllt alle logisch herleitbaren Steps durch. 
         //  Return:
@@ -317,7 +309,7 @@ export class CipherByTrialFinder {
                                 console.log("   " + step.toString());
                             }
                         }
-                        break;  // TODO: may be wrong
+                        break;
                     } else {
                         possibleSolutionSteps.push(resultStep);
                     }
@@ -334,21 +326,17 @@ export class CipherByTrialFinder {
 
                     try {
                         let foundSteps: Step[] = [];
-                        // this._solver.solveLogical(testBoard);
-                        // let logicalSteps = this._solver.findLogicalSteps(testBoard);
                         [isSolving, foundSteps] = this.findAllResolvingSteps(testBoard);
                         if (foundSteps.length > 0) {
                             solutionSteps.push(checkStep);
                             solutionSteps.push(...foundSteps);
                         }
                         if (isSolving) {
-                            // solutionSteps.push(...logicalSteps);
-                            // solutionSteps.push(...foundSteps);
                             console.log("Found solving steps:");
                             for (let step of solutionSteps) {
                                 console.log("   " + step.toString());
                             }
-                            break;      // TODO: may be wrong
+                            break;
                         }
                     } catch(error) {
                         if (error instanceof BoardError) {

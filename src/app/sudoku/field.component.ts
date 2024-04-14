@@ -34,7 +34,7 @@ class FieldComponent {
     }
 
     get fieldColor(): string {
-        if (this.hasError) {
+        if (this.#hasError) {
             if (this.isEditing) {
                 return "editingErrorField";
             } else {
@@ -44,10 +44,10 @@ class FieldComponent {
             if (this.isEditing) {
                 return "editingField";
             } else {
-                if (this.isMarked) {
+                if (this.#isMarked) {
                     return "markedField";
                 } else {
-                    if (this.isEmphasized) {
+                    if (this.#isEmphasized) {
                         return "emphasizedField";
                     } else {
                         return "normalField";
@@ -74,11 +74,11 @@ class FieldComponent {
         return this.service.getDigit(this.pos) != 0;
     }
 
-    get hasError(): boolean {
+    get #hasError(): boolean {
         return this.service.hasError(this.pos);
     }
 
-    get isEmphasized(): boolean {
+    get #isEmphasized(): boolean {
         if (this.hasDigit) {
             return this.service.isDigitEmphasized(this.service.getDigit(this.pos));
         }
@@ -89,7 +89,7 @@ class FieldComponent {
         return this.service.areDigitsVisible();
     }
 
-    get isMarked(): boolean {
+    get #isMarked(): boolean {
         return this.service.isMarked(this.pos);
     }
 
@@ -112,7 +112,7 @@ class FieldComponent {
         return 0;
     }
 
-    setDigit(digit: number) {
+    #setDigit(digit: number) {
         this.service.setDigit(this.pos, digit, Cause.ENTERED);
     }
 
@@ -121,7 +121,7 @@ class FieldComponent {
             console.log(event);
             let digit = this.#toDigit(event.key);
             if (digit != 0) {
-                this.setDigit(digit);
+                this.#setDigit(digit);
                 this.service.shouldEdit$.emit(this.pos.right());
             }
             event.stopImmediatePropagation();
@@ -132,7 +132,7 @@ class FieldComponent {
                 case "ArrowDown":   this.service.shouldEdit$.emit(this.pos.down()); break;
                 case "Escape":      this.service.shouldEdit$.emit(Position.NoPosition); break;
                 case " ":           this.service.shouldEdit$.emit(this.pos.right()); break;
-                case "Delete":      this.setDigit(0); break;
+                case "Delete":      this.#setDigit(0); break;
             }
         }
     }

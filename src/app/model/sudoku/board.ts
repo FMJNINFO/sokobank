@@ -21,16 +21,11 @@ export class BoardError extends Error {
 
 export class Board {
     static AllAllowed = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-    static EmptyAllowedSet = new Set<number>([1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    static AllFieldIndices = [...Array(81).keys()];
 
     _steps: Step[] = [];
-    _plans: Step[] = [];
     _fields: Map<Position, FieldContent> = new Map();
     _errors: Set<Position> = new Set();
-    _marked: Set<Position> = new Set();
     _markedCheat: Cheat | undefined = undefined ;
-    _initializing = false;
 
     constructor() {
         // this.startInitialize()
@@ -46,44 +41,11 @@ export class Board {
     addStep(step: Step) {
         this.#step(step._move.pos, step._move.digit, step._cause);
 
-        if (step._move.digit != 0) {
-            this._steps.push(step);
+        if (step._move.digit === 0) {
+            this.#step(step._move.pos, 0, step._cause);
+            this._steps = this._steps.filter((localstep) => step._move.pos.pos !== localstep.move.pos.pos);
         } else {
-            this.removeStep(step);
-        }
-    }
-
-    removeStep(step: Step) {
-        this.#step(step._move.pos, 0, step._cause);
-        this._steps = this._steps.filter((localstep) => step._move.pos.pos !== localstep.move.pos.pos);
-    }
-
-    mayAddStep(step: Step) {
-        for (let grp of step.pos.groups) {
-            let isDigitUsed = this.fieldContentsOf(grp).filter((fc) => fc.hasDigit())
-                .map((fc) => fc.digit())
-                .find((digit) => step._move.digit == digit);
-            if (isDigitUsed) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    addPlans(steps: Step[]) {
-        for (let step of steps) {
-            this.addPlan(step);
-        }
-    }
-
-    addPlan(step: Step) {
-        this._plans.push(step);
-    }
-
-    planToStep() {
-        let step = this._plans.pop();
-        if (step !== undefined) {
-            this.addStep(step);
+            this._steps.push(step);
         }
     }
 
@@ -97,30 +59,19 @@ export class Board {
             this.#evaluateAt(pos);
             this._errors = this.#searchErrors();
         }
-        this.unmarkCheat();
+        this._markedCheat = undefined;
         if (this.hasErrors() && (cause !== Cause.ENTERED)) {
             throw new BoardError("Error adding digit " + digit + " at " + pos.toString() + " by " + cause);
         }
     }
 
-    startInitialize(): void {
-        this._initializing = true;
-        this.reset();
-    }
-
     reset(): void {
         this._steps = [];
-        this._plans = [];
         let pos: Position;
         for (let iPos = 0; iPos < 81; iPos++) {
             pos = Position.of(iPos);
             this._fields.set(pos, new FieldContent(pos, new CipherSet(...Board.AllAllowed)));
         }
-        this.#evaluateAll();
-    }
-
-    stopInitialize(): void {
-        this._initializing = false;
         this.#evaluateAll();
     }
 
@@ -145,10 +96,6 @@ export class Board {
 
     hasCheat(): boolean {
         return this._markedCheat !== undefined;
-    }
-
-    unmarkCheat() {
-        this._markedCheat = undefined;
     }
 
     isMarked(pos: Position): boolean {
@@ -196,23 +143,16 @@ export class Board {
         return this._errors.size > 0;
     }
 
-    fieldContents(): FieldContent[] {
-        return Array.from(this._fields.values());
-    }
-
     emptyFieldContents(): FieldContent[] {
-        let emptyFcs = this.fieldContents().filter((fc) => fc.isEmpty());
+        let emptyFcs = Array.from(this._fields.values())
+            .filter((fc) => fc.isEmpty());
         return emptyFcs;
-    }
-
-    digitCount(): number {
-        let count = this.fieldContentsOf(Position.pool()).filter((fc) => fc.hasDigit()).length;
-        return count;
     }
 
     hasMinimalDigitCount(): boolean {
         //  mindestens 17 Zahlen werden für ein eindeutiges Sokoban benötigt
-        return this.digitCount() >= 17;
+        let count = this.fieldContentsOf(Position.pool()).filter((fc) => fc.hasDigit()).length;
+        return count >= 17;
     }
 
     #allowedInGroup(group: Position[]): CipherSet {
@@ -231,7 +171,7 @@ export class Board {
         return allowed;
     }
 
-    getDigit(pos: Position | number): number {
+    #getDigit(pos: Position | number): number {
         if (typeof pos == 'number') {
             pos = Position.of(pos);
         }
@@ -247,12 +187,10 @@ export class Board {
     }
 
     #evaluateGroup(group: Position[]) {
-        if (!this._initializing) {
-            logBoardEvaluationHeader();
+        logBoardEvaluationHeader();
 
-            for (let pos of group) {
-                this.#evaluateAt(pos);
-            }
+        for (let pos of group) {
+            this.#evaluateAt(pos);
         }
     }
 
@@ -301,7 +239,7 @@ export class Board {
         let s = "";
         let digit: number;
         for (let iPos = 0; iPos < 81; iPos++) {
-            digit = this.getDigit(iPos);
+            digit = this.#getDigit(iPos);
             if (digit <= 0) {
                 s += Move.SpaceChar;
             } else {
@@ -309,13 +247,5 @@ export class Board {
             }
         }
         return s;
-    }
-
-    additionalStepsAbove(baseBoard: Board): Step[] {
-        //  baseBoard has to be the base board of this, that is, the whole
-        //  steps of baseBoard had to be the beginning steps of this
-        let baseStepsCount = baseBoard._steps.length;
-        let addSteps = this._steps.filter((step, index) => index >= baseStepsCount);
-        return addSteps;
     }
 }
