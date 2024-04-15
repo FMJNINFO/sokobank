@@ -1,7 +1,7 @@
 import { Board, BoardError } from "../board";
 import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
-import { logBoard } from "../logger";
+import { logBoard, loggingActive } from "../logger";
 import { Position } from "../position";
 import { ClosedGroup, ClosedGroups } from "./closedGroups";
 
@@ -39,7 +39,7 @@ export class ClosedGroupFinder {
                         //  ... dann die Anzahl der Felder zählen, die in den übrigen
                         //  Feldern entfernt würden und ...
                         let cleanLevel = cg.cleaningLevel(board);
-                        if (doLogging) {
+                        if (doLogging && loggingActive) {
                             console.log("["+cleanLevel+"] " + cg.toString());
                         }
                         //  ... wenn wirklich Felder entfernt würden, die Gruppe speichern

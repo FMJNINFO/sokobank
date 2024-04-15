@@ -2,6 +2,7 @@ import { Component, Input } from "@angular/core";
 import { StatusService } from "../services/status.service";
 import { Step } from "../model/sudoku/step";
 import { TestBoardMoves } from "../model/sudoku/testboardMoves";
+import { loggingActive } from "../model/sudoku/logger";
 
 export @Component({
     selector: 'imexport',
@@ -68,14 +69,18 @@ class ImExportComponent {
     }
 
     doCopyFromBoard(boardcopy: HTMLTextAreaElement) {
-        console.log("From Board");
+        if (loggingActive) {
+            console.log("From Board");
+        }
         let s = this.service.getBoardContentAsString();
         let [newText, selStart] = this.#assembleBoardText(s, 0, 0);
         boardcopy.value = newText;
     }
 
     doCopyToBoard(boardcopy: HTMLTextAreaElement) {
-        console.log("To Board");
+        if (loggingActive) {
+            console.log("To Board");
+        }
         let s = boardcopy.value;
         let steps = Step.stringToSteps(s);
         this.service.setBoardBySteps(steps);

@@ -5,6 +5,7 @@ import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from "../services/status.service";
 import { Cause } from "../model/sudoku/cause";
+import { loggingActive } from "../model/sudoku/logger";
 
 export @Component({
     selector: 'field',
@@ -118,7 +119,9 @@ class FieldComponent {
 
     handleKeyboardEvent(event: KeyboardEvent) {
         if (this.isEditing) {
-            console.log(event);
+            if (loggingActive) {
+                console.log(event);
+            }
             let digit = this.#toDigit(event.key);
             if (digit != 0) {
                 this.#setDigit(digit);
@@ -148,7 +151,7 @@ class FieldComponent {
 
     #onEditorChanged(pos: Position) {
         this.setEditing(pos.equals(this.pos));
-        if (this.isEditing) {
+        if (this.isEditing && loggingActive) {
             console.log("Current editor is " + this.pos);
         }
     }

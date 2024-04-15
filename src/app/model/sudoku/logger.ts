@@ -2,6 +2,8 @@ import { Board } from "./board";
 import { FieldContent } from "./fieldContent";
 import { Position } from "./position";
 
+export let loggingActive = false;
+
 let doLogBoard = true;
 let doLogBoardEvaluation = false;
 
@@ -14,13 +16,13 @@ function println(s: string="") {
 }
 
 export function logBoardEvaluationHeader() {
-    if (!doLogBoardEvaluation)  return;
+    if (!doLogBoardEvaluation || !loggingActive)  return;
 
     println("=== Board Evaluation ===");
 }
 
 export function logBoardEvaluationContent(fieldContent: FieldContent) {
-    if (!doLogBoardEvaluation)  return;
+    if (!doLogBoardEvaluation || !loggingActive)  return;
 
     if (fieldContent.isEmpty()) {
         println("   "+fieldContent.pos.toString()+" allows "+fieldContent.allowSet.toListString());
@@ -30,7 +32,7 @@ export function logBoardEvaluationContent(fieldContent: FieldContent) {
 }
 
 export function logBoard(board: Board, marked: Position | undefined=undefined): void {
-    if (!doLogBoard)    return;
+    if (!doLogBoard || !loggingActive)    return;
 
     let line: string;
     let pos: Position;

@@ -1,7 +1,7 @@
 import { Cause } from "./cause";
 import { CipherSet } from "./cipherset";
 import { FieldContent } from "./fieldContent";
-import { logBoardEvaluationContent, logBoardEvaluationHeader } from "./logger";
+import { logBoardEvaluationContent, logBoardEvaluationHeader, loggingActive } from "./logger";
 import { Move } from "./move";
 import { Position } from "./position";
 import { Step } from "./step";
@@ -206,7 +206,7 @@ export class Board {
     isFull(): boolean {
         let doLogging = false;
         let isFull = this.emptyFieldCount() == 0;
-        if (isFull && doLogging) {
+        if (isFull && doLogging && loggingActive) {
             let pos: Position;
             let cause: Cause;
             console.log("=== FULL BOARD ===");

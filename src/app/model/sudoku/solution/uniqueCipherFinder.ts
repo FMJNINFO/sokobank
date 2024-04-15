@@ -2,6 +2,7 @@ import { Board } from "../board";
 import { Cause } from "../cause";
 import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
+import { loggingActive } from "../logger";
 import { Position } from "../position";
 import { Solver } from "../solver";
 import { Step } from "../step";
@@ -46,13 +47,13 @@ export class UniqueCipherFinder {
         let founds: Map<number, Step> = new Map();
         let steps: Step[];
 
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             console.log("== getAllSteps ==");
         }
         for (let [sGrp, grp] of Position.namedGrps()) {        
             steps = this.#findAllInGroup(board, grp);
             for (let step of steps) {
-                if (doLogging) {
+                if (doLogging && loggingActive) {
                     console.log("   Add " + step.toString() + " from " + sGrp);
                 }
                 founds.set(step.pos.pos, step);
@@ -96,16 +97,16 @@ export class UniqueCipherFinder {
         let steps: Step[];
         let joinedSteps: Step[] = [];
         for (let [sGrp, grp] of Position.namedGrps()) {
-            if (doLogging)
+            if (doLogging && loggingActive)
                 console.log("Look for unique cipher in " + sGrp)
             steps = this.#findGroupUniqueCiphers(board, grp);
             for (let step of steps) {
-                if (doLogging)
+                if (doLogging && loggingActive)
                     console.log("Found unique cipher in " + sGrp + ": " + step.toString())
                 if (joinedSteps.find((s) => (s.pos.pos == step.pos.pos)) == undefined) {
                     joinedSteps.push(step);
                 } else {
-                    if (doLogging)
+                    if (doLogging && loggingActive)
                         console.log("... but we know it already.")
                 }
             }

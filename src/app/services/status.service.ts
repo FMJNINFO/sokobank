@@ -1,7 +1,7 @@
 import { EventEmitter } from "@angular/core";
 import { Position } from "../model/sudoku/position";
 import { Board, BoardError } from "../model/sudoku/board";
-import { logBoard } from "../model/sudoku/logger";
+import { logBoard, loggingActive } from "../model/sudoku/logger";
 import { Move } from "../model/sudoku/move";
 import { Solver } from "../model/sudoku/solver";
 import { SolverMemory } from "../model/sudoku/solverMemory";
@@ -141,7 +141,7 @@ export class StatusService {
             let solver = new Solver(this._solverMemory);
             let [isSolved, steps] = solver.findAllResolvingSteps(this._board);
             if (!isSolved) {
-                if (doLogging) {
+                if (doLogging && loggingActive) {
                     console.log("Found no solution");
                 }
                 return;
@@ -187,8 +187,10 @@ export class StatusService {
             throw new BoardError("The two evaluation resolutions yields different solve states.");
         }
 
-        console.log("SOLUTION1: " + solution1);
-        console.log("SOLUTION2: " + solution2);
+        if (loggingActive) {
+            console.log("SOLUTION1: " + solution1);
+            console.log("SOLUTION2: " + solution2);
+        }
 
         let s1 = this.#evaluationMapToText(sumCauses1);
         let s2 = this.#evaluationMapToText(sumCauses2);
@@ -197,11 +199,13 @@ export class StatusService {
         let isUnique = solution1 == solution2;
         let value = (s1 < s2 ? s1 : s2);
 
-        console.log();
-        console.log("Evaluation 1: " + s1);
-        console.log("Evaluation 2: " + s2);
+        if (loggingActive) {
+            console.log();
+            console.log("Evaluation 1: " + s1);
+            console.log("Evaluation 2: " + s2);
 
-        console.log(" ==> " + (s1 < s2 ? s1 : s2));
+            console.log(" ==> " + (s1 < s2 ? s1 : s2));
+        }
 
         return [isSolved, isUnique, value];
     }

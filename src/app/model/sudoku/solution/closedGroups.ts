@@ -3,6 +3,7 @@ import { CipherSet } from "../cipherset";
 import { FieldContent } from "../fieldContent";
 import { Position } from "../position";
 import { Cause } from "../cause";
+import { loggingActive } from "../logger";
 
 export class ClosedGroup implements Cheat {
     static NO_CLOSED_GROUP = new ClosedGroup("");
@@ -59,7 +60,7 @@ export class ClosedGroup implements Cheat {
             let cleanedAllow = fcToClean.allowSet.and(cleanAllow);
             level += fcToClean.allowSet.length - cleanedAllow.length;
         }
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             console.log("In " + this._grpName + " closed group " + this._poss 
                 + " with " + this._allows.toListString() + " would clean " + level + " digits.");
         }
@@ -71,7 +72,7 @@ export class ClosedGroup implements Cheat {
         let fcGroup = board.fieldContentsOf(this._poss);
         let possGroupSet = new Set(fcGroup.map((fc) => fc.pos));
 
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             console.log("Filter in " + this._grpName + " of the joined group " + this._poss + " is " + this._allows.toListString());
         }
 
@@ -89,7 +90,7 @@ export class ClosedGroup implements Cheat {
             level += fcToClean.allowSet.length - cleanedAllow.length;
             fcToClean.setAllowSet(cleanedAllow);
         }
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             console.log("In " + this._grpName + " closed group " + this._poss 
                 + " with " + this._allows.toListString() + " cleaned " + level + " digits.");
         }

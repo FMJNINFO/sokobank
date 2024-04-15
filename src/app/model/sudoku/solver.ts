@@ -5,7 +5,7 @@ import { LonelyCipherFinder } from "./solution/lonelyCipherFinder";
 import { UniqueCipherFinder } from "./solution/uniqueCipherFinder";
 import { CipherByTrialFinder } from "./solution/cipherByTrialFinder";
 import { ClosedGroupFinder } from "./solution/closedGroupFinder";
-import { logBoard } from "./logger";
+import { logBoard, loggingActive } from "./logger";
 import { SolverMemory } from "./solverMemory";
 import { Cause } from "./cause";
 import { Step } from "./step";
@@ -185,7 +185,7 @@ export class Solver {
 
         let steps = this.#findAllLonelyCiphers(board);
         this.memory.saveLonelyCiphers(steps);
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             for (let step of steps) {
                 console.log("Lonely cipher: " + step.toString())
             }
@@ -195,7 +195,7 @@ export class Solver {
         steps = this.#findAllUniqueCiphers(board);
         this.memory.saveUniqueCiphers(steps);
 
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             for (let step of steps) {
                 console.log("Found unique cipher: " + step.toString());
             }
@@ -205,7 +205,7 @@ export class Solver {
         let groups = this.#findAllClosedGroups(board);
         this.memory.saveClosedGroups(groups);
 
-        if (doLogging) {
+        if (doLogging && loggingActive) {
             for (let group of groups.groups) {
                 console.log("Found closed groups: " + groups.toString());
             }

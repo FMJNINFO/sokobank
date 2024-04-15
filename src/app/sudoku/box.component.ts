@@ -5,6 +5,7 @@ import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from '../services/status.service';
 import { Cause } from "../model/sudoku/cause";
+import { loggingActive } from "../model/sudoku/logger";
 
 export @Component({
     selector: 'box',
@@ -38,6 +39,8 @@ class BoxComponent {
     }
 
     changeEdit(pos: Position) {
-        console.log("Edit changes to " + pos);
+        if (loggingActive) {
+            console.log("Edit changes to " + pos);
+        }
     }
 }
