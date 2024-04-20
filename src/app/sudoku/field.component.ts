@@ -16,16 +16,17 @@ export @Component({
       }    
 })
 class FieldComponent {
-    @Input()  xcontent: string = "";
     @Input()  pos: Position = Position.NoPosition;
-    @Output() digitUpdated = new EventEmitter<Move>();
-    @Output() editChange = new EventEmitter<Position>();
     _isEditing = false;
 
     constructor(private service: StatusService) { 
-        service.shouldEdit$.subscribe(pos => this.#onEditorChanged(pos));        
+        service.shouldEdit$.subscribe(pos => this.#onEditorChanged(pos));
     }
-    
+
+    digitSelected($event: any) {
+        throw new Error('Method not implemented.');
+    }
+            
     get isEditing(): boolean {
         return this._isEditing;
     }
@@ -130,13 +131,23 @@ class FieldComponent {
             if (loggingActive) {
                 console.log(event);
             }
-            let digit = this.#toDigit(event.key);
-            if (digit != 0) {
-                this.#setDigit(digit);
-                this.service.shouldEdit$.emit(this.pos.right());
-            }
+            this.#handleKeyString(event.key, true);
             event.stopImmediatePropagation();
-            switch(event.key) {
+        }
+    }
+
+    #handleKeyString(keyString: string, continueEditing: boolean) {
+        let digit = this.#toDigit(keyString);
+        if (digit != 0) {
+            this.#setDigit(digit);
+            if (continueEditing) {
+                this.service.shouldEdit$.emit(this.pos.right());
+            } else {
+                this.service.shouldEdit$.emit(Position.NoPosition);
+            }
+        }
+        if (continueEditing) {
+            switch(keyString) {
                 case "ArrowRight":  this.service.shouldEdit$.emit(this.pos.right()); break;
                 case "ArrowLeft":   this.service.shouldEdit$.emit(this.pos.left()); break;
                 case "ArrowUp":     this.service.shouldEdit$.emit(this.pos.up()); break;

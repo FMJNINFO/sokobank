@@ -1,13 +1,13 @@
-<button (click)="isOpen = !isOpen" cdkOverlayOrigin 
-         #trigger="cdkOverlayOrigin">
-   Open/close overlay
-</button>
-
 <ng-template cdkConnectedOverlay 
-       [cdkConnectedOverlayOrigin]="trigger" 
-       [cdkConnectedOverlayOpen]="isOpen"><div>
+       [cdkConnectedOverlayOrigin]="trigger"
+       [cdkConnectedOverlayOpen]="visible"><div>
     <div>
         <table class="digitselectTable">
+            <tr class="nodigitselectRow">
+                <td></td>
+                <td></td>
+                <td><button class="nodigit" (click)="selectDigit($event, -1)">X</button></td>
+            </tr>
             <tr class="digitselectRow">
                 <td><button class="digitselect" (click)="selectDigit($event, 1)">1</button></td>
                 <td><button class="digitselect" (click)="selectDigit($event, 2)">2</button></td>

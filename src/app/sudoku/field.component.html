@@ -1,7 +1,8 @@
 <td class="entry" (click)="switchEdit()">
     <div class="field" [ngClass]="fieldColor">
         <div *ngIf="isEditing || hasDigit || !showAllowance || !isHintVisible">
-            <div>{{value}}</div>
+            <div cdkOverlayOrigin #theTrigger="cdkOverlayOrigin">{{value}}</div>
+            <digitselect [triggerCandidate]="theTrigger" [visible]="isEditing"></digitselect>
         </div>
         <div *ngIf="!isEditing && !hasDigit && showAllowance && isHintVisible">
             <div>
@@ -22,7 +23,8 @@
                         <allowed class="allowed" [pos]="pos" [digit]="9"/>                
                     </tr>
                 </table>
-            </div>            
+            </div>                         
         </div>
+        
     </div>
 </td>
