@@ -16,4 +16,22 @@
             <td class="boxentry"><box [boxId]="8"></box></td>
         </tr>
     </table>
+    <div>
+        <br/>
+        <button type="button" (click)="doCleanBoard($event)" clickable>Clean Board</button>
+        <br/>
+        <table>
+            <tr>
+                <td class="evalButtonInTable">
+                    <button type="button" [disabled]="!isFillCompleteAllowed()" (click)="doEvaluate()" clickable>Estimate evaluation</button>
+                </td>
+                <td><table [class]="evaluationClass">
+                    <tr><td>Last Evaluation:</td></tr>
+                    <tr><td>{{evaluationState}}</td></tr>
+                    <tr><td>{{evaluationValue}}</td></tr>
+                </table></td>            
+            </tr>
+        </table>        
+    </div>
+
 </div>

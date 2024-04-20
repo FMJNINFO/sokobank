@@ -117,8 +117,16 @@ class FieldComponent {
         this.service.setDigit(this.pos, digit, Cause.ENTERED);
     }
 
-    handleKeyboardEvent(event: KeyboardEvent) {
+    handleKeyboardEvent(event: KeyboardEvent) {        
         if (this.isEditing) {
+            if (event.target != null) {
+                let tgt = event.target as HTMLBaseElement;
+                if (tgt.nodeName != 'BODY') {
+                    //  we only handle key event not connected to any component
+                    return;
+                }
+            }
+
             if (loggingActive) {
                 console.log(event);
             }
