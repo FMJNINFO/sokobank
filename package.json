@@ -1,7 +1,7 @@
 {
   "name": "angular-cli-app",
   "version": "0.0.0",
-  "homepage": "https://FMJNINFO.github.io/sokobank/",
+  "homepage": "https://FMJNINFO.github.io/origin/",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
