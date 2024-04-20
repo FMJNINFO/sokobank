@@ -15,6 +15,8 @@ import { CheatAreaComponent } from './sudoku/cheatarea.component';
 import { CheatButtonsComponent } from './sudoku/cheatbuttons.component';
 import { ImExportComponent } from './sudoku/imexport.component';
 import { DigitHighlightingComponent } from './sudoku/digitHighlighting.component';
+import { DigitSelectComponent } from './sudoku/digitselect.component';
+import { OverlayModule } from "@angular/cdk/overlay";
 
 @NgModule({
   declarations: [
@@ -28,12 +30,14 @@ import { DigitHighlightingComponent } from './sudoku/digitHighlighting.component
     CheatAreaComponent,
     CheatButtonsComponent,
     ImExportComponent,
-    DigitHighlightingComponent
+    DigitHighlightingComponent,
+    DigitSelectComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
-    AppRoutingModule
+    AppRoutingModule,
+    OverlayModule
   ],
   providers: [
     StatusService
