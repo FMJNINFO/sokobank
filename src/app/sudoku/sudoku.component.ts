@@ -56,11 +56,13 @@ class SudokuComponent {
     }
 
     doEvaluate() {
+        this.service.stopDigitEditing();
         [this._evalSolved, this._evalUnique, this._evalValue] = this.service.evaluate();
     }
 
     doCleanBoard($event: Event) {
         this._evalSolved = undefined;
+        this.service.stopDigitEditing();
         this.service.cleanBoard();
         this.service.findAllCheats();
     }

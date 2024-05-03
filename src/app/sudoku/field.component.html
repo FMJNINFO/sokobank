@@ -1,4 +1,4 @@
-<td class="entry" (click)="switchEdit()">
+<td class="entry" (click)="switchEditStarted()" (touchstart)="touchEditStarted($event)">
     <div class="field" [ngClass]="fieldColor">
         <div *ngIf="isEditing || hasDigit || !showAllowance || !isHintVisible">
             <div cdkOverlayOrigin #theTrigger="cdkOverlayOrigin">{{value}}</div>

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, Input } from "@angular/core";
 import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
 import { Position } from "../model/sudoku/position";
@@ -17,7 +17,6 @@ export @Component({
 class FieldComponent {
     @Input()  pos: Position = Position.NoPosition;
     _isEditing = false;
-    _isInTouchMode = true;
 
     constructor(private service: StatusService) { 
     }
@@ -27,7 +26,8 @@ class FieldComponent {
     }
 
     get digitSelectorVisible(): boolean {
-        return this.isEditing && this._isInTouchMode;
+        console.log("DigitSelectorVisible: "+this.service.isInTouchMode());
+        return this.isEditing && this.service.isInTouchMode();
     }
 
     get fieldColor(): string {
@@ -71,9 +71,6 @@ class FieldComponent {
 
     get hasDigit(): boolean {
         let hasDigit = this.service.getDigit(this.pos) != 0;
-        if (this.pos.pos == 73) {
-            console.log("hasDigit(73)= " + hasDigit);
-        }
         return hasDigit;
     }
 
@@ -132,7 +129,7 @@ class FieldComponent {
             if (loggingActive) {
                 console.log(event);
             }
-            this.#handleKeyString(event.key, true);
+            this.#handleKeyString(event.key, !this.service.isInTouchMode());
             event.stopImmediatePropagation();
         }
     }
@@ -145,7 +142,6 @@ class FieldComponent {
                 this.service.digitEditorPos = this.pos.right();
             } else {
                 this.service.stopDigitEditing();
-                // this.service.shouldEdit$.emit(Position.NoPosition);
             }
         }
         if (continueEditing) {
@@ -154,18 +150,30 @@ class FieldComponent {
                 case "ArrowLeft":   this.service.digitEditorPos = this.pos.left(); break;
                 case "ArrowUp":     this.service.digitEditorPos = this.pos.up(); break;
                 case "ArrowDown":   this.service.digitEditorPos = this.pos.down(); break;
-                case "Escape":      this.service.digitEditorPos = Position.NoPosition; break;
+                case "Escape":      this.service.stopDigitEditing(); break;
                 case " ":           this.service.digitEditorPos = this.pos.right(); break;
                 case "Delete":      this.#setDigit(0); break;
             }
         }
     }
 
-    switchEdit() {
+    switchEditStarted() {
+        this.#switchEdit(false)
+    }
+
+    #switchEdit(switchedByTouch: boolean) {
         if (this.isEditing) {
-            this.service.digitEditorPos = Position.NoPosition;            
+            if (switchedByTouch || !this.service.isInTouchMode()) {
+                //  Nur, wenn der switch nicht aus einem Click nach einem Touch stammt
+                this.service.stopDigitEditing();
+            }
         } else {
             this.service.digitEditorPos = this.pos;
         }
+    }
+
+    touchEditStarted(event: TouchEvent) {
+        this.#switchEdit(true);
+        this.service.startTouchMode();
     }
 }

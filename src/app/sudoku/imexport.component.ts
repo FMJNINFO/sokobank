@@ -18,6 +18,7 @@ class ImExportComponent {
     }
 
     setTestBoard(id: string) {
+        this.service.stopDigitEditing();
         this.service.setBoardBySteps(this.testBoardMoves.getSteps(id));
         this.service.findAllCheats();
     }
@@ -72,6 +73,8 @@ class ImExportComponent {
         if (loggingActive) {
             console.log("From Board");
         }
+        this.service.stopDigitEditing();
+
         let s = this.service.getBoardContentAsString();
         let [newText, selStart] = this.#assembleBoardText(s, 0, 0);
         boardcopy.value = newText;
@@ -81,6 +84,8 @@ class ImExportComponent {
         if (loggingActive) {
             console.log("To Board");
         }
+        this.service.stopDigitEditing();
+
         let s = boardcopy.value;
         let steps = Step.stringToSteps(s);
         this.service.setBoardBySteps(steps);

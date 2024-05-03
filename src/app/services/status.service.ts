@@ -20,6 +20,7 @@ export class StatusService {
     _board: Board;
     _emphasizedDigit: number | undefined;
     _solverMemory: SolverMemory;
+    _isInTouchMode = false;
 
     constructor() {
         this.shouldEdit$ = new EventEmitter();
@@ -231,6 +232,7 @@ export class StatusService {
 
     stopDigitEditing() {
         this._editorPos = Position.NoPosition;
+        this.stopTouchMode();
     }
 
     hasError(pos: Position): boolean {
@@ -258,5 +260,17 @@ export class StatusService {
 
     isFillCompleteAllowed(): boolean {
         return !this.#isBoardFull() && !this.#hasBoardErrors() && this._board.hasMinimalDigitCount();
+    }
+
+    startTouchMode() {
+        this._isInTouchMode = true;
+    }
+
+    isInTouchMode(): boolean {
+        return this._isInTouchMode;
+    }
+
+    stopTouchMode() {
+        this._isInTouchMode = false;
     }
 }
