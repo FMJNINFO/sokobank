@@ -2,10 +2,10 @@
     <div class="field" [ngClass]="fieldColor">
         <div *ngIf="isEditing || hasDigit || !showAllowance || !isHintVisible">
             <div cdkOverlayOrigin #theTrigger="cdkOverlayOrigin">{{value}}</div>
-            <digitselect [triggerCandidate]="theTrigger" [visible]="isEditing"></digitselect>
+            <digitselect [triggerCandidate]="theTrigger" [maybeVisible]="digitSelectorVisible"></digitselect>
         </div>
         <div *ngIf="!isEditing && !hasDigit && showAllowance && isHintVisible">
-            <div>
+            <div cdkOverlayOrigin #theTrigger="cdkOverlayOrigin">
                 <table class="emptyFieldTable">
                     <tr class="emptyFieldRow">
                         <allowed class="allowed" [pos]="pos" [digit]="1"/>                
@@ -24,7 +24,6 @@
                     </tr>
                 </table>
             </div>                         
-        </div>
-        
+        </div>        
     </div>
 </td>

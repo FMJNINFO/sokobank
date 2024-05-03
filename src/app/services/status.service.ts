@@ -1,7 +1,7 @@
 import { EventEmitter } from "@angular/core";
 import { Position } from "../model/sudoku/position";
 import { Board, BoardError } from "../model/sudoku/board";
-import { logBoard, loggingActive } from "../model/sudoku/logger";
+import { loggingActive } from "../model/sudoku/logger";
 import { Move } from "../model/sudoku/move";
 import { Solver } from "../model/sudoku/solver";
 import { SolverMemory } from "../model/sudoku/solverMemory";
@@ -14,7 +14,7 @@ export class StatusService {
     showDigits$: EventEmitter<boolean>;
     boardChanged$: EventEmitter<Board>;
 
-    _editor: Position;
+    _editorPos: Position;
     _isHintVisible: boolean;
     _areDigitsVisible: boolean;
     _board: Board;
@@ -27,7 +27,7 @@ export class StatusService {
         this.showDigits$ = new EventEmitter();
         this.boardChanged$ = new EventEmitter();
 
-        this._editor = Position.NoPosition;
+        this._editorPos = Position.NoPosition;
         this._isHintVisible = false;
         this._areDigitsVisible = false;
         this._board = new Board();
@@ -213,6 +213,24 @@ export class StatusService {
     setDigit(pos: Position, digit: number, cause: Cause) {
         let step = new Step(cause, pos, digit);
         this._board.addStep(step);
+        this.findAllCheats();
+    }
+
+    set digitEditorPos(pos: Position) {
+        this._editorPos = pos;
+        console.log("Current edit position: " + this._editorPos.toString());
+    }
+
+    get digitEditorPos(): Position {
+        return this._editorPos;
+    }
+
+    isDigitEditing(): boolean {
+        return !this._editorPos.equals(Position.NoPosition);
+    }
+
+    stopDigitEditing() {
+        this._editorPos = Position.NoPosition;
     }
 
     hasError(pos: Position): boolean {

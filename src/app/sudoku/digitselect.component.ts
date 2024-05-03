@@ -12,11 +12,13 @@ export @Component({
 
 class DigitSelectComponent {
     @Input()  triggerCandidate: CdkOverlayOrigin | undefined;
-    @Input()  visible = false;
-    editPos = Position.NoPosition;
+    @Input()  maybeVisible = false;
 
-    constructor(private service: StatusService) {     
-        service.shouldEdit$.subscribe(pos => this.#setCurrentEditPosition(pos));
+    constructor(private service: StatusService) {
+    }
+
+    get visible(): boolean {
+        return this.maybeVisible;
     }
 
     get trigger(): CdkOverlayOrigin {
@@ -27,15 +29,12 @@ class DigitSelectComponent {
     }
 
     selectDigit($event: MouseEvent, digit: number) {
-        console.log("Digit " + digit + " selected.");
-        if (digit >= 0) {
-            this.service.setDigit(this.editPos, digit, Cause.ENTERED);
+        if (this.service.isDigitEditing()) {
+            console.log("Digit " + digit + " selected.");
+            if (digit >= 0) {
+                this.service.setDigit(this.service.digitEditorPos, digit, Cause.ENTERED);
+            }
+            this.service.stopDigitEditing();
         }
-        this.service.shouldEdit$.emit(Position.NoPosition);
-    }
-
-    #setCurrentEditPosition(pos: Position) {
-        this.editPos = pos;
-        console.log("Current edit position: " + pos.toString());
     }
 }

@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Observable } from "rxjs";
 import { Store, select } from "@ngrx/store";
-import { Move } from "../model/sudoku/move";
 import { Position } from "../model/sudoku/position";
 import { StatusService } from "../services/status.service";
 import { Cause } from "../model/sudoku/cause";
@@ -18,45 +17,43 @@ export @Component({
 class FieldComponent {
     @Input()  pos: Position = Position.NoPosition;
     _isEditing = false;
+    _isInTouchMode = true;
 
     constructor(private service: StatusService) { 
-        service.shouldEdit$.subscribe(pos => this.#onEditorChanged(pos));
     }
 
-    digitSelected($event: any) {
-        throw new Error('Method not implemented.');
-    }
-            
     get isEditing(): boolean {
-        return this._isEditing;
+        return this.service.digitEditorPos.equals(this.pos);
     }
 
-    setEditing(value: boolean) {
-        this._isEditing = value;
+    get digitSelectorVisible(): boolean {
+        return this.isEditing && this._isInTouchMode;
     }
 
     get fieldColor(): string {
+        let _fieldColor = "";
         if (this.#hasError) {
             if (this.isEditing) {
-                return "editingErrorField";
+                _fieldColor = "editingErrorField";
             } else {
-                return "errorField";
+                _fieldColor = "errorField";
             }
         } else {
             if (this.isEditing) {
-                return "editingField";
+                _fieldColor = "editingField";
             } else {
                 if (this.#isMarked) {
-                    return "markedField";
+                    _fieldColor = "markedField";
                 } else {
                     if (this.#isEmphasized) {
-                        return "emphasizedField";
+                        _fieldColor = "emphasizedField";
                     } else {
-                        return "normalField";
+                        _fieldColor = "normalField";
                     }
                 }
             }
         }
+        return _fieldColor;
     }
 
     get value(): string {
@@ -73,7 +70,11 @@ class FieldComponent {
     }
 
     get hasDigit(): boolean {
-        return this.service.getDigit(this.pos) != 0;
+        let hasDigit = this.service.getDigit(this.pos) != 0;
+        if (this.pos.pos == 73) {
+            console.log("hasDigit(73)= " + hasDigit);
+        }
+        return hasDigit;
     }
 
     get #hasError(): boolean {
@@ -141,37 +142,30 @@ class FieldComponent {
         if (digit != 0) {
             this.#setDigit(digit);
             if (continueEditing) {
-                this.service.shouldEdit$.emit(this.pos.right());
+                this.service.digitEditorPos = this.pos.right();
             } else {
-                this.service.shouldEdit$.emit(Position.NoPosition);
+                this.service.stopDigitEditing();
+                // this.service.shouldEdit$.emit(Position.NoPosition);
             }
         }
         if (continueEditing) {
             switch(keyString) {
-                case "ArrowRight":  this.service.shouldEdit$.emit(this.pos.right()); break;
-                case "ArrowLeft":   this.service.shouldEdit$.emit(this.pos.left()); break;
-                case "ArrowUp":     this.service.shouldEdit$.emit(this.pos.up()); break;
-                case "ArrowDown":   this.service.shouldEdit$.emit(this.pos.down()); break;
-                case "Escape":      this.service.shouldEdit$.emit(Position.NoPosition); break;
-                case " ":           this.service.shouldEdit$.emit(this.pos.right()); break;
+                case "ArrowRight":  this.service.digitEditorPos = this.pos.right(); break;
+                case "ArrowLeft":   this.service.digitEditorPos = this.pos.left(); break;
+                case "ArrowUp":     this.service.digitEditorPos = this.pos.up(); break;
+                case "ArrowDown":   this.service.digitEditorPos = this.pos.down(); break;
+                case "Escape":      this.service.digitEditorPos = Position.NoPosition; break;
+                case " ":           this.service.digitEditorPos = this.pos.right(); break;
                 case "Delete":      this.#setDigit(0); break;
             }
         }
     }
 
     switchEdit() {
-        this.setEditing(!this.isEditing);
         if (this.isEditing) {
-            this.service.shouldEdit$.emit(this.pos);
+            this.service.digitEditorPos = Position.NoPosition;            
         } else {
-            this.service.shouldEdit$.emit(Position.NoPosition);
-        }
-    }
-
-    #onEditorChanged(pos: Position) {
-        this.setEditing(pos.equals(this.pos));
-        if (this.isEditing && loggingActive) {
-            console.log("Current editor is " + this.pos);
+            this.service.digitEditorPos = this.pos;
         }
     }
 }
