@@ -17,6 +17,7 @@ import { ImExportComponent } from './sudoku/imexport.component';
 import { DigitHighlightingComponent } from './sudoku/digitHighlighting.component';
 import { DigitSelectComponent } from './sudoku/digitselect.component';
 import { OverlayModule } from "@angular/cdk/overlay";
+import { InfoComponent } from './info.component';
 
 @NgModule({
   declarations: [
@@ -31,7 +32,8 @@ import { OverlayModule } from "@angular/cdk/overlay";
     CheatButtonsComponent,
     ImExportComponent,
     DigitHighlightingComponent,
-    DigitSelectComponent
+    DigitSelectComponent,
+    InfoComponent
   ],
   imports: [
     BrowserModule,

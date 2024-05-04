@@ -15,3 +15,15 @@
 .evalButtonInTable {
   vertical-align: top;
 }
+
+.infoButtonImage {
+  background-image: url(../../assets/img/InfoButton.png);
+  height: 30px;
+  width: 30px;
+  background-size: cover;    
+  vertical-align: text-top;
+}
+
+.infoAnchor {
+  padding-left: 270px;
+}
