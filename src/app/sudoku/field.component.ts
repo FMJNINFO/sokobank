@@ -26,7 +26,6 @@ class FieldComponent {
     }
 
     get digitSelectorVisible(): boolean {
-        console.log("DigitSelectorVisible: "+this.service.isInTouchMode());
         return this.isEditing && this.service.isInTouchMode();
     }
 

@@ -38,6 +38,11 @@ export class Board {
         }
     }
 
+    trialStepCount(): number {
+        const count = this._steps.reduce((count, step) => count + (step.cause==Cause.TRIAL_CIPHER ? 1 : 0), 0);
+        return count;
+    }
+
     addStep(step: Step) {
         this.#step(step._move.pos, step._move.digit, step._cause);
 

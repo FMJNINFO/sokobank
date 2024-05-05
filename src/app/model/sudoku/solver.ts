@@ -231,7 +231,7 @@ export class Solver {
         let isSolved = true;
         if (!testBoard.isFull()) {
             let trialSteps: Step[] = [];
-            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard);
+            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, true);
             steps.push(...trialSteps);
         }
         return [isSolved, steps];

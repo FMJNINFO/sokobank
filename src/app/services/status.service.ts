@@ -219,7 +219,9 @@ export class StatusService {
 
     set digitEditorPos(pos: Position) {
         this._editorPos = pos;
-        console.log("Current edit position: " + this._editorPos.toString());
+        if (loggingActive) {
+            console.log("Current edit position: " + this._editorPos.toString());
+        }
     }
 
     get digitEditorPos(): Position {
