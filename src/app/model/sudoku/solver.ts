@@ -1,5 +1,5 @@
 import { Board, BoardError } from "./board";
-import { ClosedGroup, ClosedGroups } from "./solution/closedGroups";
+import { ClosedGroups } from "./solution/closedGroups";
 import { Move } from "./move";
 import { LonelyCipherFinder } from "./solution/lonelyCipherFinder";
 import { UniqueCipherFinder } from "./solution/uniqueCipherFinder";
@@ -7,7 +7,6 @@ import { CipherByTrialFinder } from "./solution/cipherByTrialFinder";
 import { ClosedGroupFinder } from "./solution/closedGroupFinder";
 import { logBoard, loggingActive } from "./logger";
 import { SolverMemory } from "./solverMemory";
-import { Cause } from "./cause";
 import { Step } from "./step";
 
 export class SolveSet {
@@ -162,6 +161,8 @@ export class SolutionState {
 }
 
 export class Solver {
+    static maxEvaluationTimeMs = 5000;
+
     uniqueCipherFinder: UniqueCipherFinder;
     lonelyCipherFinder: LonelyCipherFinder;
     cipherByTrialFinder: CipherByTrialFinder;
@@ -231,7 +232,8 @@ export class Solver {
         let isSolved = true;
         if (!testBoard.isFull()) {
             let trialSteps: Step[] = [];
-            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, true);
+            let searchUntil = (new Date().getTime()) + Solver.maxEvaluationTimeMs;
+            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, true, searchUntil);
             steps.push(...trialSteps);
         }
         return [isSolved, steps];
@@ -249,7 +251,8 @@ export class Solver {
         let isSolved = true;
         let trialSteps: Step[] = []
         if (!testBoard.isFull()) {
-            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, reversed);            
+            let searchUntil = (new Date().getTime()) + Solver.maxEvaluationTimeMs;
+            [isSolved, trialSteps] = this.cipherByTrialFinder.findAllResolvingSteps(testBoard, reversed, searchUntil);            
             steps.push(...trialSteps);
             for (let step of steps) {
                 testBoard.addStep(step);

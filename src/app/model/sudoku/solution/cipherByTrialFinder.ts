@@ -1,15 +1,13 @@
 import { Board, BoardError } from "../board";
 import { Cause } from "../cause";
 import { FieldContent } from "../fieldContent";
-import { logBoard, loggingActive } from "../logger";
+import { loggingActive } from "../logger";
 import { SolutionState, SolveSet, Solver } from "../solver";
 import { Step } from "../step";
 
 
 export class CipherByTrialFinder {
     static cause = Cause.TRIAL_CIPHER;
-    static maxTrialStepCount = 3;
-    static maxResolvingStepDepth = 5;
     _solver: Solver;
 
     constructor(solver: Solver) {
@@ -159,7 +157,7 @@ export class CipherByTrialFinder {
         return subState;
     }
 
-    #checkOneStep(testBoard: Board, step: Step, logPrefix: string=""): [boolean, number, Step[]] {
+    #checkOneStep(testBoard: Board, step: Step): [boolean, number, Step[]] {
         //  Führt den step auf dem testBoard aus und füllt alle logisch herleitbaren Steps durch. 
         //  Return:
         //      boolean: ist das Board gelöst
@@ -178,20 +176,20 @@ export class CipherByTrialFinder {
                 //  we found a solution
                 let win = (emptyFieldCount-board.emptyFieldCount());
                 if (doLogging && loggingActive) {
-                    console.log(logPrefix + "Step " + step.toString() + " would clean " + win + " digits.");
+                    console.log("Step " + step.toString() + " would clean " + win + " digits.");
                     if (board.isFull()) {
-                        console.log(logPrefix + "... and board is FULL.");
+                        console.log("... and board is FULL.");
                     } else {
-                        console.log(logPrefix + "... but still missing " + board.emptyFieldCount() + " digits.");
+                        console.log("... but still missing " + board.emptyFieldCount() + " digits.");
                     }
-                    console.log(logPrefix + "==> It will yield a solution.");
+                    console.log("==> It will yield a solution.");
                 }
                 return [true, win, solvedSteps];
             }
         } catch(error) {
             if (error instanceof BoardError) {
                 if (doLogging && loggingActive) {
-                    console.log(logPrefix + "Step " + step.toString() + " yields to an ERROR.");
+                    console.log("Step " + step.toString() + " yields to an ERROR.");
                 }
                 return [false, -1, []];  // -1 to recognize an error
             }
@@ -200,7 +198,7 @@ export class CipherByTrialFinder {
         return [false, emptyFieldCount-board.emptyFieldCount(), solvedSteps];
     }
 
-    #trySolvingOneFieldContent(board: Board, fc: FieldContent, logPrefix: string=""): [boolean, Step, number, Step[]] {
+    #trySolvingOneFieldContent(board: Board, fc: FieldContent): [boolean, Step, number, Step[]] {
         //  Prüft jedes erlaubte Digit, das im übergebenen FieldContent erlaubt ist,
         //  ob es das board löst, zu einem Fehler führt oder nur vorwärts bringt.
         //  Return:
@@ -218,7 +216,7 @@ export class CipherByTrialFinder {
             let testStep = new Step(Cause.TRIAL_CIPHER, fc.pos, digit);
             let solvedSteps: Step[];
 
-            [isSolved, win, solvedSteps] = this.#checkOneStep(board, testStep, logPrefix);
+            [isSolved, win, solvedSteps] = this.#checkOneStep(board, testStep);
             if (win == 1) {
                 testStep._cause = Cause.ANY_CIPHER;
             }
@@ -233,7 +231,7 @@ export class CipherByTrialFinder {
             }
             if (doLogging && loggingActive) {
                 if (win >= 0) {
-                    console.log(logPrefix + "Move " + testStep.toString() + " would clean " + win + " digits.");
+                    console.log("Move " + testStep.toString() + " would clean " + win + " digits.");
                 }
             }
         }
@@ -272,55 +270,51 @@ export class CipherByTrialFinder {
         }
     }
 
-    #checkOneCandidate(board: Board, fc: FieldContent, logPrefix: string=""):[boolean, Step | undefined, Step[]] {
+    #checkOneCandidate(board: Board, fc: FieldContent):[boolean, Step | undefined, Step[]] {
         let doLogging = true;
         let resolutionStep: Step;
         let isSolving: boolean;
         let digitWin: number;
         let resolvingSteps: Step[];
 
-        [isSolving, resolutionStep, digitWin, resolvingSteps] = this.#trySolvingOneFieldContent(board, fc, logPrefix);
+        [isSolving, resolutionStep, digitWin, resolvingSteps] = this.#trySolvingOneFieldContent(board, fc);
         if (isSolving) {
             if (doLogging && loggingActive) {
-                console.log(logPrefix + "Found resolving step at " + resolutionStep.toString())
+                console.log("Found resolving step at " + resolutionStep.toString())
             }
             return [true, resolutionStep, resolvingSteps];
         } else {
             if (resolutionStep.hasDigit()) {
                 if (doLogging && loggingActive) {
-                    console.log(logPrefix + "Found step at " + resolutionStep.toString() + " that cleans " + digitWin + " digits.");
+                    console.log("Found step at " + resolutionStep.toString() + " that cleans " + digitWin + " digits.");
                 }
                 return [false, resolutionStep, resolvingSteps];
             } else {
                 if (doLogging && loggingActive) {
-                    console.log(logPrefix + "Found no resolving step at " + resolutionStep.pos.toString());
+                    console.log("Found no resolving step at " + resolutionStep.pos.toString());
                 }
             }
         }
         return [false, undefined, []];
     }
 
-    findAllResolvingSteps(board: Board, reversed: boolean=true, depth: number=0): [boolean, Step[]] {
+    findAllResolvingSteps(board: Board, reversed: boolean=true, searchUntil: number): [boolean, Step[]] {
         let isSolving = false;
         let doLogging = true;
-        let logPrefix = " =>".repeat(depth);
         let solutionSteps: Step[] = [];
 
-        if (depth >= CipherByTrialFinder.maxResolvingStepDepth) {
+        let currentTime = (new Date().getTime());
+        if (currentTime > searchUntil) {
             if (doLogging && loggingActive) {
-                console.log(logPrefix + "### Depth " + depth + " is too deep, so break this leaf.");
+                console.log("### Maximal resolving time exceeeded.");
             }
             return [false, []];
-        } else {
-            if (doLogging && loggingActive) {
-                console.log(logPrefix + "Recursive depth is currently " + depth + ".");
-            }
         }
 
         let fcCandidates = this.#getCandidates(board, reversed);
 
         if (doLogging) {
-            this.#logCandidates(fcCandidates, logPrefix);
+            this.#logCandidates(fcCandidates);
         }
 
         if (fcCandidates[0].allowSet.length <= 3) {
@@ -329,14 +323,14 @@ export class CipherByTrialFinder {
             let resultSteps: Step[];
 
             for (let fc of fcCandidates) {
-                [isSolving, resultStep, resultSteps] = this.#checkOneCandidate(board, fc, logPrefix);
+                [isSolving, resultStep, resultSteps] = this.#checkOneCandidate(board, fc);
                 if (resultStep != undefined) {
                     if (isSolving) {
                         solutionSteps.push(...resultSteps);
                         if (doLogging && loggingActive) {
-                            console.log(logPrefix + "Found solving steps:");
+                            console.log("Found solving steps:");
                             for (let step of solutionSteps) {
-                                console.log(logPrefix + "   " + step.toString());
+                                console.log("   " + step.toString());
                             }
                         }
                         break;
@@ -346,21 +340,9 @@ export class CipherByTrialFinder {
                 }
             }
             if (solutionSteps.length == 0) {
-                const trialStepCount = board.trialStepCount();
-                if (trialStepCount >= CipherByTrialFinder.maxTrialStepCount) {
-                    if (doLogging && loggingActive) {
-                        console.log(logPrefix + "### " + board.trialStepCount() + " TRIAL_STEPs are too much, so break this leaf.");
-                    }
-                    return [false, []];
-                } else {
-                    if (doLogging && loggingActive) {
-                        console.log(logPrefix + "Currently " + board.trialStepCount() + " TRIAL_STEPs.");
-                    }
-                }
-
                 //  No solution found; so we must dig deeper with possible solution steps
                 if (doLogging && loggingActive) {
-                    console.log(logPrefix + "Found " + possibleSolutionSteps.length + " possible solutions moves.");
+                    console.log("Found " + possibleSolutionSteps.length + " possible solutions moves.");
                 }
                 for (let checkStep of possibleSolutionSteps) {
                     let testBoard = board.copy();
@@ -368,16 +350,16 @@ export class CipherByTrialFinder {
 
                     try {
                         let foundSteps: Step[] = [];
-                        [isSolving, foundSteps] = this.findAllResolvingSteps(testBoard, true, depth+1);
+                        [isSolving, foundSteps] = this.findAllResolvingSteps(testBoard, true, searchUntil);
                         if (foundSteps.length > 0) {
                             solutionSteps.push(checkStep);
                             solutionSteps.push(...foundSteps);
                         }
                         if (isSolving) {
                             if (doLogging && loggingActive) {
-                                console.log(logPrefix + "Found solving steps:");
+                                console.log("Found solving steps:");
                                 for (let step of solutionSteps) {
-                                    console.log(logPrefix + "   " + step.toString());
+                                    console.log("   " + step.toString());
                                 }
                             }
                             break;
@@ -385,7 +367,7 @@ export class CipherByTrialFinder {
                     } catch(error) {
                         if (error instanceof BoardError) {
                             if (doLogging && loggingActive) {
-                                console.log(logPrefix + "Step " + checkStep.toString() + " yields to an ERROR.");
+                                console.log("Step " + checkStep.toString() + " yields to an ERROR.");
                             }
                         }
                     }
@@ -393,7 +375,7 @@ export class CipherByTrialFinder {
             }
         } else {
             if (doLogging && loggingActive) {
-                console.log(logPrefix + "Minimal count of all empty fields is " + fcCandidates[0].allowSet.length)
+                console.log("Minimal count of all empty fields is " + fcCandidates[0].allowSet.length)
             }
         }
         return [isSolving, solutionSteps];
