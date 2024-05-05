@@ -1,24 +1,29 @@
 .field {
-    font-size: 32px;
+    font-size: 25px;
     text-align: center;
-    padding: 2px;
-    width: 37px;
-    height: 37px;
+    padding: 0px;
+    width: 29px;
+    height: 29px;
     border-width: 0px;
     align-items: start;
+    padding-top: 1px;
+    padding-bottom: 1px;
 }
 .entry {
     border-style: solid;
     border-color:green;
-    padding: 0;
+    padding: 0px;
     vertical-align: top;
 }
 .allowed {
     display: contents;
+    padding-top: 0px;
 }
 
 .emptyFieldTable {
-    border-spacing: 1px;
+    border-spacing: 0px;
+    padding-left: 3px;
+    padding-top: 1px;
 }
 .emptyFieldRow {
     display: table-row;
@@ -37,12 +42,12 @@
 .editingField {
     color: black;
     background-color: lightgreen;
-    height: 37px;
+    height: 28px;
 }
 .editingErrorField {
     color: red;
     background-color: lightgreen;
-    height: 37px;
+    height: 28px;
 }
 .markedField {
     color: black;
